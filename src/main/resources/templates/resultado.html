@@ -22,17 +22,31 @@
     <div class="logo">
       <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
       <h2>Diagnóstico Por Imagen <br><span>VALLE MEDIO</span></h2>
-    </div>
-        <div class="resumen">
-        <h2>Información del Paciente</h2>
-        <p><strong>DNI:</strong> <span th:text="${dni}"></span></p>
-        <p><strong>Nombre:</strong> <span th:text="${nombre}"></span></p>
-        <p><strong>Apellido:</strong> <span th:text="${apellido}"></span></p>
-        <p><strong>Teléfono:</strong> <span th:text="${telefono}"></span></p>
-        <p><strong>Fecha de Nacimiento:</strong> <span th:text="${fecha}"></span></p>
-        <p><strong>Email:</strong> <span th:text="${email}"></span></p>
-        <p><strong>Obra Social:</strong> <span th:text="${obrasocial}"></span></p>
-    </div>
+    <h1>Usuarios Registrados</h1>
+    <table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>DNI</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Teléfono</th>
+            <th>Rol</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="u : ${usuarios}">
+            <td th:text="${u.id_user}"></td>
+            <td th:text="${u.dni}"></td>
+            <td th:text="${u.nombre}"></td>
+            <td th:text="${u.apellido}"></td>
+            <td th:text="${u.telefono}"></td>
+            <td th:text="${u.rol}"></td>
+            <td th:text="${u.estado ? 'Activo' : 'Inactivo'}"></td>
+        </tr>
+    </tbody>
+</table>
   </main>
   <footer>
   2025 Turnos Online - Todos los derechos reservados
