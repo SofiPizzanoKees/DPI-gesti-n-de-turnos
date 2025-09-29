@@ -4,29 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro Paciente</title>
-  <link rel="stylesheet" th:href="@{/css/formulario.css}">
-    <!-- Iconos de menú -->
+  
+  <!-- CSS propio -->
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  
+  <!-- Iconos Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-</head>
 <body>
-  <header>
-    <header>
-     <header class="top-bar">
+  
+  <!-- Menú superior -->
+  <header class="top-bar">
     <p class="registrarse"></p>
     <div class="menu-icon">
       <i class="fas fa-bars"></i>
     </div>
   </header>
 
+  <!-- Contenido principal -->
   <main class="container">
     <div class="logo">
       <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
       <h2>Diagnóstico Por Imagen <br><span>VALLE MEDIO</span></h2>
     </div>
 
-
-
+    <!-- Formulario -->
     <form class="formulario" th:action="@{/dpi}" method="post">
       <h3>Datos personales:</h3>
 
@@ -59,6 +61,7 @@
         <label>Email</label>
         <input type="email" name="email" placeholder="----------">
       </div>
+
       <div class="input-group">
         <label>Obra Social</label>
         <select name="obrasocial">
@@ -68,12 +71,26 @@
           <option value="OTROS">OTROS</option>
         </select>
       </div>
+      
+      <div class="input-group">
+        <label>Contraseña</label>
+        <input type="password" name="password" placeholder="********" required>
+      </div>
+
+      <div class="input-group">
+        <label>Confirmar Contraseña</label>
+        <input type="password" name="confirm_password" placeholder="********" required>
+      </div>
 
       <button type="submit" class="btn">SIGUIENTE</button>
     </form>
   </main>
+
+  <!-- Footer -->
   <footer>
-  2025 Turnos Online - Todos los derechos reservados
+    2025 Turnos Online - Todos los derechos reservados
   </footer>
+
 </body>
 </html>
+

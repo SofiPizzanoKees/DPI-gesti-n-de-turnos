@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+ <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet" />
   <!-- Íconos Material Symbols -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
   <!-- Menú hamburguesa (arriba a la derecha) -->
@@ -34,9 +34,9 @@
         <option>09:00</option>
         <option>10:00</option>
         <option>11:00</option>
+        <option>12:00</option>
         <option>13:00</option>
         <option>14:00</option>
-        <option>15:00</option>
       </select>
     </div>
 
