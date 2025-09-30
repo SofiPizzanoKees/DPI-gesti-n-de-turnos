@@ -3,7 +3,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Titillium Web';
+  font-family: 'Titillium Web', bold;
 }
 
 body {
@@ -154,7 +154,7 @@ body {
 /* ================== CALENDARIO ================== */
 .calendar-container {
   text-align: center;
-  font-family: "Titillium web";
+  font-family: "Titillium web", bold;
   max-width: 400px;
   margin: auto;
 }
@@ -267,7 +267,7 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Titillium Web';
+  font-family: 'Titillium Web', bold;
 }
 
 body {
