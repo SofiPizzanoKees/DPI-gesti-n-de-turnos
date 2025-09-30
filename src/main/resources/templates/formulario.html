@@ -32,54 +32,70 @@
     <form class="formulario" th:action="@{/dpi}" method="post">
       <h3>Datos personales:</h3>
 
+      <!-- Mostrar errores generales -->
+      <div th:if="${errorDni}" class="alert alert-error" th:text="${errorDni}"></div>
+      <div th:if="${errorPassword}" class="alert alert-error" th:text="${errorPassword}"></div>
+
       <div class="input-group">
         <label>DNI</label>
-        <input type="number" name="dni" placeholder="----------">
+        <input type="text" name="dni" placeholder="----------" 
+               th:value="${dni != null ? dni : param.dni}"
+               maxlength="8"
+               oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        <small class="text-muted">Debe tener exactamente 8 digitos</small>
       </div>
 
       <div class="input-group">
         <label>Nombre</label>
-        <input type="text" name="nombre" placeholder="----------">
+        <input type="text" name="nombre" placeholder="----------" 
+               th:value="${nombre != null ? nombre : param.nombre}">
       </div>
 
       <div class="input-group">
         <label>Apellido</label>
-        <input type="text" name="apellido" placeholder="----------">
+        <input type="text" name="apellido" placeholder="----------" 
+               th:value="${apellido != null ? apellido : param.apellido}">
       </div>
 
       <div class="input-group">
         <label>Teléfono</label>
-        <input type="number" name="telefono" placeholder="---15-----">
+        <input type="text" name="telefono" placeholder="---15-----" 
+               th:value="${telefono != null ? telefono : param.telefono}"
+               oninput="this.value = this.value.replace(/[^0-9]/g, '')">
       </div>
 
       <div class="input-group">
         <label>Fecha de Nacimiento</label>
-        <input type="date" name="fecha">
+        <input type="date" name="fecha" th:value="${fecha != null ? fecha : param.fecha}">
       </div>
 
       <div class="input-group">
         <label>Email</label>
-        <input type="email" name="email" placeholder="----------">
+        <input type="email" name="email" placeholder="----------" 
+               th:value="${email != null ? email : param.email}">
       </div>
 
       <div class="input-group">
         <label>Obra Social</label>
         <select name="obrasocial">
           <option value="">Seleccione...</option>
-          <option value="IPROSS">IPROSS</option>
-          <option value="PAMI">PAMI</option>
-          <option value="OTROS">OTROS</option>
+          <option value="IPROSS" th:selected="${obrasocial == 'IPROSS' or param.obrasocial == 'IPROSS'}">IPROSS</option>
+          <option value="PAMI" th:selected="${obrasocial == 'PAMI' or param.obrasocial == 'PAMI'}">PAMI</option>
+          <option value="OTROS" th:selected="${obrasocial == 'OTROS' or param.obrasocial == 'OTROS'}">OTROS</option>
         </select>
       </div>
       
       <div class="input-group">
         <label>Contraseña</label>
-        <input type="password" name="password" placeholder="********" required>
+        <input type="password" name="password" placeholder="********" required
+               th:value="${param.password}">
+        <small class="text-muted">Mínimo 6 caracteres</small>
       </div>
 
       <div class="input-group">
         <label>Confirmar Contraseña</label>
-        <input type="password" name="confirm_password" placeholder="********" required>
+        <input type="password" name="confirm_password" placeholder="********" required
+               th:value="${param.confirm_password}">
       </div>
 
       <button type="submit" class="btn">SIGUIENTE</button>
@@ -91,6 +107,21 @@
     2025 Turnos Online - Todos los derechos reservados
   </footer>
 
+  <!-- JavaScript para validación en tiempo real -->
+  <script>
+    // Validar DNI en tiempo real
+    document.querySelector('input[name="dni"]').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      if (this.value.length > 8) {
+        this.value = this.value.slice(0, 8);
+      }
+    });
+
+    // Validar teléfono en tiempo real
+    document.querySelector('input[name="telefono"]').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+  </script>
+
 </body>
 </html>
-
