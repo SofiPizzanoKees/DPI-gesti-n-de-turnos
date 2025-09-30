@@ -29,4 +29,3 @@ public class UsuarioController {
         return repo.save(usuario);
     }
 }
-}

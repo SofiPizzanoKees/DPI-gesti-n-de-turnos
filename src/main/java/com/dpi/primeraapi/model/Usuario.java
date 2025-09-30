@@ -59,7 +59,7 @@ public class Usuario {
     // Constructor vacío (OBLIGATORIO para JPA)
     public Usuario() {}
 
-    / / Constructor con parámetros
+    // Constructor con parámetros
     public Usuario(String dni, String nombre, String apellido, String telefono, 
                    String email, String obrasocial, String password) {
         this.dni = dni;
