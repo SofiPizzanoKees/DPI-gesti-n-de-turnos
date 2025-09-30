@@ -41,7 +41,7 @@ public class PrimeraapiController {
     }
 
          // Home / Menu
-    @GetMapping({"/", "/menu"})
+    @GetMapping({"/menu"})
     public String menu() {
         return "menu";
     }
@@ -71,16 +71,15 @@ public class PrimeraapiController {
         return "horarios";
     }
 
-    // Note: template file name contains a space: "log in.html".
-    // It's recommended to rename it to "login.html" and update this method to return "login".
-    @GetMapping("/login")
+
+    @GetMapping({"","/login"})
     public String login() {
         return "login"; // matches the existing filename `log in.html`
     }
 
     // Template file has a dot in its name: pedir.turno.html
     // Consider renaming to pedir-turno.html and return "pedir-turno" instead.
-    @GetMapping("/pedir-turno")
+    @GetMapping("/pedirturno")
     public String pedirTurno() {
         return "pedirturno"; // matches existing filename `pedir.turno.html`
     }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro Paciente</title>
-  <link rel="stylesheet" th:href="@{/css/formulario.css}">
+   <link rel="stylesheet" th:href="@{/css/style.css}">
     <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -37,7 +37,7 @@
     </thead>
     <tbody>
         <tr th:each="u : ${usuarios}">
-            <td th:text="${u.id_user}"></td>
+            <td th:text="${u.id}"></td>
             <td th:text="${u.dni}"></td>
             <td th:text="${u.nombre}"></td>
             <td th:text="${u.apellido}"></td>
@@ -47,6 +47,7 @@
         </tr>
     </tbody>
 </table>
+<button type="button" class="btn" onclick="window.location.href='login'">Volver</button>
   </main>
   <footer>
   2025 Turnos Online - Todos los derechos reservados
