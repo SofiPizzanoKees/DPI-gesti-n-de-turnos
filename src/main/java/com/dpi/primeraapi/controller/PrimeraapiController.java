@@ -103,6 +103,11 @@ public class PrimeraapiController {
         return "calendario";
     }
 
+    @GetMapping("/registroAdmin")
+    public String registroAdmin() {
+        return "registroAdmin";
+    }
+
     @GetMapping("/confirmacionturno")
     public String confirmacionTurno() {
         return "confirmacionturno";

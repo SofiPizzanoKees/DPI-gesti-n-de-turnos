@@ -16,7 +16,7 @@
     </div>
   </header>
 
-  <!-- Menú lateral -->
+   <!-- Menú lateral -->
   <aside id="sideMenu" class="side-menu">
     <nav class="menu-nav">
       <a href="inicio.html" class="menu-link">Inicio</a>
@@ -37,28 +37,28 @@
     </div>
 
     <!-- Formulario -->
-    <form class="formulario" th:action="@{/dpi}" th:object="${usuario}" method="post">
+    <form class="formulario" th:action="@{/dpi}" method="post">
       <h3>Datos personales:</h3>
 
       <!-- Mostrar errores generales -->
       <div th:if="${errorDni}" class="alert alert-error" th:text="${errorDni}"></div>
       <div th:if="${errorPassword}" class="alert alert-error" th:text="${errorPassword}"></div>
 
-      <!-- Campo DNI -->
       <div class="input-group">
         <label>DNI</label>
         <input type="text" th:field="*{dni}" placeholder="----------" 
                maxlength="8"
                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        
+        <!-- Mensaje de error solo cuando existe -->
         <div th:if="${#fields.hasErrors('dni')}" class="error-message">
           <span th:errors="*{dni}"></span>
-        </div>
       </div>
-
-      <!-- Campo Nombre -->
-      <div class="input-group">
+      
+       <div class="input-group">
         <label>Nombre</label>
-        <input type="text" th:field="*{nombre}" placeholder="----------" 
+        <input type="text" name="nombre" id="nombre" placeholder="----------" 
+               th:value="${nombre != null ? nombre : param.nombre}"
                maxlength="30"
                minlength="2"
                pattern="[A-Za-zÁáÉéÍíÓóÚúÑñ\s]{2,30}"
@@ -66,15 +66,15 @@
                required
                oninput="validarNombre(this)">
         <small class="text-muted">Entre 2 y 30 caracteres (solo letras)</small>
-        <div th:if="${#fields.hasErrors('nombre')}" class="error-message">
-          <span th:errors="*{nombre}"></span>
-        </div>
+        <div id="error-nombre" class="error-message" style="display: none; color: red; font-size: 12px;"></div>
       </div>
 
-      <!-- Campo Apellido -->
+      </div>
+
       <div class="input-group">
         <label>Apellido</label>
-        <input type="text" th:field="*{apellido}" placeholder="----------" 
+        <input type="text" name="apellido" id="apellido" placeholder="----------" 
+               th:value="${apellido != null ? apellido : param.apellido}"
                maxlength="30"
                minlength="2"
                pattern="[A-Za-zÁáÉéÍíÓóÚúÑñ\s]{2,30}"
@@ -82,89 +82,69 @@
                required
                oninput="validarApellido(this)">
         <small class="text-muted">Entre 2 y 30 caracteres (solo letras)</small>
-        <div th:if="${#fields.hasErrors('apellido')}" class="error-message">
-          <span th:errors="*{apellido}"></span>
-        </div>
+        <div id="error-apellido" class="error-message" style="display: none; color: red; font-size: 12px;"></div>
       </div>
 
-      <!-- Campo Teléfono -->
       <div class="input-group"> 
         <label>Teléfono</label>
-        <input type="text" th:field="*{telefono}" placeholder="---15-----" 
+        <input type="text" name="telefono" id="telefono" placeholder="---15-----" 
+               th:value="${telefono != null ? telefono : param.telefono}"
                maxlength="10"
                pattern="\d{10}"
                title="El teléfono debe tener exactamente 10 dígitos"
                required
                oninput="validarTelefono(this)">
         <small class="text-muted">Debe tener exactamente 10 dígitos</small>
-        <div th:if="${#fields.hasErrors('telefono')}" class="error-message">
-          <span th:errors="*{telefono}"></span>
-        </div>
+        <div id="error-telefono" class="error-message" style="display: none; color: red; font-size: 12px;"></div>
       </div>
 
-      <!-- Campo Fecha de Nacimiento -->
       <div class="input-group">
-        <label>Fecha de Nacimiento</label>
-        <input type="date" th:field="*{fechaNacimiento}"
-               th:max="${T(java.time.LocalDate).now().minusYears(18)}"
-               min="1900-01-01"
-               required
-               title="Debe ser mayor de 18 años">
-        <div th:if="${#fields.hasErrors('fechaNacimiento')}" class="error-message">
-          <span th:errors="*{fechaNacimiento}"></span>
-        </div>
-        <small class="text-muted">Debe ser mayor de 18 años</small>
-      </div>
+    <label>Fecha de Nacimiento</label>
+    <input type="date" 
+           name="fechaNacimiento" 
+           th:field="*{fechaNacimiento}"
+           max="th:${T(java.time.LocalDate).now().minusYears(18).toString()}"
+           min="1900-01-01"
+           required
+           title="Debe ser mayor de 18 años">
+    
+    <!-- Mensajes de error -->
+    <div th:if="${#fields.hasErrors('fechaNacimiento')}" class="error-message">
+        <span th:errors="*{fechaNacimiento}"></span>
+    </div>
+    
+    <small class="text-muted" th:unless="${#fields.hasErrors('fechaNacimiento')}">
+        Debe ser mayor de 18 años
+    </small>
+</div>
 
-      <!-- Campo Email -->
       <div class="input-group">
-        <label>Email</label>
-        <input type="email" th:field="*{email}" placeholder="ejemplo@correo.com">
-        <div th:if="${#fields.hasErrors('email')}" class="error-message">
-          <span th:errors="*{email}"></span>
-        </div>
-        <small class="text-muted">Ingrese un email válido</small>
-      </div>
+    <label>Email</label>
+    <input type="email" th:field="*{email}" placeholder="ejemplo@correo.com">
+    
+    <!-- Se muestra error despues de que el usuario escribe su mail -->
+    <div th:if="${#fields.hasErrors('email') and usuario.email != null and !usuario.email.empty}" 
+         class="error-message">
+        <span th:errors="*{email}"></span>
+    </div>
+    
+    <small class="text-muted" th:unless="${#fields.hasErrors('email')}">
+        Ingrese un email válido 
+    </small>
+</div>
 
-      <!-- Campo Obra Social -->
       <div class="input-group">
         <label>Obra Social</label>
-        <select th:field="*{obrasocial}">
+        <select name="obrasocial">
           <option value="">Seleccione...</option>
-          <option value="IPROSS">IPROSS</option>
-          <option value="PAMI">PAMI</option>
-          <option value="OTROS">OTROS</option>
+          <option value="IPROSS" th:selected="${obrasocial == 'IPROSS' or param.obrasocial == 'IPROSS'}">IPROSS</option>
+          <option value="PAMI" th:selected="${obrasocial == 'PAMI' or param.obrasocial == 'PAMI'}">PAMI</option>
+          <option value="OTROS" th:selected="${obrasocial == 'OTROS' or param.obrasocial == 'OTROS'}">OTROS</option>
         </select>
-        <div th:if="${#fields.hasErrors('obrasocial')}" class="error-message">
-          <span th:errors="*{obrasocial}"></span>
-        </div>
-      </div>
-      
-      <!-- Campo Contraseña -->
-      <div class="input-group">
-        <label>Contraseña</label>
-        <input type="password" th:field="*{password}" placeholder="********" 
-               minlength="6" maxlength="16">
-        <div th:if="${#fields.hasErrors('password')}" class="error-message">
-          <span th:errors="*{password}"></span>
-        </div>
-        <small class="text-muted">Mínimo 6 caracteres</small>
       </div>
 
-      <!-- Campo Confirmar Contraseña -->
-      <div class="input-group">
-        <label>Confirmar Contraseña</label>
-        <input type="password" name="confirm_password" id="confirm_password" 
-               placeholder="********" required
-               th:value="${param.confirm_password}"
-               oninput="validarPassword()">
-        <div id="error-password" class="error-message" style="display: none; color: red; font-size: 12px;"></div>
-        <div id="success-password" class="success-message" style="display: none; color: green; font-size: 12px;">
-          <i class="fas fa-check-circle"></i> Las contraseñas coinciden
-        </div>
-      </div>
 
-      <button type="submit" class="btn">SIGUIENTE</button>
+      <button type="submit" class="btn" >SIGUIENTE</button>
     </form>
   </main>
 
@@ -173,9 +153,24 @@
     2025 Turnos Online - Todos los derechos reservados
   </footer>
 
-  <!-- JavaScript -->
+  <!-- JavaScript para validación en tiempo real -->
   <script>
-    // Elementos del DOM para el menú
+    // Validar DNI en tiempo real
+    document.querySelector('input[name="dni"]').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      if (this.value.length > 8) {
+        this.value = this.value.slice(0, 8);
+      }
+    });
+
+    // Validar teléfono en tiempo real
+    document.querySelector('input[name="telefono"]').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+  </script>
+
+<script>
+    // Elementos del DOM
     const menuToggle = document.getElementById('menu-toggle');
     const sideMenu = document.getElementById('sideMenu');
     const overlay = document.getElementById('overlay');
@@ -207,34 +202,21 @@
 
     // Event listeners
     menuToggle.addEventListener('click', toggleMenu);
+    
+    // Cerrar menú al hacer click en el overlay
     overlay.addEventListener('click', closeMenu);
     
+    // Cerrar menú al hacer click en un enlace
     menuLinks.forEach(link => {
       link.addEventListener('click', closeMenu);
     });
 
+    // Cerrar menú con la tecla ESC
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeMenu();
       }
     });
-
-    // Validación de contraseñas
-    function validarPassword() {
-      const password = document.querySelector('input[th\\:field="*{password}"]').value;
-      const confirmPassword = document.getElementById('confirm_password').value;
-      const errorDiv = document.getElementById('error-password');
-      const successDiv = document.getElementById('success-password');
-
-      if (password !== confirmPassword) {
-        errorDiv.style.display = 'block';
-        errorDiv.textContent = 'Las contraseñas no coinciden';
-        successDiv.style.display = 'none';
-      } else {
-        errorDiv.style.display = 'none';
-        successDiv.style.display = 'block';
-      }
-    }
   </script>
 </body>
 </html>
