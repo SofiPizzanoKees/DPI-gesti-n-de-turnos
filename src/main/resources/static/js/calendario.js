@@ -4,15 +4,15 @@ const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
 
 let currentDate = new Date();
+let selectedDay = null;
 
 const meses = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
   "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
 ];
 
-// Ejemplo de días con estados
+// 👇 días disponibles y no disponibles
 const dias = {
-
   10: "disponible",
   18: "disponible",
   25: "no-disponible"
@@ -24,37 +24,54 @@ function generarCalendario(date) {
   const year = date.getFullYear();
   const month = date.getMonth();
 
-  // título mes y año
   monthYear.innerText = `${meses[month]} ${year}`;
 
-  // primer día del mes y cantidad de días
-  const firstDay = new Date(year, month, 1).getDay(); 
+  const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  // Ajuste: en JS, domingo = 0, lunes = 1...
   const start = firstDay === 0 ? 6 : firstDay - 1;
 
-  // huecos antes del día 1
+  // Espacios vacíos
   for (let i = 0; i < start; i++) {
     const empty = document.createElement("div");
     empty.classList.add("day", "empty");
     calendar.appendChild(empty);
   }
 
-  // días del mes
+  // ✅ DÍAS DEL MES
   for (let i = 1; i <= daysInMonth; i++) {
     const dia = document.createElement("div");
     dia.classList.add("day");
     dia.innerText = i;
 
-    // marcar estado según ejemplo
+    // Si el día está en la lista, agregamos la clase correspondiente
     if (dias[i]) {
-      dia.classList.add(dias[i]);
+      dia.classList.add(dias[i]); // "disponible" o "no-disponible"
     }
+    // ❌ Si no está definido, lo dejamos sin clase extra (blanco)
 
     calendar.appendChild(dia);
   }
 }
+
+// ✅ Evento de clic en el calendario
+calendar.addEventListener("click", (ev) => {
+  const dia = ev.target.closest('.day');
+  if (!dia) return;
+  if (dia.classList.contains('empty')) return;
+  if (dia.classList.contains('no-disponible')) return;
+
+  // Quitar selección anterior
+  const prev = calendar.querySelector('.day.selected');
+  if (prev) prev.classList.remove('selected');
+
+  // Marcar el nuevo día seleccionado
+  dia.classList.add('selected');
+
+  // Guardar la fecha seleccionada
+  const dayNum = parseInt(dia.innerText);
+  selectedDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
+  console.log("📅 Día seleccionado:", selectedDay.toDateString());
+});
 
 // Botones navegación
 prevBtn.addEventListener("click", () => {
@@ -67,5 +84,5 @@ nextBtn.addEventListener("click", () => {
   generarCalendario(currentDate);
 });
 
-// iniciar
+// Inicializar calendario
 generarCalendario(currentDate);

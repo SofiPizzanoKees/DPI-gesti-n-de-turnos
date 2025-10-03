@@ -74,14 +74,13 @@ public class PrimeraapiController {
 
     @GetMapping({"","/login"})
     public String login() {
-        return "login"; // matches the existing filename `log in.html`
+        return "login"; 
     }
 
-    // Template file has a dot in its name: pedir.turno.html
-    // Consider renaming to pedir-turno.html and return "pedir-turno" instead.
+    
     @GetMapping("/pedirturno")
     public String pedirTurno() {
-        return "pedirturno"; // matches existing filename `pedir.turno.html`
+        return "pedirturno"; 
     }
 
     @GetMapping("/resultado")

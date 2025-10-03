@@ -1,9 +1,13 @@
-/* ================== RESET GLOBAL ================== */
+/* ================== RESET Y BASE GLOBAL ================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Titillium Web', bold;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html {
+  font-size: 16px; /* Base para rem */
 }
 
 body {
@@ -12,351 +16,460 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  padding: 1rem; 
+  font-weight: 300;
 }
 
 /* ================== CONTENEDORES ================== */
 .container {
   background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  width: 360px;
+  padding: 1.25rem;
+  border-radius: 0.625rem;
+  width: 100%;
+  max-width: 22.5rem; 
   text-align: center;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0.25rem 0.625rem rgba(0,0,0,0.1); 
+  margin: 0 auto;
 }
 
 /* Contenedor especial login */
 .container.login {
-  padding: 30px;
-  border-radius: 12px;
-  width: 350px;
+  padding: 1.875rem; 
+  border-radius: 0.75rem; 
+  max-width: 21.875rem; 
 }
-
-/* ================== MENÚ HAMBURGUESA ================== */
+/* Contenedor horario */
+.container-horario {
+  background: #fff;
+  padding: 1.5625rem; 
+  border-radius: 0.75rem; 
+  width: 100%;
+  max-width: 22.5rem; 
+  text-align: center;
+  box-shadow: 0 0.25rem 0.625rem rgba(0,0,0,0.15);
+}
+/* ================== MENÚ HAMBURGUESA RESPONSIVE ================== */
 .top-bar {
-  position: fixed;     /* Siempre fijo en la pantalla */
-  top: 15px;
-  right: 20px;
-  z-index: 1000;       /* Encima de todo */
+  position: fixed;
+  top: 0.9375rem; 
+  right: 1.25rem; 
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.9375rem; 
 }
-
 .menu-icon {
-  font-size: 28px;
-  color: #444;
+  font-size: 1.75rem;
+  color: #000000;
   cursor: pointer;
   background: transparent;
-  border: none;
 }
+
+.registrarse {
+  margin: 0;
+  font-weight: bold;
+  color: #000000;
+  font-size: 1rem;
+}
+
+
+/* Menú lateral */
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -18.75rem; 
+  width: 17.5rem; 
+  height: 100vh;
+  background: #00c2a8;
+  box-shadow: -0.125rem 0 0.625rem rgba(0, 0, 0, 0.1); 
+  transition: right 0.3s ease;
+  z-index: 1001;
+  padding: 5rem 1.25rem 1.25rem 1.25rem;
+}
+
+.menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9375rem; 
+}
+.menu-link {
+  padding: 0.9375rem 1.25rem; 
+  text-decoration: none;
+  color: #000000;
+  font-size: 1.125rem; 
+  border-radius: 0.5rem; 
+  transition: all 0.3s ease;
+  background: #cfead6;
+  border: 1px solid #cfead6;
+}
+/* ================== MENÚ HAMBURGUESA - ESTILOS FALTANTES ================== */
 .menu-icon:hover {
   opacity: 0.8;
 }
 
-/* ================== LOGO ================== */
-.logo {
+.container {
+  padding-top: 5rem; /* 80px → 5rem */
   text-align: center;
-  margin-bottom: 20px;
-}
-.logologin {
-    width: 150px;
-    margin-bottom: 15px;
 }
 
+.side-menu.open {
+  right: 0;
+}
+
+.menu-link:hover {
+  background: #007bff;
+  color: white;
+  transform: translateX(-0.3125rem); 
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+body.menu-open {
+  overflow: hidden;
+}
+
+
+@media (max-width: 22.5rem) { 
+  .side-menu {
+    width: 15.625rem; 
+    right: -15.625rem; 
+    padding: 4rem 1rem 1rem 1rem;
+  }
+  
+  .menu-link {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 48rem) { /* 768px */
+  .side-menu {
+    width: 18.75rem; 
+    right: -18.75rem; 
+  }
+}
+/* ================== LOGO RESPONSIVE ================== */
 .logo img {
-  max-width: 80px;
+  max-width: 12.5rem; 
+  width: 100%;
+  height: auto;
 }
 
 .logo h2 {
-  font-size: 16px;
+  font-size: 1rem; 
   color: #777;
 }
 
-.logo span {
-  font-weight: bold;
-  color: #666;
+/* Logo específico para login */
+.logo.login,
+.logologin {
+  width: 15.625rem; 
+  max-width: 100%;
+  margin-bottom: 1.25rem; 
 }
 
-/* Logo login */
-.logo.login {
-  width: 150px;
-  margin-bottom: 15px;
-}
-
-/* ================== BOTONES ================== */
+/* ================== BOTONES RESPONSIVE ================== */
 .btn,
 .btn-principal,
-.btn-siguiente {
+.btn-siguiente,
+.btn-confirmar {
   display: block;
   width: 100%;
-  padding: 12px;
+  padding: 0.75rem; 
   background: #00c2a8;
   color: white;
   font-weight: bold;
   border: none;
-  border-radius: 6px;
+  border-radius: 0.375rem; 
   cursor: pointer;
   transition: 0.3s;
-   margin-bottom: 12px; /* 🔹 separa los botones */
-
+  margin-bottom: 0.75rem; 
+  font-size: 1rem; 
 }
 
 .btn {
-  margin-top: 15px;
-  border-radius: 8px;
-  font-style: italic;
+  margin-top: 0.9375rem;
+  border-radius: 0.5rem; 
 }
 
-.btn:hover,
-.btn-principal:hover,
-.btn-siguiente:hover {
-  background: #009f8c;
-}
-
-/* ================== FORMULARIOS ================== */
+/* ================== FORMULARIOS RESPONSIVE ================== */
 .formulario h3 {
-  font-size: 14px;
-  margin-bottom: 15px;
+  font-size: 0.875rem;
+  margin-bottom: 0.9375rem; 
   color: #444;
 }
 
 .input-group {
-  margin-bottom: 15px;
+  margin-bottom: 0.9375rem; 
 }
 
 .input-group label {
   display: block;
-  font-size: 12px;
+  font-size: 0.75rem; 
   color: #555;
-  margin-bottom: 5px;
+  margin-bottom: 0.3125rem;
 }
 
 .input-group input,
 .input-group select,
-.login-form input {
+.login-form input,
+.select-wrapper select {
   width: 100%;
-  padding: 10px;
+  padding: 0.625rem; 
   border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-/* Login form */
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  text-align: left;
+  border-radius: 0.375rem; 
+  font-size: 0.875rem; 
 }
 
 .login-form label {
-  font-size: 14px;
-  margin-left: 5px;
+  font-size: 0.875rem; 
+  margin-left: 0.3125rem; 
 }
 
 /* ================== CALENDARIO ================== */
 .calendar-container {
   text-align: center;
-  font-family: "Titillium web", bold;
-  max-width: 400px;
+  max-width: 25rem; 
   margin: auto;
 }
 
-
-.legend {
-  margin-bottom: 15px;
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3125rem; 
+  max-width: 21.875rem; 
+  margin: auto;
 }
 
+.day {
+  padding: 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem; 
+  user-select: none;
+  width: 2.5rem; 
+  height: 2.5rem; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.125rem; 
+  border-radius: 50%;
+  background-color: #f8f9fa;
+  font-size: 0.875rem;
+}
+
+/* ================== CALENDARIO - ESTILOS FALTANTES ================== */
+.legend {
+  margin-bottom: 0.9375rem; 
+}
 
 .legend-item {
   display: inline-block;
-  margin-right: 15px;
-  font-size: 14px;
+  margin-right: 0.9375rem; 
+  font-size: 0.875rem; 
 }
-.ocupado::before { content: "■ "; color: red; }
-.disponible::before { content: "■ "; color: green; }
+
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 10px 0;
+  margin: 0.625rem 0; /* 10px → 0.625rem */
 }
 
 .calendar-header h3 {
   margin: 0;
   flex-grow: 1;
   text-align: center;
+  font-size: 1.125rem; /* 18px → 1.125rem */
+  font-weight: 600;
 }
 
 .calendar-header button {
-  padding: 5px 10px;
+  padding: 0.3125rem 0.625rem; 
   border: none;
   background: #00c2a8;
   color: white;
   font-weight: bold;
-  border-radius: 4px;
+  border-radius: 0.25rem; 
   cursor: pointer;
+  font-size: 0.875rem; 
 }
 
-.legend-item {
-  display: inline-block;
-  margin-right: 15px;
-  font-size: 14px;
-}
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 0.3125rem; 
+  font-size: 0.875rem;
+}
+
+.day.ocupado { 
+  color: red; 
+  background-color: #f5c6cb; /* rojo clarito */
+}
+
+.day.disponible { 
+  color: green; 
+  background-color: hsl(136, 59%, 87%); /* verde clarito */
+  cursor: pointer;
+}
+
+.day.no-disponible { 
+  color: #d9534f;
+  opacity: 0.8;
+  background-color: #f5c6cb;
+  cursor: not-allowed;
+}
+
+.day.selected {
+  background: #0dcaf0; 
+  color: #fff;
+  font-weight: bold;
 }
 
 .ocupado::before {
   content: "■ ";
   color: red;
+  font-size: 1rem;
 }
 
 .disponible::before {
   content: "■ ";
   color: green;
+  font-size: 1rem;
 }
+
 .no-disponible::before {
   content: "■ ";
   color: rgb(241, 21, 21);
+  font-size: 1rem;
 }
 
-.calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  max-width: 350px;
-  margin: auto;
+@media (max-width: 22.5rem) { /* 360px */
+  .calendar-header h3 {
+    font-size: 1rem;
+  }
+  
+  .weekdays,
+  .legend-item {
+    font-size: 0.75rem;
+  }
+  
+  .day {
+    font-size: 0.75rem;
+  }
 }
 
-.day {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.day.ocupado { color: red; }
-.day.disponible { color: green; }
-
-/* ================== TEXTOS ================== */
+/* ================== TEXTOS RESPONSIVE ================== */
 .title {
   color: #00d6b4;
   font-weight: bold;
   font-style: italic;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem; 
+  font-size: clamp(1.125rem, 4vw, 1.375rem); 
 }
 
 .links {
-  margin-top: 15px;
-  font-size: 12px;
-  color: gray;
+  margin-top: 0.9375rem; 
+  font-size: 0.875rem; 
+  color: #555;
+  font-weight: 500;
 }
 
 .links a {
-  color: gray;
+  color: #333;
   text-decoration: none;
+  font-weight: 600;
 }
-
-.links a:hover {
-  text-decoration: underline;
-}
-/*==============horarios=================*/
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Titillium Web', bold;
-}
-
-body {
-  background: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-
-.container-horario {
-  background: #fff;
-  padding: 25px;
-  border-radius: 12px;
-  width: 360px;
-  text-align: center;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
-}
-
-
-.logo {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.logo img {
-  max-width: 80px;
-  margin-bottom: 10px;
-}
-
-.logo p {
-  font-size: 14px;
-  color: #555;
-  margin: 0;
-}
-
-.logo h2 {
-  font-size: 16px;
-  font-weight: bold;
-  color: #444;
-}
-
 
 .container-horario h3 {
-  font-size: 16px;
-  margin-bottom: 15px;
+  font-size: 1rem; 
+  margin-bottom: 0.9375rem; 
   color: #333;
   font-style: italic;
 }
 
-.select-wrapper {
-  margin-bottom: 15px;
+/* ================== MEDIA QUERIES ================== */
+@media (max-width: 22.5rem) { /* 360px */
+  html {
+    font-size: 14px;
+  }
+  
+  .container,
+  .container-horario {
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .day {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+  }
+}
+@media (min-width: 48rem) { /* 768px */
+  .container,
+  .container-horario {
+    max-width: 25rem; /* 400px */
+  }
+  
+  .calendar {
+    max-width: 25rem;
+    gap: 0.5rem;
+  }
+  
+  .day {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
 }
 
-.select-wrapper select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
+/* Desktop (1024px en adelante) */
+@media (min-width: 64rem) { /* 1024px */
+  .container,
+  .container-horario {
+    max-width: 28rem; /* 448px */
+  }
+  
+  .logo img {
+    max-width: 15.625rem; /* 250px */
+  }
 }
 
-
-.btn-confirmar {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  background: #00c2a8;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
+/* Pantallas muy grandes */
+@media (min-width: 80rem) { /* 1280px */
+  .container,
+  .container-horario {
+    max-width: 30rem; /* 480px */
+  }
 }
 
-.btn-confirmar:hover {
-  background: #009f8c;
-}
-
-/* ================== FOOTER ================== */
+/* ================== FOOTER  ================== */
 footer {
   background-color: #004E7D;
   color: white;
   text-align: center;
-  padding: 15px;
+  padding: 0.9375rem; 
   width: 100%;
   position: fixed;
   bottom: 0;
   left: 0;
+  font-size: 0.875rem; 
 }
