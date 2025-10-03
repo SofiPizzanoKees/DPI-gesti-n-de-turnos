@@ -1,5 +1,7 @@
 package com.dpi.primeraapi.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -21,84 +24,204 @@ public class Usuario {
     @Column(name = "dni", unique = true, nullable = false, length = 8)
     @NotBlank(message = "El DNI es obligatorio")
     @Size(min = 8, max = 8, message = "El DNI debe tener exactamente 8 dígitos")
-    @Pattern(regexp = "\\d{8}", message = "El DNI debe contener solo números")
     private String dni;
-
-    @Column(name = "nombre", nullable = false)
+    
+    @Column(name = "nombre", nullable = false, length = 30)
     @NotBlank(message = "El nombre es obligatorio")
-    @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
+    @Size(min = 2, max = 30, message = "El nombre debe tener entre 2 y 30 caracteres")
+    @Pattern(regexp = "^[A-Za-zÁáÉéÍíÓóÚúÑñ\\s]+$", message = "El nombre solo puede contener letras y espacios")
     private String nombre;
 
-    @Column(name = "apellido", nullable = false)
+    @Column(name = "apellido", nullable = false, length = 30)
     @NotBlank(message = "El apellido es obligatorio")
-    @Size(min = 2, max = 50, message = "El apellido debe tener entre 2 y 50 caracteres")
+    @Size(min = 2, max = 30, message = "El apellido debe tener entre 2 y 30 caracteres")
+    @Pattern(regexp = "^[A-Za-zÁáÉéÍíÓóÚúÑñ\\s]+$", message = "El apellido solo puede contener letras y espacios")
     private String apellido;
 
-    @Column(name = "telefono")
-    @Size(max = 15, message = "El teléfono no puede exceder los 15 caracteres")
+    @Column(name = "telefono", length = 10)
+    @NotBlank(message = "El teléfono es obligatorio")
+    @Size(min = 10, max = 10, message = "El teléfono debe tener exactamente 10 dígitos")
+    @Pattern(regexp = "\\d{10}", message = "El teléfono debe contener solo números")
     private String telefono;
 
     @Column(name = "email")
+    @NotBlank(message = "El email es obligatorio")
     @Email(message = "Debe ser un email válido")
+    @Size(max = 100, message = "El email no puede exceder los 100 caracteres")
     private String email;
 
-    @Column(name = "obra_social")
+    @Column(name = "fecha_nacimiento", nullable = false)
+    @NotNull(message = "La fecha de nacimiento es obligatoria")
+    private LocalDate fechaNacimiento;
+
+    @Column(name = "obra_social", nullable = false)
+    @NotBlank(message = "La obra social es obligatoria")
+    @Size(max = 50, message = "La obra social no puede exceder los 50 caracteres")
     private String obrasocial;
 
     @Column(name = "password", nullable = false)
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
+    @Size(min = 6, max = 16, message = "La contraseña debe tener entre 6 y 16 caracteres")
     private String password;
 
-    @Column(name = "rol")
-    private String rol = "PACIENTE"; // Valor por defecto
+    @Column(name = "rol", nullable = false)
+    @NotBlank(message = "El rol es obligatorio")
+    @Pattern(regexp = "^(PACIENTE|ADMIN|MEDICO)$", message = "El rol debe ser PACIENTE, ADMIN o MEDICO")
+    private String rol = "PACIENTE";
 
-    @Column(name = "estado")
-    private boolean estado = true; // Valor por defecto (activo)
+    @Column(name = "estado", nullable = false)
+    @NotNull(message = "El estado es obligatorio")
+    private boolean estado = true;
 
     // Constructor vacío (OBLIGATORIO para JPA)
     public Usuario() {}
 
-    // Constructor con parámetros
+    // Constructor con parámetros (actualizado)
     public Usuario(String dni, String nombre, String apellido, String telefono, 
-                   String email, String obrasocial, String password) {
+                   String email, LocalDate fechaNacimiento, String obrasocial, String password) {
         this.dni = dni;
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
         this.email = email;
+        this.fechaNacimiento = fechaNacimiento;
         this.obrasocial = obrasocial;
         this.password = password;
     }
 
-    // Getters y Setters (OBLIGATORIOS)
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Constructor completo (actualizado)
+    public Usuario(String dni, String nombre, String apellido, String telefono, 
+                   String email, LocalDate fechaNacimiento, String obrasocial, 
+                   String password, String rol, boolean estado) {
+        this.dni = dni;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.telefono = telefono;
+        this.email = email;
+        this.fechaNacimiento = fechaNacimiento;
+        this.obrasocial = obrasocial;
+        this.password = password;
+        this.rol = rol;
+        this.estado = estado;
+    }
 
-    public String getDni() { return dni; }
-    public void setDni(String dni) { this.dni = dni; }
+    // Getters y Setters
+    public Long getId() { 
+        return id; 
+    }
+    
+    public void setId(Long id) { 
+        this.id = id; 
+    }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getDni() { 
+        return dni; 
+    }
+    
+    public void setDni(String dni) { 
+        this.dni = dni; 
+    }
 
-    public String getApellido() { return apellido; }
-    public void setApellido(String apellido) { this.apellido = apellido; }
+    public String getNombre() { 
+        return nombre; 
+    }
+    
+    public void setNombre(String nombre) { 
+        this.nombre = nombre; 
+    }
 
-    public String getTelefono() { return telefono; }
-    public void setTelefono(String telefono) { this.telefono = telefono; }
+    public String getApellido() { 
+        return apellido; 
+    }
+    
+    public void setApellido(String apellido) { 
+        this.apellido = apellido; 
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getTelefono() { 
+        return telefono; 
+    }
+    
+    public void setTelefono(String telefono) { 
+        this.telefono = telefono; 
+    }
 
-    public String getObrasocial() { return obrasocial; }
-    public void setObrasocial(String obrasocial) { this.obrasocial = obrasocial; }
+    public String getEmail() { 
+        return email; 
+    }
+    
+    public void setEmail(String email) { 
+        this.email = email; 
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public LocalDate getFechaNacimiento() { 
+        return fechaNacimiento; 
+    }
+    
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { 
+        this.fechaNacimiento = fechaNacimiento; 
+    }
 
-    public String getRol() { return rol; }
-    public void setRol(String rol) { this.rol = rol; }
+    public String getObrasocial() { 
+        return obrasocial; 
+    }
+    
+    public void setObrasocial(String obrasocial) { 
+        this.obrasocial = obrasocial; 
+    }
 
-    public boolean isEstado() { return estado; }
-    public void setEstado(boolean estado) { this.estado = estado; }
+    public String getPassword() { 
+        return password; 
+    }
+    
+    public void setPassword(String password) { 
+        this.password = password; 
+    }
+
+    public String getRol() { 
+        return rol; 
+    }
+    
+    public void setRol(String rol) { 
+        this.rol = rol; 
+    }
+
+    public boolean isEstado() { 
+        return estado; 
+    }
+    
+    public void setEstado(boolean estado) { 
+        this.estado = estado; 
+    }
+
+    // Método toString para debugging (actualizado)
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id=" + id +
+                ", dni='" + dni + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", telefono='" + telefono + '\'' +
+                ", email='" + email + '\'' +
+                ", fechaNacimiento=" + fechaNacimiento +
+                ", obrasocial='" + obrasocial + '\'' +
+                ", rol='" + rol + '\'' +
+                ", estado=" + estado +
+                '}';
+    }
+
+    // Método equals y hashCode para comparaciones
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return dni.equals(usuario.dni);
+    }
+
+    @Override
+    public int hashCode() {
+        return dni.hashCode();
+    }
 }

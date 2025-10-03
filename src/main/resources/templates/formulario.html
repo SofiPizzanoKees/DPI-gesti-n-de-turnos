@@ -50,42 +50,92 @@
 
       <div class="input-group">
         <label>DNI</label>
-        <input type="text" name="dni" placeholder="----------" 
-               th:value="${dni != null ? dni : param.dni}"
+        <input type="text" th:field="*{dni}" placeholder="----------" 
                maxlength="8"
                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-        <small class="text-muted">Debe tener exactamente 8 digitos</small>
+        
+        <!-- Mensaje de error solo cuando existe -->
+        <div th:if="${#fields.hasErrors('dni')}" class="error-message">
+          <span th:errors="*{dni}"></span>
+      </div>
+      
+       <div class="input-group">
+        <label>Nombre</label>
+        <input type="text" name="nombre" id="nombre" placeholder="----------" 
+               th:value="${nombre != null ? nombre : param.nombre}"
+               maxlength="30"
+               minlength="2"
+               pattern="[A-Za-zÁáÉéÍíÓóÚúÑñ\s]{2,30}"
+               title="El nombre debe tener entre 2 y 30 caracteres (solo letras y espacios)"
+               required
+               oninput="validarNombre(this)">
+        <small class="text-muted">Entre 2 y 30 caracteres (solo letras)</small>
+        <div id="error-nombre" class="error-message" style="display: none; color: red; font-size: 12px;"></div>
       </div>
 
-      <div class="input-group">
-        <label>Nombre</label>
-        <input type="text" name="nombre" placeholder="----------" 
-               th:value="${nombre != null ? nombre : param.nombre}">
       </div>
 
       <div class="input-group">
         <label>Apellido</label>
-        <input type="text" name="apellido" placeholder="----------" 
-               th:value="${apellido != null ? apellido : param.apellido}">
+        <input type="text" name="apellido" id="apellido" placeholder="----------" 
+               th:value="${apellido != null ? apellido : param.apellido}"
+               maxlength="30"
+               minlength="2"
+               pattern="[A-Za-zÁáÉéÍíÓóÚúÑñ\s]{2,30}"
+               title="El apellido debe tener entre 2 y 30 caracteres (solo letras y espacios)"
+               required
+               oninput="validarApellido(this)">
+        <small class="text-muted">Entre 2 y 30 caracteres (solo letras)</small>
+        <div id="error-apellido" class="error-message" style="display: none; color: red; font-size: 12px;"></div>
       </div>
 
-      <div class="input-group">
+      <div class="input-group"> 
         <label>Teléfono</label>
-        <input type="text" name="telefono" placeholder="---15-----" 
+        <input type="text" name="telefono" id="telefono" placeholder="---15-----" 
                th:value="${telefono != null ? telefono : param.telefono}"
-               oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+               maxlength="10"
+               pattern="\d{10}"
+               title="El teléfono debe tener exactamente 10 dígitos"
+               required
+               oninput="validarTelefono(this)">
+        <small class="text-muted">Debe tener exactamente 10 dígitos</small>
+        <div id="error-telefono" class="error-message" style="display: none; color: red; font-size: 12px;"></div>
       </div>
 
       <div class="input-group">
-        <label>Fecha de Nacimiento</label>
-        <input type="date" name="fecha" th:value="${fecha != null ? fecha : param.fecha}">
-      </div>
+    <label>Fecha de Nacimiento</label>
+    <input type="date" 
+           name="fechaNacimiento" 
+           th:field="*{fechaNacimiento}"
+           max="th:${T(java.time.LocalDate).now().minusYears(18).toString()}"
+           min="1900-01-01"
+           required
+           title="Debe ser mayor de 18 años">
+    
+    <!-- Mensajes de error -->
+    <div th:if="${#fields.hasErrors('fechaNacimiento')}" class="error-message">
+        <span th:errors="*{fechaNacimiento}"></span>
+    </div>
+    
+    <small class="text-muted" th:unless="${#fields.hasErrors('fechaNacimiento')}">
+        Debe ser mayor de 18 años
+    </small>
+</div>
 
       <div class="input-group">
-        <label>Email</label>
-        <input type="email" name="email" placeholder="----------" 
-               th:value="${email != null ? email : param.email}">
-      </div>
+    <label>Email</label>
+    <input type="email" th:field="*{email}" placeholder="ejemplo@correo.com">
+    
+    <!-- Se muestra error despues de que el usuario escribe su mail -->
+    <div th:if="${#fields.hasErrors('email') and usuario.email != null and !usuario.email.empty}" 
+         class="error-message">
+        <span th:errors="*{email}"></span>
+    </div>
+    
+    <small class="text-muted" th:unless="${#fields.hasErrors('email')}">
+        Ingrese un email válido 
+    </small>
+</div>
 
       <div class="input-group">
         <label>Obra Social</label>
@@ -97,18 +147,30 @@
         </select>
       </div>
       
-      <div class="input-group">
-        <label>Contraseña</label>
-        <input type="password" name="password" placeholder="********" required
-               th:value="${param.password}">
-        <small class="text-muted">Mínimo 6 caracteres</small>
-      </div>
+       <div class="input-group">
+    <label>Contraseña</label>
+    <input type="password" th:field="*{password}" placeholder="********" 
+           minlength="6" maxlength="16">
+        <div th:if="${#fields.hasErrors('password')}" class="error-message">
+        <span th:errors="*{password}"></span>
+    </div>
+    
+    <small class="text-muted" th:unless="${#fields.hasErrors('password')}">
+        Mínimo 6 caracteres
+    </small>
+</div>
 
       <div class="input-group">
         <label>Confirmar Contraseña</label>
-        <input type="password" name="confirm_password" placeholder="********" required
-               th:value="${param.confirm_password}">
+        <input type="password" name="confirm_password" id="confirm_password" placeholder="********" required
+               th:value="${param.confirm_password}"
+               oninput="validarPassword()">
+        <div id="error-password" class="error-message" style="display: none; color: red; font-size: 12px;"></div>
+        <div id="success-password" class="success-message" style="display: none; color: green; font-size: 12px;">
+          <i class="fas fa-check-circle"></i> Las contraseñas coinciden
+        </div>
       </div>
+
 
       <button type="submit" class="btn" >SIGUIENTE</button>
     </form>
