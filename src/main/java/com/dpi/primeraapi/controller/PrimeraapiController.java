@@ -126,7 +126,6 @@ public class PrimeraapiController {
 
     @GetMapping({"","/login"})
     public String login() {
-<<<<<<< HEAD
         return "login"; 
     }
 
@@ -134,14 +133,6 @@ public class PrimeraapiController {
     @GetMapping("/pedirturno")
     public String pedirTurno() {
         return "pedirturno"; 
-=======
-        return "login";
-    }
-
-    @GetMapping("/pedirturno")
-    public String pedirTurno() {
-        return "pedirturno";
->>>>>>> 5e199c837152fba5758a8de0712543502e0f90fd
     }
 
     @GetMapping("/resultado")
