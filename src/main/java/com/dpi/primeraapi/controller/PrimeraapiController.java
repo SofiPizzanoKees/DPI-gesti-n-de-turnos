@@ -37,10 +37,19 @@ public class PrimeraapiController {
         @RequestParam String confirm_password,
         Model model
     ) {
+        if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+            model.addAttribute("errorPassword", "La contraseña es obligatoria");
+            return cargarModeloConErrores(usuario, model, "formulario");
+        }
+
+        if (usuario.getPassword().length() < 6 || usuario.getPassword().length() > 16) {
+            model.addAttribute("errorPassword", "La contraseña debe tener entre 6 y 16 caracteres");
+            return cargarModeloConErrores(usuario, model, "formulario");
+        }
         // Validar que las contraseñas coincidan
         if (!usuario.getPassword().equals(confirm_password)) {
             model.addAttribute("errorPassword", "Las contraseñas no coinciden");
-            return cargarModeloConErrores(usuario, model);
+            return cargarModeloConErrores(usuario, model, "formulario");
         }
 
         // Validar fecha de nacimiento manualmente
@@ -66,13 +75,13 @@ public class PrimeraapiController {
 
         // Verificar si hay errores de validación de la entidad
         if (bindingResult.hasErrors()) {
-            return cargarModeloConErrores(usuario, model);
+            return cargarModeloConErrores(usuario, model, "formulario");
         }
 
         // Validar que el DNI no exista
         if (usuarioRepository.existsByDni(usuario.getDni())) {
             model.addAttribute("errorDni", "El DNI ya está registrado");
-            return cargarModeloConErrores(usuario, model);
+            return cargarModeloConErrores(usuario, model, "formulario");
         }
 
         try {
@@ -81,15 +90,74 @@ public class PrimeraapiController {
             return "redirect:/menu"; // Redirigir al menú después del registro exitoso
         } catch (Exception e) {
             model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
-            return cargarModeloConErrores(usuario, model);
+            return cargarModeloConErrores(usuario, model, "formulario");
+        }
+    }
+    //Lo mismo para registroAdmin
+        @GetMapping("/registroAdmin")
+    public String mostrarFormularioAdmin(Model model) {
+        model.addAttribute("usuario", new Usuario());
+        return "registroAdmin";
+    }
+
+    @PostMapping("/registroAdmin")
+    public String procesarRegistroAdmin(
+        @Valid @ModelAttribute("usuario") Usuario usuario,
+        BindingResult bindingResult,
+        Model model
+    ) {
+
+        //Si la contraseña está vacía, asignar null
+        if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+        usuario.setPassword("aaaaaaaaaaaaa");  // o "admin1234" si querés un valor por defecto
+        }
+        // Validar fecha de nacimiento manualmente
+        if (usuario.getFechaNacimiento() != null) {
+            LocalDate hoy = LocalDate.now();
+            
+            // Validar que sea fecha pasada
+            if (!usuario.getFechaNacimiento().isBefore(hoy)) {
+                bindingResult.rejectValue("fechaNacimiento", "error.fecha", "La fecha debe ser en el pasado");
+            }
+            
+            // Validar edad mínima (18 años)
+            Period periodo = Period.between(usuario.getFechaNacimiento(), hoy);
+            if (periodo.getYears() < 18) {
+                bindingResult.rejectValue("fechaNacimiento", "error.edad", "Debe ser mayor de 18 años");
+            }
+            
+            // Validar edad máxima razonable (120 años)
+            if (periodo.getYears() > 120) {
+                bindingResult.rejectValue("fechaNacimiento", "error.edad", "Fecha de nacimiento no válida");
+            }
+        }
+
+        // Verificar si hay errores de validación de la entidad
+        if (bindingResult.hasErrors()) {
+            return cargarModeloConErrores(usuario, model, "registroAdmin");
+        }
+
+        // Validar que el DNI no exista
+        if (usuarioRepository.existsByDni(usuario.getDni())) {
+            model.addAttribute("errorDni", "El DNI ya está registrado");
+            return cargarModeloConErrores(usuario, model, "registroAdmin");
+        }
+
+        try {
+            // Guardar el usuario
+            usuarioRepository.save(usuario);
+            return "redirect:/menu"; // Redirigir al menú después del registro exitoso
+        } catch (Exception e) {
+            model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
+            return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
     }
 
     // Método auxiliar para recargar el modelo con errores
-    private String cargarModeloConErrores(Usuario usuario, Model model) {
+    private String cargarModeloConErrores(Usuario usuario, Model model, String quePagina) {
         // Mantener los valores en el formulario para que no se pierdan
         model.addAttribute("usuario", usuario);
-        return "formulario";
+        return quePagina;
     }
 
     // Home / Menu
@@ -102,12 +170,7 @@ public class PrimeraapiController {
     public String calendario() {
         return "calendario";
     }
-
-    @GetMapping("/registroAdmin")
-    public String registroAdmin() {
-        return "registroAdmin";
-    }
-
+    
     @GetMapping("/confirmacionturno")
     public String confirmacionTurno() {
         return "confirmacionturno";
