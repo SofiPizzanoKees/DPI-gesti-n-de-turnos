@@ -15,7 +15,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
     // Verificar si existe un usuario con ese DNI
     boolean existsByDni(String dni);
-    
+
+    //Para ver si en el login coincide la usuario y la contraseña
+    Optional<Usuario> findByDniAndPassword(String dni, String password);
     // Estos métodos vienen incluidos con JpaRepository:
     // - save()
     // - findAll() 

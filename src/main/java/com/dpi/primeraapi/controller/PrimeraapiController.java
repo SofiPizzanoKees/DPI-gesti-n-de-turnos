@@ -197,7 +197,33 @@ public class PrimeraapiController {
         return "login"; 
     }
 
-    
+    @PostMapping({"","/login"})
+    public String procesarLogin(
+            @RequestParam String dni,
+            @RequestParam String password,
+            Model model
+    ) {
+        // Buscar usuario por DNI y contraseña
+        var usuarioOpt = usuarioRepository.findByDniAndPassword(dni, password);
+
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+
+            // Si el usuario está inactivo, no permitir ingreso
+            if (!usuario.isEstado()) {
+                model.addAttribute("error", "Tu cuenta está inactiva.");
+                return "login";
+            }
+
+            // Si todo está bien, redirigir al menú
+            model.addAttribute("usuario", usuario);
+            return "redirect:/menu";
+        } else {
+            model.addAttribute("error", "DNI o contraseña incorrectos");
+            return "login";
+        }
+    }
+
     @GetMapping("/pedirturno")
     public String pedirTurno() {
         return "pedirturno"; 
