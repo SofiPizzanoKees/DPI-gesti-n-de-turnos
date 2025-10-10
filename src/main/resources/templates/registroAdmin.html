@@ -3,13 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Registro Administrador - Turnos Online</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
-  <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* Solo estilos mínimos necesarios para la funcionalidad */
+    .role-fields {
+      display: none;
+    }
+    
+    .role-fields.active {
+      display: block;
+    }
+    
+    .role-btn.active {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      border-color: #00c2a8;
+    }
+    
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .role-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px 10px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-height: 80px;
+    }
+    
+    .role-btn:hover {
+      border-color: #00c2a8;
+    }
+    
+    .role-icon {
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+      color: #00c2a8;
+    }
+    
+    .role-btn span {
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .clinic-info {
+      margin-top: 10px;
+    }
+    
+    .clinic-info h1 {
+      font-size: 1.5rem;
+      margin: 5px 0;
+      color: #333;
+    }
+    
+    .clinic-info h2 {
+      font-size: 1.2rem;
+      margin: 0;
+      color: #666;
+      font-weight: normal;
+    }
+    
+    .form-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #545b62;
+    }
+
+    /* Responsive para pantallas muy pequeñas */
+    @media (max-width: 360px) {
+      .role-selector {
+        max-width: 280px;
+        gap: 8px;
+      }
+      
+      .role-btn {
+        padding: 12px 8px;
+        min-height: 70px;
+      }
+      
+      .role-icon {
+        font-size: 1.3rem;
+      }
+      
+      .role-btn span {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
+  <!-- Menú hamburguesa -->
+  <div class="top-bar">
+    <div class="registrarse" style="display: none;"></div>
+    <div class="menu-icon" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </div>
+
+  <!-- Menú lateral -->
+  <div class="side-menu" id="sideMenu">
+    <nav class="menu-nav">
+      <a th:href="@{/menu}" class="menu-link">Inicio</a>
+      <a th:href="@{/calendario}" class="menu-link">Calendario</a>
+      <a th:href="@{/pedirturno}" class="menu-link">Pedir Turno</a>
+      <a th:href="@{/verturnos}" class="menu-link">Ver Turnos</a>
+      <a th:href="@{/estudio}" class="menu-link">Estudios</a>
+      <a th:href="@{/login}" class="menu-link">Cerrar Sesión</a>
+    </nav>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
 
   <!-- Contenido principal -->
   <main class="container">
@@ -19,16 +149,18 @@
         <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
       </div>
       <div class="clinic-info">
+        <h1>Diagnostico Por Imagen</h1>
+        <h2>VALLE MEDIO</h2>
       </div>
     </div>
 
     <!-- Formulario -->
-    <form class="formulario" th:action="@{/dpi}" th:object="${usuario}" method="post">
+    <form class="formulario" th:action="@{/registroAdmin}" th:object="${usuario}" method="post">
       <!-- Selección de Rol -->
       <div class="role-section">
         <h3>Seleccione su perfil:</h3>
         <div class="role-selector">
-          <button type="button" class="role-btn admin-btn" data-role="ADMIN">
+          <button type="button" class="role-btn admin-btn active" data-role="ADMIN">
             <i class="fas fa-user-shield role-icon"></i>
             <span>Administrador</span>
           </button>
@@ -40,7 +172,7 @@
             <i class="fas fa-user-tie role-icon"></i>
             <span>Secretarix</span>
           </button>
-          <button type="button" class="role-btn patient-btn active" data-role="PACIENTE">
+          <button type="button" class="role-btn patient-btn" data-role="PACIENTE">
             <i class="fas fa-user-injured role-icon"></i>
             <span>Paciente</span>
           </button>
@@ -48,7 +180,7 @@
       </div>
 
       <!-- Campo oculto para el rol -->
-      <input type="hidden" id="selectedRole" th:field="*{rol}" value="PACIENTE">
+      <input type="hidden" id="selectedRole" th:field="*{rol}" value="ADMIN">
 
       <!-- Datos personales -->
       <div class="form-section">
@@ -56,7 +188,7 @@
         
         <!-- Mostrar errores -->
         <div th:if="${errorDni}" class="alert alert-error" th:text="${errorDni}"></div>
-        <div th:if="${errorPassword}" class="alert alert-error" th:text="${errorPassword}"></div>
+        <div th:if="${errorGeneral}" class="alert alert-error" th:text="${errorGeneral}"></div>
 
         <!-- Campos del formulario -->
         <div class="form-row">
@@ -135,38 +267,12 @@
             <small class="text-muted">Ingrese un email válido</small>
           </div>
         </div>
-
-        <div class="form-row">
-          <div class="input-group">
-            <label>Contraseña</label>
-            <input type="password" th:field="*{password}" placeholder="********" 
-                   minlength="6" maxlength="16">
-            <div th:if="${#fields.hasErrors('password')}" class="error-message">
-              <span th:errors="*{password}"></span>
-            </div>
-            <small class="text-muted">Mínimo 6 caracteres</small>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="input-group">
-            <label>Confirmar Contraseña</label>
-            <input type="password" name="confirm_password" id="confirm_password" 
-                   placeholder="********" required
-                   th:value="${param.confirm_password}"
-                   oninput="validarPassword()">
-            <div id="error-password" class="error-message" style="display: none;"></div>
-            <div id="success-password" class="success-message" style="display: none;">
-              <i class="fas fa-check-circle"></i> Las contraseñas coinciden
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Campos específicos por rol -->
       <div class="role-specific-section">
         <!-- Administrador - Sin campos adicionales -->
-        <div id="admin-fields" class="role-fields">
+        <div id="admin-fields" class="role-fields active">
           <h4>Datos de Administrador</h4>
           <p>No se requieren datos adicionales para el perfil de administrador.</p>
         </div>
@@ -177,24 +283,25 @@
           <div class="form-row">
             <div class="input-group">
               <label>Matrícula Nacional</label>
-              <input type="text" name="matricula" placeholder="Número de matrícula profesional" required>
+              <input type="text" th:field="*{matriculaNacional}" placeholder="Número de matrícula profesional">
             </div>
           </div>
           <div class="form-row">
             <div class="input-group">
               <label>Matrícula Provincial</label>
-              <input type="text" name="matricula" placeholder="Número de matrícula profesional" required>
+              <input type="text" th:field="*{matriculaProvincial}" placeholder="Número de matrícula profesional">
             </div>
+          </div>
           <div class="form-row">
             <div class="input-group">
               <label>Especialidad</label>
-              <input type="text" name="especialidad" placeholder="Especialidad médica" required>
+              <input type="text" th:field="*{especialidad}" placeholder="Especialidad médica">
             </div>
           </div>
           <div class="form-row">
             <div class="input-group">
               <label>¿Realiza estudios?</label>
-              <select name="realizaEstudios" required>
+              <select th:field="*{realizaEstudios}">
                 <option value="">Seleccione...</option>
                 <option value="SI">Sí</option>
                 <option value="NO">No</option>
@@ -204,13 +311,13 @@
           <div class="form-row">
             <div class="input-group">
               <label>Tipo de Estudios</label>
-              <input type="text" name="tipoEstudios" placeholder="Tipos de estudios que realiza">
+              <input type="text" th:field="*{tipoEstudios}" placeholder="Tipos de estudios que realiza">
             </div>
           </div>
-         <div class="form-row">
+          <div class="form-row">
             <div class="input-group">
               <label>Obra Social</label>
-              <select name="obraSocial" required>
+              <select th:field="*{obraSocial}">
                 <option value="">Seleccione...</option>
                 <option value="IPROSS">IPROSS</option>
                 <option value="PAMI">PAMI</option>
@@ -222,8 +329,6 @@
             </div>
           </div>
         </div>
-      </div>
-
 
         <!-- Secretarix - Sin campos adicionales -->
         <div id="secretario-fields" class="role-fields">
@@ -232,12 +337,12 @@
         </div>
 
         <!-- Paciente -->
-        <div id="paciente-fields" class="role-fields active">
+        <div id="paciente-fields" class="role-fields">
           <h4>Datos de Paciente</h4>
           <div class="form-row">
             <div class="input-group">
               <label>Obra Social</label>
-              <select name="obraSocial" required>
+              <select th:field="*{obraSocial}" required>
                 <option value="">Seleccione...</option>
                 <option value="IPROSS">IPROSS</option>
                 <option value="PAMI">PAMI</option>
@@ -251,11 +356,13 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary">SIGUIENTE</button>
+      <div class="form-buttons">
+        <button type="submit" class="btn btn-primary">REGISTRAR USUARIO</button>
+        <a th:href="@{/login}" class="btn btn-secondary">CANCELAR</a>
+      </div>
     </form>
   </main>
 
-  <!-- Footer -->
   <footer>
     2025 Turnos Online - Todos los derechos reservados
   </footer>
@@ -268,6 +375,8 @@
       
       // Función para mostrar campos según el rol
       function showRoleFields(role) {
+        console.log('Cambiando a rol:', role);
+        
         // Ocultar todos los campos de rol
         roleFields.forEach(field => {
           field.classList.remove('active');
@@ -301,28 +410,6 @@
       });
       
       // Funciones de validación
-      function validarPassword() {
-        const password = document.querySelector('input[type="password"][th\\:field="*{password}"]').value;
-        const confirmPassword = document.getElementById('confirm_password').value;
-        const errorDiv = document.getElementById('error-password');
-        const successDiv = document.getElementById('success-password');
-        
-        if (!confirmPassword) {
-          errorDiv.style.display = 'none';
-          successDiv.style.display = 'none';
-          return;
-        }
-        
-        if (password !== confirmPassword) {
-          errorDiv.style.display = 'block';
-          errorDiv.textContent = 'Las contraseñas no coinciden';
-          successDiv.style.display = 'none';
-        } else {
-          errorDiv.style.display = 'none';
-          successDiv.style.display = 'block';
-        }
-      }
-      
       function validarNombre(input) {
         input.value = input.value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
       }
@@ -334,7 +421,7 @@
       function validarTelefono(input) {
         input.value = input.value.replace(/[^0-9]/g, '');
       }
-      
+
       // Menú lateral
       const menuToggle = document.getElementById('menu-toggle');
       const sideMenu = document.getElementById('sideMenu');
@@ -344,11 +431,13 @@
         menuToggle.addEventListener('click', function() {
           sideMenu.classList.toggle('active');
           overlay.classList.toggle('active');
+          document.body.classList.toggle('menu-open');
         });
         
         overlay.addEventListener('click', function() {
           sideMenu.classList.remove('active');
           overlay.classList.remove('active');
+          document.body.classList.remove('menu-open');
         });
       }
     });

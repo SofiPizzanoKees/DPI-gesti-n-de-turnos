@@ -107,10 +107,10 @@ public class PrimeraapiController {
         Model model
     ) {
 
-        //Si la contraseña está vacía, asignar null
         if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
-        usuario.setPassword("aaaaaaaaaaaaa");  // o "admin1234" si querés un valor por defecto
+        usuario.setPassword("admin123");
         }
+
         // Validar fecha de nacimiento manualmente
         if (usuario.getFechaNacimiento() != null) {
             LocalDate hoy = LocalDate.now();
@@ -132,6 +132,26 @@ public class PrimeraapiController {
             }
         }
 
+        // Validar campos específicos según el rol
+        String rol = usuario.getRol();
+        if ("MEDICO".equals(rol)) {
+            // Validar campos obligatorios para médico
+            if (usuario.getMatriculaNacional() == null || usuario.getMatriculaNacional().isBlank()) {
+                bindingResult.rejectValue("matriculaNacional", "error.matricula", "La matrícula nacional es obligatoria para médicos");
+            }
+            if (usuario.getMatriculaProvincial() == null || usuario.getMatriculaProvincial().isBlank()) {
+                bindingResult.rejectValue("matriculaProvincial", "error.matricula", "La matrícula provincial es obligatoria para médicos");
+            }
+            if (usuario.getEspecialidad() == null || usuario.getEspecialidad().isBlank()) {
+                bindingResult.rejectValue("especialidad", "error.especialidad", "La especialidad es obligatoria para médicos");
+            }
+        } else if ("PACIENTE".equals(rol)) {
+            // Validar campos obligatorios para paciente
+            if (usuario.getObraSocial() == null || usuario.getObraSocial().isBlank()) {
+                bindingResult.rejectValue("obraSocial", "error.obraSocial", "La obra social es obligatoria para pacientes");
+            }
+        }
+
         // Verificar si hay errores de validación de la entidad
         if (bindingResult.hasErrors()) {
             return cargarModeloConErrores(usuario, model, "registroAdmin");
@@ -143,21 +163,36 @@ public class PrimeraapiController {
             return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
 
+        // Validar que el email no exista (si es necesario)
+        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+            model.addAttribute("errorEmail", "El email ya está registrado");
+            return cargarModeloConErrores(usuario, model, "registroAdmin");
+        }
+
         try {
+            // Asegurar que el estado esté activo
+            usuario.setEstado(true);
+            
             // Guardar el usuario
             usuarioRepository.save(usuario);
-            return "redirect:/menu"; // Redirigir al menú después del registro exitoso
+            return "redirect:/menu?registroExitoso=true"; // Redirigir al menú después del registro exitoso
         } catch (Exception e) {
             model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
             return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
+
+        
     }
 
     // Método auxiliar para recargar el modelo con errores
-    private String cargarModeloConErrores(Usuario usuario, Model model, String quePagina) {
+    private String cargarModeloConErrores(Usuario usuario, Model model, String vista) {
         // Mantener los valores en el formulario para que no se pierdan
         model.addAttribute("usuario", usuario);
-        return quePagina;
+        
+        // También puedes agregar atributos adicionales si es necesario
+        model.addAttribute("roles", java.util.List.of("ADMIN", "MEDICO", "SECRETARIO", "PACIENTE"));
+        
+        return vista;
     }
 
     // Home / Menu

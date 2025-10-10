@@ -54,42 +54,56 @@ public class Usuario {
     @NotNull(message = "La fecha de nacimiento es obligatoria")
     private LocalDate fechaNacimiento;
 
-    @Column(name = "obra_social", nullable = false)
-    @NotBlank(message = "La obra social es obligatoria")
+    @Column(name = "obra_social")
     @Size(max = 50, message = "La obra social no puede exceder los 50 caracteres")
-    private String obrasocial;
+    private String obraSocial;
 
-    @Column(name = "password", nullable = true)
+    @Column(name = "password")
     private String password;
 
     @Column(name = "rol", nullable = false)
     @NotBlank(message = "El rol es obligatorio")
-    @Pattern(regexp = "^(PACIENTE|ADMIN|MEDICO)$", message = "El rol debe ser PACIENTE, ADMIN o MEDICO")
+    @Pattern(regexp = "^(PACIENTE|ADMIN|MEDICO|SECRETARIO)$", message = "El rol debe ser PACIENTE, ADMIN, MEDICO o SECRETARIO")
     private String rol = "PACIENTE";
 
     @Column(name = "estado", nullable = false)
     @NotNull(message = "El estado es obligatorio")
     private boolean estado = true;
 
-    // Constructor vacío (OBLIGATORIO para JPA)
+    @Column(name = "matricula_nacional")
+    private String matriculaNacional;
+    
+    @Column(name = "matricula_provincial")
+    private String matriculaProvincial;
+    
+    @Column(name = "especialidad")
+    private String especialidad;
+    
+    @Column(name = "realiza_estudios")
+    private String realizaEstudios;
+    
+    @Column(name = "tipo_estudios")
+    private String tipoEstudios;
+
+    // Constructor vacío
     public Usuario() {}
 
-    // Constructor con parámetros (actualizado)
+    // Constructor con parámetros básicos
     public Usuario(String dni, String nombre, String apellido, String telefono, 
-                   String email, LocalDate fechaNacimiento, String obrasocial, String password) {
+                   String email, LocalDate fechaNacimiento, String obraSocial, String password) {
         this.dni = dni;
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
         this.email = email;
         this.fechaNacimiento = fechaNacimiento;
-        this.obrasocial = obrasocial;
+        this.obraSocial = obraSocial;
         this.password = password;
     }
 
-    // Constructor completo (actualizado)
+    // Constructor completo
     public Usuario(String dni, String nombre, String apellido, String telefono, 
-                   String email, LocalDate fechaNacimiento, String obrasocial, 
+                   String email, LocalDate fechaNacimiento, String obraSocial, 
                    String password, String rol, boolean estado) {
         this.dni = dni;
         this.nombre = nombre;
@@ -97,102 +111,62 @@ public class Usuario {
         this.telefono = telefono;
         this.email = email;
         this.fechaNacimiento = fechaNacimiento;
-        this.obrasocial = obrasocial;
+        this.obraSocial = obraSocial;
         this.password = password;
         this.rol = rol;
         this.estado = estado;
     }
 
-    // Getters y Setters
-    public Long getId() { 
-        return id; 
-    }
-    
-    public void setId(Long id) { 
-        this.id = id; 
-    }
+    // Getters y Setters 
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getDni() { 
-        return dni; 
-    }
-    
-    public void setDni(String dni) { 
-        this.dni = dni; 
-    }
+    public String getDni() { return dni; }
+    public void setDni(String dni) { this.dni = dni; }
 
-    public String getNombre() { 
-        return nombre; 
-    }
-    
-    public void setNombre(String nombre) { 
-        this.nombre = nombre; 
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getApellido() { 
-        return apellido; 
-    }
-    
-    public void setApellido(String apellido) { 
-        this.apellido = apellido; 
-    }
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
 
-    public String getTelefono() { 
-        return telefono; 
-    }
-    
-    public void setTelefono(String telefono) { 
-        this.telefono = telefono; 
-    }
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 
-    public String getEmail() { 
-        return email; 
-    }
-    
-    public void setEmail(String email) { 
-        this.email = email; 
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public LocalDate getFechaNacimiento() { 
-        return fechaNacimiento; 
-    }
-    
-    public void setFechaNacimiento(LocalDate fechaNacimiento) { 
-        this.fechaNacimiento = fechaNacimiento; 
-    }
+    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
-    public String getObrasocial() { 
-        return obrasocial; 
-    }
-    
-    public void setObrasocial(String obrasocial) { 
-        this.obrasocial = obrasocial; 
-    }
+    public String getObraSocial() { return obraSocial; }
+    public void setObraSocial(String obraSocial) { this.obraSocial = obraSocial; }
 
-    public String getPassword() { 
-        return password; 
-    }
-    
-    public void setPassword(String password) { 
-        this.password = password; 
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getRol() { 
-        return rol; 
-    }
-    
-    public void setRol(String rol) { 
-        this.rol = rol; 
-    }
+    public String getRol() { return rol; }
+    public void setRol(String rol) { this.rol = rol; }
 
-    public boolean isEstado() { 
-        return estado; 
-    }
-    
-    public void setEstado(boolean estado) { 
-        this.estado = estado; 
-    }
+    public boolean isEstado() { return estado; }
+    public void setEstado(boolean estado) { this.estado = estado; }
 
-    // Método toString para debugging (actualizado)
+    // Getters y Setters para campos de médico
+    public String getMatriculaNacional() { return matriculaNacional; }
+    public void setMatriculaNacional(String matriculaNacional) { this.matriculaNacional = matriculaNacional; }
+
+    public String getMatriculaProvincial() { return matriculaProvincial; }
+    public void setMatriculaProvincial(String matriculaProvincial) { this.matriculaProvincial = matriculaProvincial; }
+
+    public String getEspecialidad() { return especialidad; }
+    public void setEspecialidad(String especialidad) { this.especialidad = especialidad; }
+
+    public String getRealizaEstudios() { return realizaEstudios; }
+    public void setRealizaEstudios(String realizaEstudios) { this.realizaEstudios = realizaEstudios; }
+
+    public String getTipoEstudios() { return tipoEstudios; }
+    public void setTipoEstudios(String tipoEstudios) { this.tipoEstudios = tipoEstudios; }
+
     @Override
     public String toString() {
         return "Usuario{" +
@@ -203,23 +177,10 @@ public class Usuario {
                 ", telefono='" + telefono + '\'' +
                 ", email='" + email + '\'' +
                 ", fechaNacimiento=" + fechaNacimiento +
-                ", obrasocial='" + obrasocial + '\'' +
+                ", obraSocial='" + obraSocial + '\'' +
                 ", rol='" + rol + '\'' +
                 ", estado=" + estado +
                 '}';
     }
-
-    // Método equals y hashCode para comparaciones
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Usuario usuario = (Usuario) o;
-        return dni.equals(usuario.dni);
-    }
-
-    @Override
-    public int hashCode() {
-        return dni.hashCode();
-    }
 }
+
