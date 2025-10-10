@@ -3,192 +3,353 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro Usuarios</title>
+  <title>Login - Turnos Online</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
+  <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <!-- Barra superior con menú hamburguesa -->
-  <header class="top-bar">
-    <p class="registrarse">
-    <div class="menu-icon" id="menu-toggle">
-      <i class="fas fa-bars"></i>
-    </div>
-  </header>
 
-   <!-- Menú lateral -->
-  <aside id="sideMenu" class="side-menu">
-    <nav class="menu-nav">
-      <a href="inicio.html" class="menu-link">Inicio</a>
-      <a href="contacto.html" class="menu-link">Contacto</a>
-      <a href="miperfil.html" class="menu-link">Mi Perfil</a>
-      <a href="quienessomos.html" class="menu-link">¿Quiénes somos?</a>
-      <a href="especialistas.html" class="menu-link">Especialistas</a>
-    </nav>
-  </aside>
-
-  <!-- Overlay para cerrar menú al hacer click fuera -->
-  <div class="overlay" id="overlay"></div>
 
   <!-- Contenido principal -->
   <main class="container">
-    <div class="logo">
-      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
+    <!-- Logo y título -->
+    <div class="header-section">
+      <div class="logo">
+        <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
+      </div>
+      <div class="clinic-info">
+      </div>
     </div>
-<!-- Formulario -->
+
+    <!-- Formulario -->
     <form class="formulario" th:action="@{/dpi}" th:object="${usuario}" method="post">
-      <h3>Datos personales:</h3>
-
-      <!-- Mostrar errores generales -->
-      <div th:if="${errorDni}" class="alert alert-error" th:text="${errorDni}"></div>
-      <div th:if="${errorPassword}" class="alert alert-error" th:text="${errorPassword}"></div>
-
-      <!-- Campo DNI -->
-      <div class="input-group">
-        <label>DNI</label>
-        <input type="text" th:field="*{dni}" placeholder="----------" 
-               maxlength="8"
-               oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-        <div th:if="${#fields.hasErrors('dni')}" class="error-message">
-          <span th:errors="*{dni}"></span>
+      <!-- Selección de Rol -->
+      <div class="role-section">
+        <h3>Seleccione su perfil:</h3>
+        <div class="role-selector">
+          <button type="button" class="role-btn admin-btn" data-role="ADMIN">
+            <i class="fas fa-user-shield role-icon"></i>
+            <span>Administrador</span>
+          </button>
+          <button type="button" class="role-btn medic-btn" data-role="MEDICO">
+            <i class="fas fa-user-md role-icon"></i>
+            <span>Médicx</span>
+          </button>
+          <button type="button" class="role-btn secretary-btn" data-role="SECRETARIO">
+            <i class="fas fa-user-tie role-icon"></i>
+            <span>Secretarix</span>
+          </button>
+          <button type="button" class="role-btn patient-btn active" data-role="PACIENTE">
+            <i class="fas fa-user-injured role-icon"></i>
+            <span>Paciente</span>
+          </button>
         </div>
       </div>
 
-      <!-- Campo Nombre -->
-      <div class="input-group">
-        <label>Nombre</label>
-        <input type="text" th:field="*{nombre}" placeholder="----------" 
-               maxlength="30"
-               minlength="2"
-               pattern="[A-Za-zÁáÉéÍíÓóÚúÑñ\s]{2,30}"
-               title="El nombre debe tener entre 2 y 30 caracteres (solo letras y espacios)"
-               required
-               oninput="validarNombre(this)">
-        <small class="text-muted">Entre 2 y 30 caracteres (solo letras)</small>
-        <div th:if="${#fields.hasErrors('nombre')}" class="error-message">
-          <span th:errors="*{nombre}"></span>
+      <!-- Campo oculto para el rol -->
+      <input type="hidden" id="selectedRole" th:field="*{rol}" value="PACIENTE">
+
+      <!-- Datos personales -->
+      <div class="form-section">
+        <h3>Datos personales:</h3>
+        
+        <!-- Mostrar errores -->
+        <div th:if="${errorDni}" class="alert alert-error" th:text="${errorDni}"></div>
+        <div th:if="${errorPassword}" class="alert alert-error" th:text="${errorPassword}"></div>
+
+        <!-- Campos del formulario -->
+        <div class="form-row">
+          <div class="input-group">
+            <label>DNI</label>
+            <input type="text" th:field="*{dni}" placeholder="----------" 
+                   maxlength="8"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <div th:if="${#fields.hasErrors('dni')}" class="error-message">
+              <span th:errors="*{dni}"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>Nombre</label>
+            <input type="text" th:field="*{nombre}" placeholder="----------" 
+                   maxlength="30" minlength="2"
+                   pattern="[A-Za-zÁáÉéÍíÓóÚúÑñ\s]{2,30}"
+                   required oninput="validarNombre(this)">
+            <small class="text-muted">Entre 2 y 30 caracteres (solo letras)</small>
+            <div th:if="${#fields.hasErrors('nombre')}" class="error-message">
+              <span th:errors="*{nombre}"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>Apellido</label>
+            <input type="text" th:field="*{apellido}" placeholder="----------" 
+                   maxlength="30" minlength="2"
+                   pattern="[A-Za-zÁáÉéÍíÓóÚúÑñ\s]{2,30}"
+                   required oninput="validarApellido(this)">
+            <small class="text-muted">Entre 2 y 30 caracteres (solo letras)</small>
+            <div th:if="${#fields.hasErrors('apellido')}" class="error-message">
+              <span th:errors="*{apellido}"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>Teléfono</label>
+            <input type="text" th:field="*{telefono}" placeholder="---15-----" 
+                   maxlength="10" pattern="\d{10}" required
+                   oninput="validarTelefono(this)">
+            <small class="text-muted">Debe tener exactamente 10 dígitos</small>
+            <div th:if="${#fields.hasErrors('telefono')}" class="error-message">
+              <span th:errors="*{telefono}"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>Fecha de Nacimiento</label>
+            <input type="date" th:field="*{fechaNacimiento}"
+                   th:max="${T(java.time.LocalDate).now().minusYears(18)}"
+                   min="1900-01-01" required>
+            <div th:if="${#fields.hasErrors('fechaNacimiento')}" class="error-message">
+              <span th:errors="*{fechaNacimiento}"></span>
+            </div>
+            <small class="text-muted">Debe ser mayor de 18 años</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>Email</label>
+            <input type="email" th:field="*{email}" placeholder="ejemplo@correo.com">
+            <div th:if="${#fields.hasErrors('email')}" class="error-message">
+              <span th:errors="*{email}"></span>
+            </div>
+            <small class="text-muted">Ingrese un email válido</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>Contraseña</label>
+            <input type="password" th:field="*{password}" placeholder="********" 
+                   minlength="6" maxlength="16">
+            <div th:if="${#fields.hasErrors('password')}" class="error-message">
+              <span th:errors="*{password}"></span>
+            </div>
+            <small class="text-muted">Mínimo 6 caracteres</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="input-group">
+            <label>Confirmar Contraseña</label>
+            <input type="password" name="confirm_password" id="confirm_password" 
+                   placeholder="********" required
+                   th:value="${param.confirm_password}"
+                   oninput="validarPassword()">
+            <div id="error-password" class="error-message" style="display: none;"></div>
+            <div id="success-password" class="success-message" style="display: none;">
+              <i class="fas fa-check-circle"></i> Las contraseñas coinciden
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Campo Apellido -->
-      <div class="input-group">
-        <label>Apellido</label>
-        <input type="text" th:field="*{apellido}" placeholder="----------" 
-               maxlength="30"
-               minlength="2"
-               pattern="[A-Za-zÁáÉéÍíÓóÚúÑñ\s]{2,30}"
-               title="El apellido debe tener entre 2 y 30 caracteres (solo letras y espacios)"
-               required
-               oninput="validarApellido(this)">
-        <small class="text-muted">Entre 2 y 30 caracteres (solo letras)</small>
-        <div th:if="${#fields.hasErrors('apellido')}" class="error-message">
-          <span th:errors="*{apellido}"></span>
+      <!-- Campos específicos por rol -->
+      <div class="role-specific-section">
+        <!-- Administrador - Sin campos adicionales -->
+        <div id="admin-fields" class="role-fields">
+          <h4>Datos de Administrador</h4>
+          <p>No se requieren datos adicionales para el perfil de administrador.</p>
+        </div>
+
+        <!-- Médico -->
+        <div id="medico-fields" class="role-fields">
+          <h4>Datos de Médico</h4>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Matrícula Nacional</label>
+              <input type="text" name="matricula" placeholder="Número de matrícula profesional" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Matrícula Provincial</label>
+              <input type="text" name="matricula" placeholder="Número de matrícula profesional" required>
+            </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Especialidad</label>
+              <input type="text" name="especialidad" placeholder="Especialidad médica" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label>¿Realiza estudios?</label>
+              <select name="realizaEstudios" required>
+                <option value="">Seleccione...</option>
+                <option value="SI">Sí</option>
+                <option value="NO">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Tipo de Estudios</label>
+              <input type="text" name="tipoEstudios" placeholder="Tipos de estudios que realiza">
+            </div>
+          </div>
+         <div class="form-row">
+            <div class="input-group">
+              <label>Obra Social</label>
+              <select name="obraSocial" required>
+                <option value="">Seleccione...</option>
+                <option value="IPROSS">IPROSS</option>
+                <option value="PAMI">PAMI</option>
+                <option value="OSDE">OSDE</option>
+                <option value="SWISS MEDICAL">SWISS MEDICAL</option>
+                <option value="GALENO">GALENO</option>
+                <option value="OTROS">OTROS</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Campo Teléfono -->
-      <div class="input-group"> 
-        <label>Teléfono</label>
-        <input type="text" th:field="*{telefono}" placeholder="---15-----" 
-               maxlength="10"
-               pattern="\d{10}"
-               title="El teléfono debe tener exactamente 10 dígitos"
-               required
-               oninput="validarTelefono(this)">
-        <small class="text-muted">Debe tener exactamente 10 dígitos</small>
-        <div th:if="${#fields.hasErrors('telefono')}" class="error-message">
-          <span th:errors="*{telefono}"></span>
+
+        <!-- Secretarix - Sin campos adicionales -->
+        <div id="secretario-fields" class="role-fields">
+          <h4>Datos de Secretarix</h4>
+          <p>No se requieren datos adicionales para el perfil de secretarix.</p>
+        </div>
+
+        <!-- Paciente -->
+        <div id="paciente-fields" class="role-fields active">
+          <h4>Datos de Paciente</h4>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Obra Social</label>
+              <select name="obraSocial" required>
+                <option value="">Seleccione...</option>
+                <option value="IPROSS">IPROSS</option>
+                <option value="PAMI">PAMI</option>
+                <option value="OSDE">OSDE</option>
+                <option value="SWISS MEDICAL">SWISS MEDICAL</option>
+                <option value="GALENO">GALENO</option>
+                <option value="OTROS">OTROS</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Campo Fecha de Nacimiento -->
-      <div class="input-group">
-        <label>Fecha de Nacimiento</label>
-        <input type="date" th:field="*{fechaNacimiento}"
-               th:max="${T(java.time.LocalDate).now().minusYears(18)}"
-               min="1900-01-01"
-               required
-               title="Debe ser mayor de 18 años">
-        <div th:if="${#fields.hasErrors('fechaNacimiento')}" class="error-message">
-          <span th:errors="*{fechaNacimiento}"></span>
-        </div>
-        <small class="text-muted">Debe ser mayor de 18 años</small>
-      </div>
-
-      <!-- Campo Email -->
-      <div class="input-group">
-        <label>Email</label>
-        <input type="email" th:field="*{email}" placeholder="ejemplo@correo.com">
-        <div th:if="${#fields.hasErrors('email')}" class="error-message">
-          <span th:errors="*{email}"></span>
-        </div>
-        <small class="text-muted">Ingrese un email válido</small>
-      </div>
-
-      <!-- Campo Obra Social -->
-      <div class="input-group">
-        <label>Obra Social</label>
-        <select th:field="*{obrasocial}">
-          <option value="">Seleccione...</option>
-          <option value="IPROSS">IPROSS</option>
-          <option value="PAMI">PAMI</option>
-          <option value="OTROS">OTROS</option>
-        </select>
-        <div th:if="${#fields.hasErrors('obrasocial')}" class="error-message">
-          <span th:errors="*{obrasocial}"></span>
-        </div>
-      </div>
-      <button type="submit" class="btn">SIGUIENTE</button>
+      <button type="submit" class="btn btn-primary">SIGUIENTE</button>
     </form>
   </main>
+
   <!-- Footer -->
   <footer>
     2025 Turnos Online - Todos los derechos reservados
   </footer>
 
-  <!-- JavaScript -->
   <script>
-    // Elementos del DOM para el menú
-    const menuToggle = document.getElementById('menu-toggle');
-    const sideMenu = document.getElementById('sideMenu');
-    const overlay = document.getElementById('overlay');
-    const menuLinks = document.querySelectorAll('.menu-link');
-    const body = document.body;
-
-    // Función para abrir menú
-    function openMenu() {
-      sideMenu.classList.add('open');
-      overlay.classList.add('active');
-      body.classList.add('menu-open');
-    }
-
-    // Función para cerrar menú
-    function closeMenu() {
-      sideMenu.classList.remove('open');
-      overlay.classList.remove('active');
-      body.classList.remove('menu-open');
-    }
-
-    // Función para toggle menú
-    function toggleMenu() {
-      if (sideMenu.classList.contains('open')) {
-        closeMenu();
-      } else {
-        openMenu();
+    document.addEventListener('DOMContentLoaded', function() {
+      const roleButtons = document.querySelectorAll('.role-btn');
+      const roleFields = document.querySelectorAll('.role-fields');
+      const selectedRoleInput = document.getElementById('selectedRole');
+      
+      // Función para mostrar campos según el rol
+      function showRoleFields(role) {
+        // Ocultar todos los campos de rol
+        roleFields.forEach(field => {
+          field.classList.remove('active');
+        });
+        
+        // Mostrar campos del rol seleccionado
+        const targetFields = document.getElementById(`${role.toLowerCase()}-fields`);
+        if (targetFields) {
+          targetFields.classList.add('active');
+        }
+        
+        // Actualizar estado de botones
+        roleButtons.forEach(button => {
+          if (button.getAttribute('data-role') === role) {
+            button.classList.add('active');
+          } else {
+            button.classList.remove('active');
+          }
+        });
+        
+        // Actualizar campo oculto con el rol seleccionado
+        selectedRoleInput.value = role;
       }
-    }
-
-    // Event listeners
-    menuToggle.addEventListener('click', toggleMenu);
-    overlay.addEventListener('click', closeMenu);
-    
-    menuLinks.forEach(link => {
-      link.addEventListener('click', closeMenu);
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeMenu();
+      
+      // Añadir event listeners a los botones de rol
+      roleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const role = this.getAttribute('data-role');
+          showRoleFields(role);
+        });
+      });
+      
+      // Funciones de validación
+      function validarPassword() {
+        const password = document.querySelector('input[type="password"][th\\:field="*{password}"]').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const errorDiv = document.getElementById('error-password');
+        const successDiv = document.getElementById('success-password');
+        
+        if (!confirmPassword) {
+          errorDiv.style.display = 'none';
+          successDiv.style.display = 'none';
+          return;
+        }
+        
+        if (password !== confirmPassword) {
+          errorDiv.style.display = 'block';
+          errorDiv.textContent = 'Las contraseñas no coinciden';
+          successDiv.style.display = 'none';
+        } else {
+          errorDiv.style.display = 'none';
+          successDiv.style.display = 'block';
+        }
+      }
+      
+      function validarNombre(input) {
+        input.value = input.value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
+      }
+      
+      function validarApellido(input) {
+        input.value = input.value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
+      }
+      
+      function validarTelefono(input) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+      }
+      
+      // Menú lateral
+      const menuToggle = document.getElementById('menu-toggle');
+      const sideMenu = document.getElementById('sideMenu');
+      const overlay = document.getElementById('overlay');
+      
+      if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+          sideMenu.classList.toggle('active');
+          overlay.classList.toggle('active');
+        });
+        
+        overlay.addEventListener('click', function() {
+          sideMenu.classList.remove('active');
+          overlay.classList.remove('active');
+        });
       }
     });
   </script>
