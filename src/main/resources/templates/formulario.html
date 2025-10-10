@@ -129,14 +129,14 @@
       <!-- Campo Obra Social -->
       <div class="input-group">
         <label>Obra Social</label>
-        <select th:field="*{obrasocial}">
+        <select th:field="*{obraSocial}">
           <option value="">Seleccione...</option>
           <option value="IPROSS">IPROSS</option>
           <option value="PAMI">PAMI</option>
           <option value="OTROS">OTROS</option>
         </select>
-        <div th:if="${#fields.hasErrors('obrasocial')}" class="error-message">
-          <span th:errors="*{obrasocial}"></span>
+        <div th:if="${#fields.hasErrors('obraSocial')}" class="error-message">
+          <span th:errors="*{obraSocial}"></span>
         </div>
       </div>
       

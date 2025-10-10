@@ -423,23 +423,23 @@
       }
 
       // Menú lateral
-      const menuToggle = document.getElementById('menu-toggle');
-      const sideMenu = document.getElementById('sideMenu');
-      const overlay = document.getElementById('overlay');
-      
-      if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
-          sideMenu.classList.toggle('active');
-          overlay.classList.toggle('active');
-          document.body.classList.toggle('menu-open');
-        });
-        
-        overlay.addEventListener('click', function() {
-          sideMenu.classList.remove('active');
-          overlay.classList.remove('active');
-          document.body.classList.remove('menu-open');
-        });
-      }
+  const menuToggle = document.getElementById('menu-toggle');
+  const sideMenu = document.getElementById('sideMenu');
+  const overlay = document.getElementById('overlay');
+
+  if (menuToggle) {
+    menuToggle.addEventListener('click', function() {
+      sideMenu.classList.toggle('open');    
+      overlay.classList.toggle('active');
+      document.body.classList.toggle('menu-open');
+    });
+    
+    overlay.addEventListener('click', function() {
+      sideMenu.classList.remove('open');   
+      overlay.classList.remove('active');
+      document.body.classList.remove('menu-open');
+    });
+  }
     });
   </script>
 </body>
