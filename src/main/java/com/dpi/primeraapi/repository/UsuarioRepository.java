@@ -16,6 +16,12 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Verificar si existe un usuario con el email
     boolean existsByEmail(String email);
     
+    // ✅ NUEVO: Verificar si existe un usuario con la matrícula nacional
+    boolean existsByMatriculaNacional(String matriculaNacional);
+    
+    // ✅ NUEVO: Verificar si existe un usuario con la matrícula provincial
+    boolean existsByMatriculaProvincial(String matriculaProvincial);
+    
     // Buscar usuario por DNI
     Optional<Usuario> findByDni(String dni);
     

@@ -156,6 +156,34 @@ public class PrimeraapiController {
             if (usuario.getEspecialidad() == null || usuario.getEspecialidad().isBlank()) {
                 bindingResult.rejectValue("especialidad", "error.especialidad", "La especialidad es obligatoria para médicos");
             }
+            
+            // ✅ NUEVA VALIDACIÓN: Formato de matrículas (6 dígitos exactos)
+            if (usuario.getMatriculaNacional() != null && !usuario.getMatriculaNacional().isBlank()) {
+                if (!usuario.getMatriculaNacional().matches("\\d{6}")) {
+                    bindingResult.rejectValue("matriculaNacional", "error.matricula.formato", 
+                                            "La matrícula nacional debe tener exactamente 6 dígitos");
+                } else {
+                    // ✅ Validar que la matrícula nacional no esté duplicada
+                    if (usuarioRepository.existsByMatriculaNacional(usuario.getMatriculaNacional())) {
+                        bindingResult.rejectValue("matriculaNacional", "error.matricula.duplicada", 
+                                                "La matrícula nacional ya está registrada");
+                    }
+                }
+            }
+            
+            if (usuario.getMatriculaProvincial() != null && !usuario.getMatriculaProvincial().isBlank()) {
+                if (!usuario.getMatriculaProvincial().matches("\\d{6}")) {
+                    bindingResult.rejectValue("matriculaProvincial", "error.matricula.formato", 
+                                            "La matrícula provincial debe tener exactamente 6 dígitos");
+                } else {
+                    // ✅ Validar que la matrícula provincial no esté duplicada
+                    if (usuarioRepository.existsByMatriculaProvincial(usuario.getMatriculaProvincial())) {
+                        bindingResult.rejectValue("matriculaProvincial", "error.matricula.duplicada", 
+                                                "La matrícula provincial ya está registrada");
+                    }
+                }
+            }
+            
         } else if ("PACIENTE".equals(rol)) {
             // Validar campos obligatorios para paciente
             if (usuario.getObraSocial() == null || usuario.getObraSocial().isBlank()) {
@@ -202,7 +230,6 @@ public class PrimeraapiController {
         // Mantener los valores en el formulario para que no se pierdan
         model.addAttribute("usuario", usuario);
         
-    
         model.addAttribute("roles", java.util.List.of("ADMIN", "MEDICO", "SECRETARIO", "PACIENTE"));
         
         return vista;

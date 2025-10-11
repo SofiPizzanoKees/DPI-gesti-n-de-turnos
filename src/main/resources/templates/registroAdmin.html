@@ -94,6 +94,22 @@
       background-color: #545b62;
     }
 
+    /* Estilos para mensajes de error de matrículas */
+    .matricula-error {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .input-matricula:invalid {
+      border-color: #dc3545;
+    }
+
+    .input-matricula:valid {
+      border-color: #28a745;
+    }
+
     /* Responsive para pantallas muy pequeñas */
     @media (max-width: 360px) {
       .role-selector {
@@ -154,7 +170,7 @@
     </div>
 
     <!-- Formulario -->
-    <form class="formulario" th:action="@{/registroAdmin}" th:object="${usuario}" method="post">
+    <form class="formulario" th:action="@{/registroAdmin}" th:object="${usuario}" method="post" id="registroForm">
       <!-- Selección de Rol -->
       <div class="role-section">
         <h3>Seleccione su perfil:</h3>
@@ -282,13 +298,43 @@
           <div class="form-row">
             <div class="input-group">
               <label>Matrícula Nacional</label>
-              <input type="text" th:field="*{matriculaNacional}" placeholder="Número de matrícula profesional">
+              <input type="text" th:field="*{matriculaNacional}" 
+                     id="matriculaNacional"
+                     name="matriculaNacional"
+                     class="input-matricula"
+                     placeholder="6 dígitos"
+                     maxlength="6"
+                     pattern="[0-9]{6}"
+                     oninput="validarMatricula(this)"
+                     required>
+              <small class="text-muted">Exactamente 6 dígitos numéricos</small>
+              <div class="matricula-error" id="matriculaNacional-error">
+                La matrícula nacional debe tener exactamente 6 dígitos
+              </div>
+              <div th:if="${#fields.hasErrors('matriculaNacional')}" class="error-message">
+                <span th:errors="*{matriculaNacional}"></span>
+              </div>
             </div>
           </div>
           <div class="form-row">
             <div class="input-group">
               <label>Matrícula Provincial</label>
-              <input type="text" th:field="*{matriculaProvincial}" placeholder="Número de matrícula profesional">
+              <input type="text" th:field="*{matriculaProvincial}" 
+                     id="matriculaProvincial"
+                     name="matriculaProvincial"
+                     class="input-matricula"
+                     placeholder="6 dígitos"
+                     maxlength="6"
+                     pattern="[0-9]{6}"
+                     oninput="validarMatricula(this)"
+                     required>
+              <small class="text-muted">Exactamente 6 dígitos numéricos</small>
+              <div class="matricula-error" id="matriculaProvincial-error">
+                La matrícula provincial debe tener exactamente 6 dígitos
+              </div>
+              <div th:if="${#fields.hasErrors('matriculaProvincial')}" class="error-message">
+                <span th:errors="*{matriculaProvincial}"></span>
+              </div>
             </div>
           </div>
           <div class="form-row">
@@ -371,6 +417,7 @@
       const roleButtons = document.querySelectorAll('.role-btn');
       const roleFields = document.querySelectorAll('.role-fields');
       const selectedRoleInput = document.getElementById('selectedRole');
+      const registroForm = document.getElementById('registroForm');
       
       // Función para mostrar campos según el rol
       function showRoleFields(role) {
@@ -408,7 +455,7 @@
         });
       });
       
-      // Funciones de validación
+      // Funciones de validación existentes
       function validarNombre(input) {
         input.value = input.value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
       }
@@ -421,24 +468,80 @@
         input.value = input.value.replace(/[^0-9]/g, '');
       }
 
-      // Menú lateral
-  const menuToggle = document.getElementById('menu-toggle');
-  const sideMenu = document.getElementById('sideMenu');
-  const overlay = document.getElementById('overlay');
+      // NUEVA FUNCIÓN: Validar matrículas
+      function validarMatricula(input) {
+        // Remover cualquier caracter que no sea número
+        input.value = input.value.replace(/[^0-9]/g, '');
+        
+        // Limitar a 6 dígitos
+        if (input.value.length > 6) {
+          input.value = input.value.slice(0, 6);
+        }
+        
+        // Mostrar/ocultar mensaje de error
+        const errorElement = document.getElementById(input.id + '-error');
+        if (errorElement) {
+          if (input.value.length > 0 && input.value.length !== 6) {
+            errorElement.style.display = 'block';
+          } else {
+            errorElement.style.display = 'none';
+          }
+        }
+      }
 
-  if (menuToggle) {
-    menuToggle.addEventListener('click', function() {
-      sideMenu.classList.toggle('open');    
-      overlay.classList.toggle('active');
-      document.body.classList.toggle('menu-open');
-    });
-    
-    overlay.addEventListener('click', function() {
-      sideMenu.classList.remove('open');   
-      overlay.classList.remove('active');
-      document.body.classList.remove('menu-open');
-    });
-  }
+      // Validación antes del envío del formulario
+      registroForm.addEventListener('submit', function(event) {
+        const selectedRole = selectedRoleInput.value;
+        
+        if (selectedRole === 'MEDICO') {
+          const matriculaNacional = document.getElementById('matriculaNacional').value;
+          const matriculaProvincial = document.getElementById('matriculaProvincial').value;
+          
+          let isValid = true;
+          
+          // Validar matrícula nacional
+          if (!/^\d{6}$/.test(matriculaNacional)) {
+            document.getElementById('matriculaNacional-error').style.display = 'block';
+            isValid = false;
+          } else {
+            document.getElementById('matriculaNacional-error').style.display = 'none';
+          }
+          
+          // Validar matrícula provincial
+          if (!/^\d{6}$/.test(matriculaProvincial)) {
+            document.getElementById('matriculaProvincial-error').style.display = 'block';
+            isValid = false;
+          } else {
+            document.getElementById('matriculaProvincial-error').style.display = 'none';
+          }
+          
+          if (!isValid) {
+            event.preventDefault();
+            alert('Por favor, complete correctamente las matrículas. Deben tener exactamente 6 dígitos cada una.');
+            // Mostrar la sección de médico para que vea los errores
+            showRoleFields('MEDICO');
+          }
+        }
+      });
+
+      // Menú lateral
+      const menuToggle = document.getElementById('menu-toggle');
+      const sideMenu = document.getElementById('sideMenu');
+      const overlay = document.getElementById('overlay');
+
+      if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+          sideMenu.classList.toggle('open');    
+          overlay.classList.toggle('active');
+          document.body.classList.toggle('menu-open');
+        });
+        
+        overlay.addEventListener('click', function() {
+          sideMenu.classList.remove('open');   
+          overlay.classList.remove('active');
+          document.body.classList.remove('menu-open');
+        });
+      }
     });
   </script>
 </body>
