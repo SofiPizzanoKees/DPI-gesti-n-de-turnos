@@ -16,9 +16,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Verificar si existe un usuario con el email
     boolean existsByEmail(String email);
     
-    // Buscar usuario por DNI y contraseña (para login)
-    Optional<Usuario> findByDniAndPassword(String dni, String password);
-    
     // Buscar usuario por DNI
     Optional<Usuario> findByDni(String dni);
+    
+    // Buscar usuario por email
+    Optional<Usuario> findByEmail(String email);
 }

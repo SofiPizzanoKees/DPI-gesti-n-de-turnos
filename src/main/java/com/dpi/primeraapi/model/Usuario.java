@@ -58,7 +58,9 @@ public class Usuario {
     @Size(max = 50, message = "La obra social no puede exceder los 50 caracteres")
     private String obraSocial;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false, length = 255)
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 
     @Column(name = "rol", nullable = false)
@@ -183,4 +185,3 @@ public class Usuario {
                 '}';
     }
 }
-
