@@ -256,6 +256,20 @@ public class PrimeraapiController {
         return "estudio";
     }
 
+     @GetMapping("/recuperar")
+    public String recuperar() {
+        return "recuperar";
+    }
+      @GetMapping("/cambiarContraseña")
+    public String cambiarContraseña() {
+        return "cambiarContraseña";
+    }
+      @GetMapping("/recuperarCodigo")
+    public String recuperarCodigo() {
+        return "recuperarCodigo";
+    }
+
+
     @GetMapping("/formulario")
     public String formulario(Model model) {
         model.addAttribute("usuario", new Usuario());
