@@ -255,19 +255,25 @@ public class PrimeraapiController {
     public String estudio() {
         return "estudio";
     }
+    
+    @GetMapping("/miperfil")
+    public String miperfil() {
+        return "miperfil";
+    }
 
      @GetMapping("/recuperar")
     public String recuperar() {
         return "recuperar";
     }
-      @GetMapping("/cambiarContraseña")
-    public String cambiarContraseña() {
-        return "cambiarContraseña";
+      @GetMapping("/cambiarContrasena")
+    public String cambiarContrasena() {
+        return "cambiarContrasena";
     }
       @GetMapping("/recuperarCodigo")
     public String recuperarCodigo() {
         return "recuperarCodigo";
     }
+    
 
 
     @GetMapping("/formulario")
