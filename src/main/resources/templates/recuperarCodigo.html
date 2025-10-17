@@ -51,3 +51,54 @@
   <footer>
     2025 Turnos Online - Todos los derechos reservados
   </footer>
+  <script>
+    // Elementos del DOM
+    const menuToggle = document.getElementById('menu-toggle');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const body = document.body;
+
+    // Función para abrir menú
+    function openMenu() {
+      sideMenu.classList.add('open');
+      overlay.classList.add('active');
+      body.classList.add('menu-open');
+    }
+
+    // Función para cerrar menú
+    function closeMenu() {
+      sideMenu.classList.remove('open');
+      overlay.classList.remove('active');
+      body.classList.remove('menu-open');
+    }
+
+    // Función para toggle menú
+    function toggleMenu() {
+      if (sideMenu.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    // Event listeners
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    // Cerrar menú al hacer click en el overlay
+    overlay.addEventListener('click', closeMenu);
+    
+    // Cerrar menú al hacer click en un enlace
+    menuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Cerrar menú con la tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+  </script>
+</body>
+</html>

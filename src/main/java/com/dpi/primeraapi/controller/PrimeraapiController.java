@@ -265,6 +265,7 @@ public class PrimeraapiController {
     public String recuperar() {
         return "recuperar";
     }
+    
       @GetMapping("/cambiarContrasena")
     public String cambiarContrasena() {
         return "cambiarContrasena";
@@ -274,8 +275,6 @@ public class PrimeraapiController {
         return "recuperarCodigo";
     }
     
-
-
     @GetMapping("/formulario")
     public String formulario(Model model) {
         model.addAttribute("usuario", new Usuario());
@@ -286,7 +285,7 @@ public class PrimeraapiController {
     public String horarios() {
         return "horarios";
     }
-
+    
     @GetMapping({"","/login"})
     public String login() {
         return "login"; 
