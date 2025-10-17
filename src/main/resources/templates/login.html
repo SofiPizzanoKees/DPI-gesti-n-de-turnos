@@ -18,7 +18,7 @@
     </div>
   </header>
 
-   <!-- Menú lateral -->
+  <!-- Menú lateral -->
   <aside id="sideMenu" class="side-menu">
     <nav class="menu-nav">
       <a href="login" class="menu-link">Inicio</a>
@@ -41,7 +41,7 @@
     <!-- Título -->
     <h2 class="title">TURNOS ONLINE</h2>
 
-    <!-- Formulario -->
+    <!-- Formulario de login -->
     <form class="login-form" th:action="@{/login}" method="post">
       <label for="dni">DNI</label>
       <input type="text" id="dni" name="dni" required placeholder="Ingrese su dni">
@@ -51,12 +51,16 @@
       <button type="submit" class="btn">INGRESAR</button>
     </form>
     
-     
+    <!-- Mensaje de error si falla el login -->
     <p th:if="${error}" th:text="${error}" style="color:red;"></p>
-    <!-- Enlaces -->
+
+    <!-- Enlaces adicionales -->
     <div class="links">
-      <p><a href="recuperar">¿Olvidaste tu contraseña? Aquí.</a></p>
-      <p><a href="formulario">¿No tienes usuario? Regístrate aquí.</a></p>
+
+      <!-- 🔗 Conexión agregada al recuperar.html -->
+      <p><a th:href="@{/recuperar}">¿Olvidaste tu contraseña? Aquí.</a></p>
+      <p><a th:href="@{/formulario}">¿No tienes usuario? Regístrate aquí.</a></p>
+>>>>>>> 21f897428c0cf2b16344b949f6d67aaf7851cc75
     </div>
   </div>
 
@@ -86,7 +90,7 @@
       body.classList.remove('menu-open');
     }
 
-    // Función para toggle menú
+    // Función para alternar menú
     function toggleMenu() {
       if (sideMenu.classList.contains('open')) {
         closeMenu();
@@ -97,16 +101,11 @@
 
     // Event listeners
     menuToggle.addEventListener('click', toggleMenu);
-    
-    // Cerrar menú al hacer click en el overlay
     overlay.addEventListener('click', closeMenu);
-    
-    // Cerrar menú al hacer click en un enlace
     menuLinks.forEach(link => {
       link.addEventListener('click', closeMenu);
     });
 
-    // Cerrar menú con la tecla ESC
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeMenu();
