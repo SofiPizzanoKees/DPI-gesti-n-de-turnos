@@ -20,12 +20,11 @@
 
    <!-- Menú lateral -->
   <aside id="sideMenu" class="side-menu">
-    <nav class="menu-nav">
-      <a href="inicio.html" class="menu-link">Inicio</a>
-      <a href="contacto.html" class="menu-link">Contacto</a>
-      <a href="miperfil.html" class="menu-link">Mi Perfil</a>
-      <a href="quienessomos.html" class="menu-link">¿Quiénes somos?</a>
-      <a href="especialistas.html" class="menu-link">Especialistas</a>
+  <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
     </nav>
   </aside>
 
@@ -46,6 +45,61 @@
     <form class="login-form" th:action="@{/login}" method="post">
       
       <input type="text" id="dni" name="dni" required placeholder="Ingrese el codigo recibido por mail">
+      <button type="submit" class="btn"onclick="window.location.href='cambiarContrasena'">SIGUIENTE</button>
+    </form>
+     
+  <footer>
+    2025 Turnos Online - Todos los derechos reservados
+  </footer>
+  <script>
+    // Elementos del DOM
+    const menuToggle = document.getElementById('menu-toggle');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const body = document.body;
+
+    // Función para abrir menú
+    function openMenu() {
+      sideMenu.classList.add('open');
+      overlay.classList.add('active');
+      body.classList.add('menu-open');
+    }
+
+    // Función para cerrar menú
+    function closeMenu() {
+      sideMenu.classList.remove('open');
+      overlay.classList.remove('active');
+      body.classList.remove('menu-open');
+    }
+
+    // Función para toggle menú
+    function toggleMenu() {
+      if (sideMenu.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    // Event listeners
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    // Cerrar menú al hacer click en el overlay
+    overlay.addEventListener('click', closeMenu);
+    
+    // Cerrar menú al hacer click en un enlace
+    menuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Cerrar menú con la tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+  </script>
       <button type="button" class="btn" onclick="window.location.href='cambiarcontraseña.html'">SIGUIENTE</button>
     </form>
   </div>

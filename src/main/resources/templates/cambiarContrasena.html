@@ -20,7 +20,7 @@
 
    <!-- Menú lateral -->
   <aside id="sideMenu" class="side-menu">
-   <nav class="menu-nav">
+      <nav class="menu-nav">
       <a href="login" class="menu-link">Inicio</a>
       <a href="miperfil" class="menu-link">Mi Perfil</a>
       <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
@@ -43,11 +43,14 @@
 
     <!-- Formulario -->
     <form class="login-form" th:action="@{/login}" method="post">
-      
-      <input type="text" id="dni" name="dni" required placeholder="Ingrese su mail">
-      <button type="button" class="btn" onclick="window.location.href='recuperarcodigo.html'">SIGUIENTE</button>
-    </form>
-      <footer>
+      <label for="dni">NUEVA CONTRASEÑA</label>
+      <input type="text" id="dni" name="dni" required placeholder=>
+
+      <label for="password">CONFIRMAR CONTRASEÑA</label>
+      <input type="password" id="password" name="password" placeholder>
+      <button type="submit" class="btn" onclick="window.location.href='login'">CONFIRMAR</button>
+       
+  <footer>
     2025 Turnos Online - Todos los derechos reservados
   </footer>
   <script>
@@ -99,11 +102,5 @@
       }
     });
   </script>
-</body>
-</html>
-    
-  </div>
-
-  <script src="../js/script.js"></script>
 </body>
 </html>

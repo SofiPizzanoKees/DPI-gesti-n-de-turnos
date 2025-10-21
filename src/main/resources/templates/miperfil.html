@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Turnos Online</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <!-- Iconos de menú -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  
+  <!-- Barra superior con menú hamburguesa -->
+  <header class="top-bar">
+    <p class="registrarse"></p>
+    <div class="menu-icon" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+   <!-- Menú lateral -->
+  <aside id="sideMenu" class="side-menu">
+     <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+
+  <!-- Overlay para cerrar menú al hacer click fuera -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Tarjeta central -->
+  <div class="container-horario">
+    <div class="logo">
+      <img src="../assets/LOGO DPI.jpg" alt="Logo DPI" />
+    </div>
+    <h1 class="title">Datos Personales</h1>
+    <form id="personalDataForm">
+      <!-- DNI -->
+      <div class="form-group">
+        <label for="dni">DNI</label>
+        <input type="text" id="dni" name="dni" class="readonly-field" value="35.678.901" readonly>
+      </div>
+      
+      <!-- Nombre y Apellido -->
+      <div class="form-group">
+        <label for="nombre">Nombre y Apellido:</label>
+        <input type="text" id="nombre" name="nombre" class="readonly-field" value="María González" readonly>
+      </div>
+      
+      <!-- Fecha de Nacimiento -->
+      <div class="form-group">
+        <label for="fechaNacimiento">Fecha de Nacimiento</label>
+        <input type="date" id="fechaNacimiento" name="fechaNacimiento" class="readonly-field" value="1985-05-15" readonly>
+      </div>
+      
+      <!-- Obra Social -->
+      <div class="form-group">
+        <label for="obraSocial">Obra Social</label>
+        <div class="field-container">
+          <input type="text" id="obraSocial" name="obraSocial" class="editable-field" value="OSDE" readonly>
+          <button type="button" class="edit-icon" data-field="obraSocial">
+            <span class="material-icons">edit</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="field-container">
+          <input type="email" id="email" name="email" class="editable-field" value="maria.gonzalez@ejemplo.com" readonly>
+          <button type="button" class="edit-icon" data-field="email">
+            <span class="material-icons">edit</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="form-buttons">
+        <button type="button" class="btn btn-cancelar hidden" id="cancelBtn">Cancelar</button>
+        <button type="button" class="btn btn-guardar hidden" id="saveBtn">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const editButtons = document.querySelectorAll('.edit-icon');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      
+      let originalValues = {};
+      let currentEditingField = null;
+      
+      function enableEditing(fieldId) {
+        if (currentEditingField && currentEditingField !== fieldId) {
+          cancelEditing();
+        }
+        
+        const field = document.getElementById(fieldId);
+        originalValues[fieldId] = field.value;
+        
+        field.removeAttribute('readonly');
+        field.classList.add('editing');
+        
+        cancelBtn.classList.remove('hidden');
+        saveBtn.classList.remove('hidden');
+        
+        currentEditingField = fieldId;
+        field.focus();
+      }
+      
+      function cancelEditing() {
+        if (currentEditingField) {
+          const field = document.getElementById(currentEditingField);
+          field.value = originalValues[currentEditingField];
+          field.setAttribute('readonly', true);
+          field.classList.remove('editing');
+          
+          cancelBtn.classList.add('hidden');
+          saveBtn.classList.add('hidden');
+          
+          currentEditingField = null;
+          originalValues = {};
+        }
+      }
+      
+      function saveChanges() {
+        if (currentEditingField) {
+          const field = document.getElementById(currentEditingField);
+          
+          if (currentEditingField === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(field.value)) {
+              alert('Por favor, ingresa un email válido.');
+              field.focus();
+              return;
+            }
+          }
+          
+          if (field.value.trim() === '') {
+            alert('Este campo no puede estar vacío.');
+            field.focus();
+            return;
+          }
+          
+          field.setAttribute('readonly', true);
+          field.classList.remove('editing');
+          
+          cancelBtn.classList.add('hidden');
+          saveBtn.classList.add('hidden');
+          
+          currentEditingField = null;
+          originalValues = {};
+          
+          alert('Cambios guardados correctamente.');
+        }
+      }
+      
+      editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const fieldId = this.getAttribute('data-field');
+          enableEditing(fieldId);
+        });
+      });
+      
+      cancelBtn.addEventListener('click', cancelEditing);
+      saveBtn.addEventListener('click', saveChanges);
+      
+      document.addEventListener('keydown', function(e) {
+        if (currentEditingField) {
+          if (e.key === 'Enter') {
+            saveChanges();
+          } else if (e.key === 'Escape') {
+            cancelEditing();
+          }
+        }
+      });
+    });
+    // Elementos del DOM
+    const menuToggle = document.getElementById('menu-toggle');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const body = document.body;
+
+    // Función para abrir menú
+    function openMenu() {
+      sideMenu.classList.add('open');
+      overlay.classList.add('active');
+      body.classList.add('menu-open');
+    }
+
+    // Función para cerrar menú
+    function closeMenu() {
+      sideMenu.classList.remove('open');
+      overlay.classList.remove('active');
+      body.classList.remove('menu-open');
+    }
+
+    // Función para toggle menú
+    function toggleMenu() {
+      if (sideMenu.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    // Event listeners
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    // Cerrar menú al hacer click en el overlay
+    overlay.addEventListener('click', closeMenu);
+    
+    // Cerrar menú al hacer click en un enlace
+    menuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Cerrar menú con la tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+  </script>
+</body>
+ 
+  <footer>
+    2025 Turnos Online - Todos los derechos reservados
+  </footer>
+</html>
+  
