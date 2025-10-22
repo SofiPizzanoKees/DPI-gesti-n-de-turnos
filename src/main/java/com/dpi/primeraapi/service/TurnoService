@@ -1,0 +1,31 @@
+package com.dpi.primeraapi.service;
+
+import com.dpi.primeraapi.model.Turno;
+import com.dpi.primeraapi.repository.TurnoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+public class TurnoService {
+    
+    @Autowired
+    private TurnoRepository turnoRepository;
+    
+    public Turno guardarTurno(Turno turno) {
+        return turnoRepository.save(turno);
+    }
+    
+    public List<Turno> obtenerTurnosPorFecha(LocalDate fecha) {
+        return turnoRepository.findByFecha(fecha);
+    }
+    
+    public List<Turno> obtenerTurnosPorMedicoYFecha(Long medicoId, LocalDate fecha) {
+        return turnoRepository.findByMedicoIdAndFecha(medicoId, fecha);
+    }
+    
+    public boolean existeTurnoEnHorario(Long medicoId, LocalDate fecha, String hora) {
+        return turnoRepository.existsByMedicoIdAndFechaAndHora(medicoId, fecha, hora);
+    }
+}

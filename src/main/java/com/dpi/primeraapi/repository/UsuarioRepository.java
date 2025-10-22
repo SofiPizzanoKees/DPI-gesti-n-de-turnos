@@ -1,5 +1,6 @@
 package com.dpi.primeraapi.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +28,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
     // Buscar usuario por email
     Optional<Usuario> findByEmail(String email);
+
+    // Buscar usuarios por rol y estado activo
+    List<Usuario> findByRolAndEstadoTrue(String rol);
+    
+    // Buscar usuarios por rol, especialidad y estado activo
+    List<Usuario> findByRolAndEspecialidadAndEstadoTrue(String rol, String especialidad);
 }
