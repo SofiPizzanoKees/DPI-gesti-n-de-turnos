@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Cambiar Contraseña - Turnos Online</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -39,43 +39,102 @@
     </header>
 
     <!-- Título -->
-    <h2 class="title">TURNOS ONLINE</h2>
+    <h2 class="title">CAMBIAR CONTRASEÑA</h2>
 
-    <!-- Formulario -->
-    <form class="login-form" th:action="@{/login}" method="post">
-      <label for="dni">NUEVA CONTRASEÑA</label>
-      <input type="text" id="dni" name="dni" required placeholder=>
+    <!-- Mensajes de éxito/error -->
+    <div th:if="${mensaje}" class="alert alert-success">
+      <span th:text="${mensaje}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-error">
+      <span th:text="${error}"></span>
+    </div>
 
-      <label for="password">CONFIRMAR CONTRASEÑA</label>
-      <input type="password" id="password" name="password" placeholder>
-      <button type="submit" class="btn" onclick="window.location.href='login'">CONFIRMAR</button>
-       
+    <!-- Formulario corregido - SIN CAMPO DNI/EMAIL -->
+    <form class="login-form" th:action="@{/cambiarContrasena}" method="post">
+      
+      <!-- Campo para nueva contraseña -->
+      <label for="nuevaPassword">NUEVA CONTRASEÑA</label>
+      <input type="password" id="nuevaPassword" name="nuevaPassword" required 
+             placeholder="Mínimo 6 caracteres" minlength="6" maxlength="16">
+
+      <!-- Campo para confirmar contraseña -->
+      <label for="confirmarPassword">CONFIRMAR CONTRASEÑA</label>
+      <input type="password" id="confirmarPassword" name="confirmarPassword" required 
+             placeholder="Repita la contraseña">
+      <div id="passwordMatchError" class="error-message" style="display: none;">
+        Las contraseñas no coinciden
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">CONFIRMAR</button>
+    </form>
+
+    <!-- QUITÉ el link "Volver al Login" ya que el botón CONFIRMAR redirige al login -->
+  </div>
+
   <footer>
     2025 Turnos Online - Todos los derechos reservados
   </footer>
+
   <script>
-    // Elementos del DOM
+    // Elementos para validación de contraseñas
+    const nuevaPassword = document.getElementById('nuevaPassword');
+    const confirmarPassword = document.getElementById('confirmarPassword');
+    const passwordMatchError = document.getElementById('passwordMatchError');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Función para validar contraseñas
+    function validarContraseñas() {
+      const password1 = nuevaPassword.value;
+      const password2 = confirmarPassword.value;
+      
+      if (password1 && password2 && password1 !== password2) {
+        passwordMatchError.style.display = 'block';
+        confirmarPassword.style.borderColor = 'red';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.6';
+        submitBtn.style.cursor = 'not-allowed';
+        return false;
+      } else {
+        passwordMatchError.style.display = 'none';
+        confirmarPassword.style.borderColor = '';
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+        return true;
+      }
+    }
+
+    // Event listeners para validación en tiempo real
+    nuevaPassword.addEventListener('input', validarContraseñas);
+    confirmarPassword.addEventListener('input', validarContraseñas);
+
+    // Validar antes de enviar el formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+      if (!validarContraseñas()) {
+        e.preventDefault();
+        alert('Por favor, asegúrese de que las contraseñas coincidan');
+      }
+    });
+
+    // Funciones del menú (las que ya tenías)
     const menuToggle = document.getElementById('menu-toggle');
     const sideMenu = document.getElementById('sideMenu');
     const overlay = document.getElementById('overlay');
     const menuLinks = document.querySelectorAll('.menu-link');
     const body = document.body;
 
-    // Función para abrir menú
     function openMenu() {
       sideMenu.classList.add('open');
       overlay.classList.add('active');
       body.classList.add('menu-open');
     }
 
-    // Función para cerrar menú
     function closeMenu() {
       sideMenu.classList.remove('open');
       overlay.classList.remove('active');
       body.classList.remove('menu-open');
     }
 
-    // Función para toggle menú
     function toggleMenu() {
       if (sideMenu.classList.contains('open')) {
         closeMenu();
@@ -84,23 +143,48 @@
       }
     }
 
-    // Event listeners
     menuToggle.addEventListener('click', toggleMenu);
-    
-    // Cerrar menú al hacer click en el overlay
     overlay.addEventListener('click', closeMenu);
-    
-    // Cerrar menú al hacer click en un enlace
     menuLinks.forEach(link => {
       link.addEventListener('click', closeMenu);
     });
 
-    // Cerrar menú con la tecla ESC
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeMenu();
       }
     });
+
+    // Validación inicial
+    validarContraseñas();
   </script>
+
+  <style>
+    .error-message {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .alert {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
 </body>
 </html>

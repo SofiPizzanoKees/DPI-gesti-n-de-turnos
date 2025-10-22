@@ -1,8 +1,13 @@
 package com.dpi.primeraapi.controller;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Optional; 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dpi.primeraapi.model.Usuario;
 import com.dpi.primeraapi.repository.UsuarioRepository;
@@ -23,13 +30,14 @@ public class PrimeraapiController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoderService passwordEncoder;
 
-    // Inyectar ambos servicios en el constructor
     public PrimeraapiController(UsuarioRepository usuarioRepository, 
                                PasswordEncoderService passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
+    // ========== REGISTRO DE USUARIOS ==========
+    
     @GetMapping("/dpi")
     public String mostrarFormulario(Model model) {
         model.addAttribute("usuario", new Usuario());
@@ -52,59 +60,49 @@ public class PrimeraapiController {
             model.addAttribute("errorPassword", "La contraseña debe tener entre 6 y 16 caracteres");
             return cargarModeloConErrores(usuario, model, "formulario");
         }
-        // Validar que las contraseñas coincidan
+        
         if (!usuario.getPassword().equals(confirm_password)) {
             model.addAttribute("errorPassword", "Las contraseñas no coinciden");
             return cargarModeloConErrores(usuario, model, "formulario");
         }
 
-        // Validar fecha de nacimiento manualmente
         if (usuario.getFechaNacimiento() != null) {
             LocalDate hoy = LocalDate.now();
             
-            // Validar que sea fecha pasada
             if (!usuario.getFechaNacimiento().isBefore(hoy)) {
                 bindingResult.rejectValue("fechaNacimiento", "error.fecha", "La fecha debe ser en el pasado");
             }
             
-            // Validar edad mínima (18 años)
             Period periodo = Period.between(usuario.getFechaNacimiento(), hoy);
             if (periodo.getYears() < 18) {
                 bindingResult.rejectValue("fechaNacimiento", "error.edad", "Debe ser mayor de 18 años");
             }
             
-            // Validar edad máxima razonable (100 años)
             if (periodo.getYears() > 100) {
                 bindingResult.rejectValue("fechaNacimiento", "error.edad", "Fecha de nacimiento no válida");
             }
         }
 
-        // Verificar si hay errores de validación de la entidad
         if (bindingResult.hasErrors()) {
             return cargarModeloConErrores(usuario, model, "formulario");
         }
 
-        // Validar que el DNI no exista
         if (usuarioRepository.existsByDni(usuario.getDni())) {
             model.addAttribute("errorDni", "El DNI ya está registrado");
             return cargarModeloConErrores(usuario, model, "formulario");
         }
 
         try {
-            // 🔐 ENCRIPTAR LA CONTRASEÑA ANTES DE GUARDAR
             String passwordEncriptada = passwordEncoder.encode(usuario.getPassword());
             usuario.setPassword(passwordEncriptada);
-            
-            // Guardar el usuario con la contraseña encriptada
             usuarioRepository.save(usuario);
-            return "redirect:/menu"; // Redirigir al menú después del registro exitoso
+            return "redirect:/menu";
         } catch (Exception e) {
             model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
             return cargarModeloConErrores(usuario, model, "formulario");
         }
     }
 
-    //Lo mismo para registroAdmin
     @GetMapping("/registroAdmin")
     public String mostrarFormularioAdmin(Model model) {
         model.addAttribute("usuario", new Usuario());
@@ -117,36 +115,29 @@ public class PrimeraapiController {
         BindingResult bindingResult,
         Model model
     ) {
-
         if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
             usuario.setPassword("admin123");
         }
 
-        // Validar fecha de nacimiento manualmente
         if (usuario.getFechaNacimiento() != null) {
             LocalDate hoy = LocalDate.now();
             
-            // Validar que sea fecha pasada
             if (!usuario.getFechaNacimiento().isBefore(hoy)) {
                 bindingResult.rejectValue("fechaNacimiento", "error.fecha", "La fecha debe ser en el pasado");
             }
             
-            // Validar edad mínima (18 años)
             Period periodo = Period.between(usuario.getFechaNacimiento(), hoy);
             if (periodo.getYears() < 18) {
                 bindingResult.rejectValue("fechaNacimiento", "error.edad", "Debe ser mayor de 18 años");
             }
             
-            // Validar edad máxima razonable (100 años)
             if (periodo.getYears() > 100) {
                 bindingResult.rejectValue("fechaNacimiento", "error.edad", "Fecha de nacimiento no válida");
             }
         }
 
-        // Validar campos específicos según el rol
         String rol = usuario.getRol();
         if ("MEDICO".equals(rol)) {
-            // Validar campos obligatorios para médico
             if (usuario.getMatriculaNacional() == null || usuario.getMatriculaNacional().isBlank()) {
                 bindingResult.rejectValue("matriculaNacional", "error.matricula", "La matrícula nacional es obligatoria para médicos");
             }
@@ -157,13 +148,11 @@ public class PrimeraapiController {
                 bindingResult.rejectValue("especialidad", "error.especialidad", "La especialidad es obligatoria para médicos");
             }
             
-            // ✅ NUEVA VALIDACIÓN: Formato de matrículas (6 dígitos exactos)
             if (usuario.getMatriculaNacional() != null && !usuario.getMatriculaNacional().isBlank()) {
                 if (!usuario.getMatriculaNacional().matches("\\d{6}")) {
                     bindingResult.rejectValue("matriculaNacional", "error.matricula.formato", 
                                             "La matrícula nacional debe tener exactamente 6 dígitos");
                 } else {
-                    // ✅ Validar que la matrícula nacional no esté duplicada
                     if (usuarioRepository.existsByMatriculaNacional(usuario.getMatriculaNacional())) {
                         bindingResult.rejectValue("matriculaNacional", "error.matricula.duplicada", 
                                                 "La matrícula nacional ya está registrada");
@@ -176,7 +165,6 @@ public class PrimeraapiController {
                     bindingResult.rejectValue("matriculaProvincial", "error.matricula.formato", 
                                             "La matrícula provincial debe tener exactamente 6 dígitos");
                 } else {
-                    // ✅ Validar que la matrícula provincial no esté duplicada
                     if (usuarioRepository.existsByMatriculaProvincial(usuario.getMatriculaProvincial())) {
                         bindingResult.rejectValue("matriculaProvincial", "error.matricula.duplicada", 
                                                 "La matrícula provincial ya está registrada");
@@ -185,75 +173,261 @@ public class PrimeraapiController {
             }
             
         } else if ("PACIENTE".equals(rol)) {
-            // Validar campos obligatorios para paciente
             if (usuario.getObraSocial() == null || usuario.getObraSocial().isBlank()) {
                 bindingResult.rejectValue("obraSocial", "error.obraSocial", "La obra social es obligatoria para pacientes");
             }
         }
 
-        // Verificar si hay errores de validación de la entidad
         if (bindingResult.hasErrors()) {
             return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
 
-        // Validar que el DNI no exista
         if (usuarioRepository.existsByDni(usuario.getDni())) {
             model.addAttribute("errorDni", "El DNI ya está registrado");
             return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
 
-        // Validar que el email no exista (si es necesario)
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             model.addAttribute("errorEmail", "El email ya está registrado");
             return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
 
         try {
-            // 🔐 ENCRIPTAR LA CONTRASEÑA ANTES DE GUARDAR
             String passwordEncriptada = passwordEncoder.encode(usuario.getPassword());
             usuario.setPassword(passwordEncriptada);
-            
-            // Asegurar que el estado esté activo
             usuario.setEstado(true);
-            
-            // Guardar el usuario con la contraseña encriptada
             usuarioRepository.save(usuario);
-            return "redirect:/menu?registroExitoso=true"; // Redirigir al menú después del registro exitoso
+            return "redirect:/menu?registroExitoso=true";
         } catch (Exception e) {
             model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
             return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
     }
 
-    // Método auxiliar para recargar el modelo con errores
-    private String cargarModeloConErrores(Usuario usuario, Model model, String vista) {
-        // Mantener los valores en el formulario para que no se pierdan
-        model.addAttribute("usuario", usuario);
+    // ========== GESTIÓN DE TURNOS ==========
+
+    @GetMapping("/estudio")
+    public String estudio(Model model) {
+        List<Usuario> medicos = usuarioRepository.findByRolAndEstadoTrue("MEDICO");
+        model.addAttribute("medicos", medicos);
         
-        model.addAttribute("roles", java.util.List.of("ADMIN", "MEDICO", "SECRETARIO", "PACIENTE"));
+        List<Map<String, String>> estudios = Arrays.asList(
+            Map.of("id", "1", "nombre", "Radiografía"),
+            Map.of("id", "2", "nombre", "Ecografía"),
+            Map.of("id", "3", "nombre", "Análisis de Sangre"),
+            Map.of("id", "4", "nombre", "Tomografía")
+        );
+        model.addAttribute("estudios", estudios);
         
-        return vista;
+        return "estudio";
     }
 
-    // Home / Menu
-    @GetMapping({"/menu"})
-    public String menu() {
-        return "menu";
+    @PostMapping("/estudio/seleccion")
+    public String procesarSeleccion(
+        @RequestParam Long medicoId,
+        @RequestParam String estudioId,
+        RedirectAttributes redirectAttributes) {
+        
+        try {
+            redirectAttributes.addAttribute("medicoId", medicoId);
+            redirectAttributes.addAttribute("estudioId", estudioId);
+            return "redirect:/calendario";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al procesar selección");
+            return "redirect:/estudio";
+        }
     }
 
     @GetMapping("/calendario")
-    public String calendario() {
+    public String calendario(
+        @RequestParam(required = false) Long medicoId,
+        @RequestParam(required = false) String estudioId,
+        Model model) {
+        
+        if (medicoId == null || estudioId == null) {
+            model.addAttribute("error", "Faltan datos. Por favor, seleccione médico y estudio.");
+            return "calendario";
+        }
+        
+        model.addAttribute("medicoId", medicoId);
+        model.addAttribute("estudioId", estudioId);
+        
+        Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
+        medicoOpt.ifPresent(medico -> {
+            model.addAttribute("medicoNombre", medico.getNombre() + " " + medico.getApellido());
+            model.addAttribute("medicoEspecialidad", medico.getEspecialidad());
+        });
+        
         return "calendario";
     }
-    
+
+    @GetMapping("/api/fechas-disponibles")
+    @ResponseBody
+    public List<LocalDate> obtenerFechasDisponibles(
+        @RequestParam Long medicoId,
+        @RequestParam String estudioId) {
+        
+        List<LocalDate> fechasDisponibles = new ArrayList<>();
+        LocalDate hoy = LocalDate.now();
+        
+        for (int i = 1; i <= 30; i++) {
+            LocalDate fecha = hoy.plusDays(i);
+            if (fecha.getDayOfWeek() != DayOfWeek.SATURDAY && 
+                fecha.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                fechasDisponibles.add(fecha);
+            }
+        }
+        
+        return fechasDisponibles;
+    }
+
+    @PostMapping("/calendario/seleccionar-fecha")
+    public String seleccionarFecha(
+        @RequestParam Long medicoId,
+        @RequestParam String estudioId,
+        @RequestParam String fechaSeleccionada,
+        RedirectAttributes redirectAttributes) {
+        
+        redirectAttributes.addAttribute("medicoId", medicoId);
+        redirectAttributes.addAttribute("estudioId", estudioId);
+        redirectAttributes.addAttribute("fecha", fechaSeleccionada);
+        return "redirect:/horarios";
+    }
+
+    @GetMapping("/horarios")
+    public String horarios(
+        @RequestParam(required = false) Long medicoId,
+        @RequestParam(required = false) String estudioId,
+        @RequestParam(required = false) String fecha,
+        Model model) {
+        
+        if (medicoId == null || estudioId == null || fecha == null) {
+            model.addAttribute("error", "Faltan datos. Por favor, complete todos los pasos.");
+            return "horarios";
+        }
+        
+        model.addAttribute("medicoId", medicoId);
+        model.addAttribute("estudioId", estudioId);
+        model.addAttribute("fecha", fecha);
+        
+        Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
+        medicoOpt.ifPresent(medico -> {
+            model.addAttribute("medicoNombre", medico.getNombre() + " " + medico.getApellido());
+        });
+        
+        List<String> horariosDisponibles = Arrays.asList(
+            "09:00", "10:00", "11:00", "12:00", 
+            "13:00", "14:00", "15:00", "16:00"
+        );
+        model.addAttribute("horariosDisponibles", horariosDisponibles);
+        
+        return "horarios";
+    }
+
+    @PostMapping("/horarios/confirmar")
+    public String confirmarTurno(
+        @RequestParam Long medicoId,
+        @RequestParam String estudioId,
+        @RequestParam String fecha,
+        @RequestParam String hora,
+        RedirectAttributes redirectAttributes) {
+        
+        try {
+            String codigoTurno = "T" + System.currentTimeMillis();
+            
+            Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
+            if (medicoOpt.isPresent()) {
+                Usuario medico = medicoOpt.get();
+                redirectAttributes.addFlashAttribute("medicoNombre", medico.getNombre() + " " + medico.getApellido());
+                redirectAttributes.addFlashAttribute("especialidad", medico.getEspecialidad());
+            }
+            
+            redirectAttributes.addFlashAttribute("codigoTurno", codigoTurno);
+            redirectAttributes.addFlashAttribute("fecha", fecha);
+            redirectAttributes.addFlashAttribute("hora", hora);
+            redirectAttributes.addFlashAttribute("estudioId", estudioId);
+            
+            return "redirect:/confirmacionturno";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al confirmar el turno: " + e.getMessage());
+            return "redirect:/horarios";
+        }
+    }
+
     @GetMapping("/confirmacionturno")
-    public String confirmacionTurno() {
+    public String confirmacionTurno(Model model) {
+        if (!model.containsAttribute("codigoTurno")) {
+            return "redirect:/estudio";
+        }
         return "confirmacionturno";
     }
 
-    @GetMapping("/estudio")
-    public String estudio() {
-        return "estudio";
+    // ========== RECUPERACIÓN DE CONTRASEÑA ==========
+
+    @GetMapping("/cambiarContrasena")
+    public String cambiarContrasena(Model model) {
+        return "cambiarContrasena";
+    }
+
+    @PostMapping("/cambiarContrasena")
+    public String procesarCambioContrasena(
+        @RequestParam String dni,
+        @RequestParam String nuevaPassword,
+        @RequestParam String confirmarPassword,
+        RedirectAttributes redirectAttributes) {
+        
+        try {
+            // Validar que las contraseñas coincidan
+            if (!nuevaPassword.equals(confirmarPassword)) {
+                redirectAttributes.addFlashAttribute("error", "Las contraseñas no coinciden");
+                return "redirect:/cambiarContrasena";
+            }
+            
+            // Validar longitud de contraseña
+            if (nuevaPassword.length() < 6 || nuevaPassword.length() > 16) {
+                redirectAttributes.addFlashAttribute("error", "La contraseña debe tener entre 6 y 16 caracteres");
+                return "redirect:/cambiarContrasena";
+            }
+            
+            // Buscar usuario por DNI o email
+            Optional<Usuario> usuarioOpt = usuarioRepository.findByDni(dni);
+            if (!usuarioOpt.isPresent()) {
+                usuarioOpt = usuarioRepository.findByEmail(dni);
+            }
+            
+            if (usuarioOpt.isPresent()) {
+                Usuario usuario = usuarioOpt.get();
+                
+                // 🔐 ENCRIPTAR LA NUEVA CONTRASEÑA
+                String passwordEncriptada = passwordEncoder.encode(nuevaPassword);
+                usuario.setPassword(passwordEncriptada);
+                
+                usuarioRepository.save(usuario);
+                
+                redirectAttributes.addFlashAttribute("mensaje", "Contraseña cambiada exitosamente");
+                return "redirect:/login";
+            } else {
+                redirectAttributes.addFlashAttribute("error", "No se encontró usuario con ese DNI o email");
+                return "redirect:/cambiarContrasena";
+            }
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al cambiar contraseña: " + e.getMessage());
+            return "redirect:/cambiarContrasena";
+        }
+    }
+
+    // ========== MÉTODOS AUXILIARES ==========
+
+    private String cargarModeloConErrores(Usuario usuario, Model model, String vista) {
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("roles", java.util.List.of("ADMIN", "MEDICO", "SECRETARIO", "PACIENTE"));
+        return vista;
+    }
+
+    @GetMapping({"/menu"})
+    public String menu() {
+        return "menu";
     }
     
     @GetMapping("/miperfil")
@@ -261,16 +435,12 @@ public class PrimeraapiController {
         return "miperfil";
     }
 
-     @GetMapping("/recuperar")
+    @GetMapping("/recuperar")
     public String recuperar() {
         return "recuperar";
     }
     
-      @GetMapping("/cambiarContrasena")
-    public String cambiarContrasena() {
-        return "cambiarContrasena";
-    }
-      @GetMapping("/recuperarCodigo")
+    @GetMapping("/recuperarCodigo")
     public String recuperarCodigo() {
         return "recuperarCodigo";
     }
@@ -279,11 +449,6 @@ public class PrimeraapiController {
     public String formulario(Model model) {
         model.addAttribute("usuario", new Usuario());
         return "formulario";
-    }
-
-    @GetMapping("/horarios")
-    public String horarios() {
-        return "horarios";
     }
     
     @GetMapping({"","/login"})
@@ -297,29 +462,22 @@ public class PrimeraapiController {
             @RequestParam String password,
             Model model
     ) {
-        // Buscar usuario por DNI
         Optional<Usuario> usuarioOpt = usuarioRepository.findByDni(dni);
 
         if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get(); // ← OBTENER EL USUARIO DEL OPTIONAL
-            
-            // 🔐 VERIFICAR CONTRASEÑA ENCRIPTADA
+            Usuario usuario = usuarioOpt.get();
             boolean passwordValido = passwordEncoder.matches(password, usuario.getPassword());
             
             if (passwordValido) {
-                // Si el usuario está inactivo, no permitir ingreso
                 if (!usuario.isEstado()) {
                     model.addAttribute("error", "Tu cuenta está inactiva.");
                     return "login";
                 }
-
-                // Si todo está bien, redirigir al menú
                 model.addAttribute("usuario", usuario);
                 return "redirect:/menu";
             }
         }
         
-        // Si no encuentra usuario o la contraseña no coincide
         model.addAttribute("error", "DNI o contraseña incorrectos");
         return "login";
     }
@@ -337,5 +495,34 @@ public class PrimeraapiController {
     @GetMapping("/verturnos")
     public String verTurnos() {
         return "verturnos";
+    }
+
+    // ========== MÉTODO PARA CREAR MÉDICO DE PRUEBA ==========
+    
+    @GetMapping("/crear-medico-prueba")
+    @ResponseBody
+    public String crearMedicoPrueba() {
+        try {
+            if (!usuarioRepository.existsByDni("30000000")) {
+                Usuario medico = new Usuario();
+                medico.setDni("30000000");
+                medico.setNombre("Carlos");
+                medico.setApellido("López");
+                medico.setEmail("carlos@clinica.com");
+                medico.setPassword(passwordEncoder.encode("medico123"));
+                medico.setFechaNacimiento(LocalDate.of(1980, 1, 1));
+                medico.setRol("MEDICO");
+                medico.setEstado(true);
+                medico.setEspecialidad("Radiología");
+                medico.setMatriculaNacional("123456");
+                medico.setMatriculaProvincial("654321");
+                
+                usuarioRepository.save(medico);
+                return "Médico de prueba creado: Carlos López - DNI: 30000000";
+            }
+            return "El médico de prueba ya existe";
+        } catch (Exception e) {
+            return "Error creando médico: " + e.getMessage();
+        }
     }
 }
