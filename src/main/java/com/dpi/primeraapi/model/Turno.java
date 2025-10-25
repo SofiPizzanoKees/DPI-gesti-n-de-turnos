@@ -1,6 +1,7 @@
 package com.dpi.primeraapi.model;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,31 +17,35 @@ import jakarta.persistence.Table;
 public class Turno {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(unique = true, nullable = false)
-    private String codigoTurno;
-    
-    @ManyToOne
-    @JoinColumn(name = "medico_id", nullable = false)
-    private Usuario medico;
-    
-    @ManyToOne
-    @JoinColumn(name = "estudio_id", nullable = false)
-    private Estudio estudio;
+    @Column(name = "id_turno")
+    private Long idTurno;
     
     @Column(nullable = false)
     private LocalDate fecha;
     
     @Column(nullable = false)
-    private String hora;
+    private LocalTime hora;
     
+    @ManyToOne
+    @JoinColumn(name = "id_user", nullable = false)
+    private Usuario paciente;
+    
+    @ManyToOne
+    @JoinColumn(name = "id_med", nullable = false)
+    private Usuario medico;
+    
+    @ManyToOne
+    @JoinColumn(name = "id_estudio", nullable = false)
+    private Estudio estudio;
+    
+    @Column(nullable = false)
     private String estado = "PENDIENTE"; // PENDIENTE, CONFIRMADO, CANCELADO, COMPLETADO
     
     // Constructores
     public Turno() {}
     
-    public Turno(Usuario medico, Estudio estudio, LocalDate fecha, String hora) {
+    public Turno(Usuario paciente, Usuario medico, Estudio estudio, LocalDate fecha, LocalTime hora) {
+        this.paciente = paciente;
         this.medico = medico;
         this.estudio = estudio;
         this.fecha = fecha;
@@ -48,24 +53,59 @@ public class Turno {
     }
     
     // Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getIdTurno() { 
+        return idTurno; 
+    }
     
-    public String getCodigoTurno() { return codigoTurno; }
-    public void setCodigoTurno(String codigoTurno) { this.codigoTurno = codigoTurno; }
+    public void setIdTurno(Long idTurno) { 
+        this.idTurno = idTurno; 
+    }
     
-    public Usuario getMedico() { return medico; }
-    public void setMedico(Usuario medico) { this.medico = medico; }
+    public LocalDate getFecha() { 
+        return fecha; 
+    }
     
-    public Estudio getEstudio() { return estudio; }
-    public void setEstudio(Estudio estudio) { this.estudio = estudio; }
+    public void setFecha(LocalDate fecha) { 
+        this.fecha = fecha; 
+    }
     
-    public LocalDate getFecha() { return fecha; }
-    public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+    public LocalTime getHora() { 
+        return hora; 
+    }
     
-    public String getHora() { return hora; }
-    public void setHora(String hora) { this.hora = hora; }
+    public void setHora(LocalTime hora) { 
+        this.hora = hora; 
+    }
     
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public Usuario getPaciente() { 
+        return paciente; 
+    }
+    
+    public void setPaciente(Usuario paciente) { 
+        this.paciente = paciente; 
+    }
+    
+    public Usuario getMedico() { 
+        return medico; 
+    }
+    
+    public void setMedico(Usuario medico) { 
+        this.medico = medico; 
+    }
+    
+    public Estudio getEstudio() { 
+        return estudio; 
+    }
+    
+    public void setEstudio(Estudio estudio) { 
+        this.estudio = estudio; 
+    }
+    
+    public String getEstado() { 
+        return estado; 
+    }
+    
+    public void setEstado(String estado) { 
+        this.estado = estado; 
+    }
 }

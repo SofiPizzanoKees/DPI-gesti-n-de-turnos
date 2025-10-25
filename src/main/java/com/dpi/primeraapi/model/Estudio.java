@@ -1,19 +1,28 @@
 package com.dpi.primeraapi.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "estudios")
 public class Estudio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_estudio")
     private Long id;
     
     @Column(nullable = false)
     private String nombre;
     
     private String descripcion;
+    
+    @Column(nullable = false)
     private boolean activo = true;
+
+    // Relación con usuarios (médicos que realizan este estudio)
+    @OneToMany(mappedBy = "estudio", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UsuarioEstudio> usuarios = new ArrayList<>();
     
     // Constructores
     public Estudio() {}
@@ -35,4 +44,7 @@ public class Estudio {
     
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+
+    public List<UsuarioEstudio> getUsuarios() { return usuarios; }
+    public void setUsuarios(List<UsuarioEstudio> usuarios) { this.usuarios = usuarios; }
 }

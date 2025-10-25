@@ -125,18 +125,19 @@
         <small class="text-muted">Ingrese un email válido</small>
       </div>
 
-      <!-- Campo Obra Social -->
+            <!-- Campo Obra Social -->
       <div class="input-group">
-        <label>Obra Social</label>
-        <select th:field="*{obraSocial}">
-          <option value="">Seleccione...</option>
-          <option value="IPROSS">IPROSS</option>
-          <option value="PAMI">PAMI</option>
-          <option value="OTROS">OTROS</option>
-        </select>
-        <div th:if="${#fields.hasErrors('obraSocial')}" class="error-message">
-          <span th:errors="*{obraSocial}"></span>
-        </div>
+          <label>Obra Social</label>
+          <select name="obraSocialId" required>
+              <option value="">Seleccione...</option>
+              <option th:each="obraSocial : ${obrasSociales}" 
+                      th:value="${obraSocial.id}"
+                      th:text="${obraSocial.nombre}">
+              </option>
+          </select>
+          <div th:if="${errorObraSocial}" class="error-message">
+              <span th:text="${errorObraSocial}"></span>
+          </div>
       </div>
       
       <!-- Campo Contraseña -->

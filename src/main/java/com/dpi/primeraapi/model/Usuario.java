@@ -1,16 +1,22 @@
 package com.dpi.primeraapi.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -19,6 +25,7 @@ import jakarta.validation.constraints.Size;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_user")
     private Long id;
 
     @Column(name = "dni", unique = true, nullable = false, length = 8)
@@ -39,24 +46,18 @@ public class Usuario {
     private String apellido;
 
     @Column(name = "telefono", length = 10)
-    @NotBlank(message = "El teléfono es obligatorio")
     @Size(min = 10, max = 10, message = "El teléfono debe tener exactamente 10 dígitos")
     @Pattern(regexp = "\\d{10}", message = "El teléfono debe contener solo números")
     private String telefono;
 
     @Column(name = "email")
-    @NotBlank(message = "El email es obligatorio")
     @Email(message = "Debe ser un email válido")
     @Size(max = 100, message = "El email no puede exceder los 100 caracteres")
     private String email;
 
-    @Column(name = "fecha_nacimiento", nullable = false)
-    @NotNull(message = "La fecha de nacimiento es obligatoria")
+    @Column(name = "fecha_nacimiento")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaNacimiento;
-
-    @Column(name = "obra_social")
-    @Size(max = 50, message = "La obra social no puede exceder los 50 caracteres")
-    private String obraSocial;
 
     @Column(name = "password", nullable = false, length = 255)
     @NotBlank(message = "La contraseña es obligatoria")
@@ -69,7 +70,6 @@ public class Usuario {
     private String rol = "PACIENTE";
 
     @Column(name = "estado", nullable = false)
-    @NotNull(message = "El estado es obligatorio")
     private boolean estado = true;
 
     @Column(name = "matricula_nacional")
@@ -87,39 +87,29 @@ public class Usuario {
     @Column(name = "tipo_estudios")
     private String tipoEstudios;
 
-    // Constructor vacío
+    // Relación con obras sociales
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UsuarioObraSocial> obrasSociales = new ArrayList<>();
+
+    // Relación con estudios que realiza (para médicos)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UsuarioEstudio> estudiosRealizados = new ArrayList<>();
+
+    // Constructores
     public Usuario() {}
 
-    // Constructor con parámetros básicos
     public Usuario(String dni, String nombre, String apellido, String telefono, 
-                   String email, LocalDate fechaNacimiento, String obraSocial, String password) {
+                   String email, LocalDate fechaNacimiento, String password) {
         this.dni = dni;
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
         this.email = email;
         this.fechaNacimiento = fechaNacimiento;
-        this.obraSocial = obraSocial;
         this.password = password;
     }
 
-    // Constructor completo
-    public Usuario(String dni, String nombre, String apellido, String telefono, 
-                   String email, LocalDate fechaNacimiento, String obraSocial, 
-                   String password, String rol, boolean estado) {
-        this.dni = dni;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.telefono = telefono;
-        this.email = email;
-        this.fechaNacimiento = fechaNacimiento;
-        this.obraSocial = obraSocial;
-        this.password = password;
-        this.rol = rol;
-        this.estado = estado;
-    }
-
-    // Getters y Setters 
+    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -141,9 +131,6 @@ public class Usuario {
     public LocalDate getFechaNacimiento() { return fechaNacimiento; }
     public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
-    public String getObraSocial() { return obraSocial; }
-    public void setObraSocial(String obraSocial) { this.obraSocial = obraSocial; }
-
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
@@ -153,7 +140,6 @@ public class Usuario {
     public boolean isEstado() { return estado; }
     public void setEstado(boolean estado) { this.estado = estado; }
 
-    // Getters y Setters para campos de médico
     public String getMatriculaNacional() { return matriculaNacional; }
     public void setMatriculaNacional(String matriculaNacional) { this.matriculaNacional = matriculaNacional; }
 
@@ -169,6 +155,12 @@ public class Usuario {
     public String getTipoEstudios() { return tipoEstudios; }
     public void setTipoEstudios(String tipoEstudios) { this.tipoEstudios = tipoEstudios; }
 
+    public List<UsuarioObraSocial> getObrasSociales() { return obrasSociales; }
+    public void setObrasSociales(List<UsuarioObraSocial> obrasSociales) { this.obrasSociales = obrasSociales; }
+
+    public List<UsuarioEstudio> getEstudiosRealizados() { return estudiosRealizados; }
+    public void setEstudiosRealizados(List<UsuarioEstudio> estudiosRealizados) { this.estudiosRealizados = estudiosRealizados; }
+
     @Override
     public String toString() {
         return "Usuario{" +
@@ -179,7 +171,6 @@ public class Usuario {
                 ", telefono='" + telefono + '\'' +
                 ", email='" + email + '\'' +
                 ", fechaNacimiento=" + fechaNacimiento +
-                ", obraSocial='" + obraSocial + '\'' +
                 ", rol='" + rol + '\'' +
                 ", estado=" + estado +
                 '}';

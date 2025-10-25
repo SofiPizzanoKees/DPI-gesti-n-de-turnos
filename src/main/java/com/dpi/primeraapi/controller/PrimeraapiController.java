@@ -19,7 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.dpi.primeraapi.model.ObraSocial;
 import com.dpi.primeraapi.model.Usuario;
+import com.dpi.primeraapi.model.UsuarioObraSocial;
+import com.dpi.primeraapi.repository.ObraSocialRepository;
+import com.dpi.primeraapi.repository.UsuarioObraSocialRepository;
 import com.dpi.primeraapi.repository.UsuarioRepository;
 import com.dpi.primeraapi.service.PasswordEncoderService;
 
@@ -28,11 +32,17 @@ import jakarta.validation.Valid;
 @Controller
 public class PrimeraapiController {
     private final UsuarioRepository usuarioRepository;
+    private final ObraSocialRepository obraSocialRepository;
+    private final UsuarioObraSocialRepository usuarioObraSocialRepository;
     private final PasswordEncoderService passwordEncoder;
 
     public PrimeraapiController(UsuarioRepository usuarioRepository, 
+                               ObraSocialRepository obraSocialRepository,
+                               UsuarioObraSocialRepository usuarioObraSocialRepository,
                                PasswordEncoderService passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.obraSocialRepository = obraSocialRepository;
+        this.usuarioObraSocialRepository = usuarioObraSocialRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -41,16 +51,26 @@ public class PrimeraapiController {
     @GetMapping("/dpi")
     public String mostrarFormulario(Model model) {
         model.addAttribute("usuario", new Usuario());
+        
+        // Cargar obras sociales disponibles
+        List<ObraSocial> obrasSociales = obraSocialRepository.findByActivoTrue();
+        model.addAttribute("obrasSociales", obrasSociales);
+        
         return "formulario";
     }
 
-    @PostMapping("/dpi")
+@PostMapping("/dpi")
     public String procesarRegistro(
         @Valid @ModelAttribute("usuario") Usuario usuario,
         BindingResult bindingResult,
         @RequestParam String confirm_password,
+        @RequestParam(required = false) Long obraSocialId, // Nuevo parámetro para la obra social seleccionada
         Model model
     ) {
+        // Cargar obras sociales para el caso de error
+        List<ObraSocial> obrasSociales = obraSocialRepository.findByActivoTrue();
+        model.addAttribute("obrasSociales", obrasSociales);
+
         if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
             model.addAttribute("errorPassword", "La contraseña es obligatoria");
             return cargarModeloConErrores(usuario, model, "formulario");
@@ -63,6 +83,12 @@ public class PrimeraapiController {
         
         if (!usuario.getPassword().equals(confirm_password)) {
             model.addAttribute("errorPassword", "Las contraseñas no coinciden");
+            return cargarModeloConErrores(usuario, model, "formulario");
+        }
+
+        // Validar obra social para pacientes
+        if (obraSocialId == null) {
+            model.addAttribute("errorObraSocial", "Debe seleccionar una obra social");
             return cargarModeloConErrores(usuario, model, "formulario");
         }
 
@@ -95,7 +121,18 @@ public class PrimeraapiController {
         try {
             String passwordEncriptada = passwordEncoder.encode(usuario.getPassword());
             usuario.setPassword(passwordEncriptada);
-            usuarioRepository.save(usuario);
+            usuario.setRol("PACIENTE"); // Forzar rol paciente para este formulario
+            
+            // Guardar usuario primero
+            Usuario usuarioGuardado = usuarioRepository.save(usuario);
+            
+            // Asignar obra social
+            Optional<ObraSocial> obraSocialOpt = obraSocialRepository.findById(obraSocialId);
+            if (obraSocialOpt.isPresent()) {
+                UsuarioObraSocial usuarioObraSocial = new UsuarioObraSocial(usuarioGuardado, obraSocialOpt.get());
+                usuarioObraSocialRepository.save(usuarioObraSocial);
+            }
+            
             return "redirect:/menu";
         } catch (Exception e) {
             model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
@@ -106,6 +143,11 @@ public class PrimeraapiController {
     @GetMapping("/registroAdmin")
     public String mostrarFormularioAdmin(Model model) {
         model.addAttribute("usuario", new Usuario());
+        
+        // Cargar obras sociales para pacientes
+        List<ObraSocial> obrasSociales = obraSocialRepository.findByActivoTrue();
+        model.addAttribute("obrasSociales", obrasSociales);
+        
         return "registroAdmin";
     }
 
@@ -113,10 +155,24 @@ public class PrimeraapiController {
     public String procesarRegistroAdmin(
         @Valid @ModelAttribute("usuario") Usuario usuario,
         BindingResult bindingResult,
+        @RequestParam(required = false) Long obraSocialId, // Para pacientes (una sola)
+        @RequestParam(required = false) List<Long> obrasSocialesIds, // Para médicos (múltiples)
         Model model
     ) {
+        System.out.println("=== INICIANDO REGISTRO ADMIN ===");
+        System.out.println("Usuario recibido: " + usuario.getNombre() + " " + usuario.getApellido());
+        System.out.println("Rol: " + usuario.getRol());
+        System.out.println("DNI: " + usuario.getDni());
+        System.out.println("Email: " + usuario.getEmail());
+        System.out.println("Fecha Nacimiento: " + usuario.getFechaNacimiento());
+        System.out.println("Obra Social ID: " + obraSocialId);
+        System.out.println("Obras Sociales IDs: " + obrasSocialesIds);
+        // Cargar obras sociales para el caso de error
+        List<ObraSocial> obrasSociales = obraSocialRepository.findByActivoTrue();
+        model.addAttribute("obrasSociales", obrasSociales);
+
         if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
-            usuario.setPassword("admin123");
+            usuario.setPassword(usuario.getDni());
         }
 
         if (usuario.getFechaNacimiento() != null) {
@@ -172,13 +228,13 @@ public class PrimeraapiController {
                 }
             }
             
-        } else if ("PACIENTE".equals(rol)) {
-            if (usuario.getObraSocial() == null || usuario.getObraSocial().isBlank()) {
-                bindingResult.rejectValue("obraSocial", "error.obraSocial", "La obra social es obligatoria para pacientes");
-            }
         }
 
         if (bindingResult.hasErrors()) {
+            System.out.println("❌ ERRORES DE VALIDACIÓN:");
+            bindingResult.getAllErrors().forEach(error -> {
+                System.out.println(" - " + error.getDefaultMessage());
+            });
             return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
 
@@ -196,7 +252,30 @@ public class PrimeraapiController {
             String passwordEncriptada = passwordEncoder.encode(usuario.getPassword());
             usuario.setPassword(passwordEncriptada);
             usuario.setEstado(true);
-            usuarioRepository.save(usuario);
+            
+            // Guardar usuario primero
+            Usuario usuarioGuardado = usuarioRepository.save(usuario);
+            
+            // Asignar obra social si es paciente (una sola)
+            if ("PACIENTE".equals(rol) && obraSocialId != null) {
+                Optional<ObraSocial> obraSocialOpt = obraSocialRepository.findById(obraSocialId);
+                if (obraSocialOpt.isPresent()) {
+                    UsuarioObraSocial usuarioObraSocial = new UsuarioObraSocial(usuarioGuardado, obraSocialOpt.get());
+                    usuarioObraSocialRepository.save(usuarioObraSocial);
+                }
+            }
+            
+            // Asignar obras sociales si es médico (múltiples) - CORREGIDO
+            if ("MEDICO".equals(rol) && obrasSocialesIds != null && !obrasSocialesIds.isEmpty()) {
+                for (Long obraSocialIdMedico : obrasSocialesIds) { // Cambié el nombre de la variable
+                    Optional<ObraSocial> obraSocialOpt = obraSocialRepository.findById(obraSocialIdMedico);
+                    if (obraSocialOpt.isPresent()) {
+                        UsuarioObraSocial usuarioObraSocial = new UsuarioObraSocial(usuarioGuardado, obraSocialOpt.get());
+                        usuarioObraSocialRepository.save(usuarioObraSocial);
+                    }
+                }
+            }
+            
             return "redirect:/menu?registroExitoso=true";
         } catch (Exception e) {
             model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
@@ -422,6 +501,11 @@ public class PrimeraapiController {
     private String cargarModeloConErrores(Usuario usuario, Model model, String vista) {
         model.addAttribute("usuario", usuario);
         model.addAttribute("roles", java.util.List.of("ADMIN", "MEDICO", "SECRETARIO", "PACIENTE"));
+        
+        // Siempre cargar obras sociales
+        List<ObraSocial> obrasSociales = obraSocialRepository.findByActivoTrue();
+        model.addAttribute("obrasSociales", obrasSociales);
+        
         return vista;
     }
 
@@ -448,6 +532,11 @@ public class PrimeraapiController {
     @GetMapping("/formulario")
     public String formulario(Model model) {
         model.addAttribute("usuario", new Usuario());
+        
+        // Cargar obras sociales disponibles
+        List<ObraSocial> obrasSociales = obraSocialRepository.findByActivoTrue();
+        model.addAttribute("obrasSociales", obrasSociales);
+        
         return "formulario";
     }
     
@@ -496,7 +585,7 @@ public class PrimeraapiController {
     public String verTurnos() {
         return "verturnos";
     }
-
+    
     // ========== MÉTODO PARA CREAR MÉDICO DE PRUEBA ==========
     
     @GetMapping("/crear-medico-prueba")
