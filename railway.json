@@ -1,7 +1,7 @@
 {
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
-        "builder": "RAILWAY_NIXPACKS"
+        "builder": "nixpacks"
     },
     "deploy": {
         "startCommand": "java -jar target/primeraapi-0.0.1-SNAPSHOT.jar",
