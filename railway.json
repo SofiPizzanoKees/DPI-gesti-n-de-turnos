@@ -1,0 +1,10 @@
+{
+    "$schema": "https://railway.app/railway.schema.json",
+    "build": {
+        "builder": "RAILWAY_NIXPACKS"
+    },
+    "deploy": {
+        "startCommand": "java -jar target/primeraapi-0.0.1-SNAPSHOT.jar",
+        "restartPolicyType": "ON_FAILURE"
+    }
+}
