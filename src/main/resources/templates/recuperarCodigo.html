@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Verificar Código - Turnos Online</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -20,7 +20,7 @@
 
    <!-- Menú lateral -->
   <aside id="sideMenu" class="side-menu">
-  <nav class="menu-nav">
+    <nav class="menu-nav">
       <a href="login" class="menu-link">Inicio</a>
       <a href="miperfil" class="menu-link">Mi Perfil</a>
       <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
@@ -39,18 +39,28 @@
     </header>
 
     <!-- Título -->
-    <h2 class="title">TURNOS ONLINE</h2>
+    <h2 class="title">VERIFICAR CÓDIGO</h2>
+
+    <!-- Mensajes de error -->
+    <div th:if="${error}" class="alert alert-error">
+      <span th:text="${error}"></span>
+    </div>
 
     <!-- Formulario -->
-    <form class="login-form" th:action="@{/login}" method="post">
+    <form class="login-form" th:action="@{/verificarCodigo}" method="post">
       
-      <input type="text" id="dni" name="dni" required placeholder="Ingrese el codigo recibido por mail">
-      <button type="submit" class="btn" onclick="window.location.href='cambiarContrasena'">SIGUIENTE</button>
+      <!-- Campo oculto para mantener el email -->
+      <input type="hidden" id="email" name="email" th:value="${email}">
+      
+      <input type="text" id="codigo" name="codigo" required placeholder="Ingrese el código recibido por mail" maxlength="4">
+      <button type="submit" class="btn">SIGUIENTE</button>
     </form>
      
-  <footer>
-    2025 Turnos Online - Todos los derechos reservados
-  </footer>
+    <footer>
+      2025 Turnos Online - Todos los derechos reservados
+    </footer>
+  </div>
+
   <script>
     // Elementos del DOM
     const menuToggle = document.getElementById('menu-toggle');
@@ -99,9 +109,26 @@
         closeMenu();
       }
     });
-  </script>
-  </div>
 
-  <script src="../js/script.js"></script>
+    // Validar que solo se ingresen números en el código
+    document.getElementById('codigo').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+  </script>
+
+  <style>
+    .alert {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
 </body>
 </html>

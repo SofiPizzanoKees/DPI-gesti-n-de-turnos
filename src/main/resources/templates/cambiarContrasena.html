@@ -49,24 +49,24 @@
       <span th:text="${error}"></span>
     </div>
 
-    <!-- Formulario corregido - SIN CAMPO DNI/EMAIL -->
-    <form class="login-form" th:action="@{/cambiarContrasena}" method="post">
-      
-      <!-- Campo para nueva contraseña -->
-      <label for="nuevaPassword">NUEVA CONTRASEÑA</label>
-      <input type="password" id="nuevaPassword" name="nuevaPassword" required 
-             placeholder="Mínimo 6 caracteres" minlength="6" maxlength="16">
+  <!-- Formulario -->
+  <form class="login-form" th:action="@{/cambiarContrasena}" method="post">
+    
+    <!-- Campo para nueva contraseña -->
+    <label for="nuevaPassword">NUEVA CONTRASEÑA</label>
+    <input type="password" id="nuevaPassword" name="nuevaPassword" required 
+          placeholder="Mínimo 6 caracteres" minlength="6" maxlength="16">
 
-      <!-- Campo para confirmar contraseña -->
-      <label for="confirmarPassword">CONFIRMAR CONTRASEÑA</label>
-      <input type="password" id="confirmarPassword" name="confirmarPassword" required 
-             placeholder="Repita la contraseña">
-      <div id="passwordMatchError" class="error-message" style="display: none;">
-        Las contraseñas no coinciden
-      </div>
+    <!-- Campo para confirmar contraseña -->
+    <label for="confirmarPassword">CONFIRMAR CONTRASEÑA</label>
+    <input type="password" id="confirmarPassword" name="confirmarPassword" required 
+          placeholder="Repita la contraseña">
+    <div id="passwordMatchError" class="error-message" style="display: none;">
+      Las contraseñas no coinciden
+    </div>
 
-      <button type="submit" class="btn" id="submitBtn" onclick="window.location.href='login'">CONFIRMAR</button>
-    </form>
+    <button type="submit" class="btn">CONFIRMAR</button>
+  </form>
 
     <!-- QUITÉ el link "Volver al Login" ya que el botón CONFIRMAR redirige al login -->
   </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Recuperar Contraseña - Turnos Online</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -39,17 +39,31 @@
     </header>
 
     <!-- Título -->
-    <h2 class="title">TURNOS ONLINE</h2>
+    <h2 class="title">RECUPERAR CONTRASEÑA</h2>
+
+    <!-- 🔴 MENSAJES DE ERROR -->
+    <div th:if="${error}" class="alert alert-error">
+      <i class="fas fa-exclamation-circle"></i>
+      <span th:text="${error}"></span>
+    </div>
 
     <!-- Formulario -->
-    <form class="login-form" th:action="@{/login}" method="post">
-      
-      <input type="text" id="dni" name="dni" required placeholder="Ingrese su mail">
-      <button type="button" class="btn" onclick="window.location.href='recuperarCodigo'">SIGUIENTE</button>
+    <form class="login-form" th:action="@{/recuperarCodigo}" method="post">
+      <input type="email" id="email" name="email" required 
+             placeholder="Ingrese su email" th:class="${error != null} ? 'input-error' : ''">
+      <button type="submit" class="btn">SIGUIENTE</button>
     </form>
-      <footer>
-    2025 Turnos Online - Todos los derechos reservados
-  </footer>
+
+    <!-- Link para volver al login -->
+    <div class="text-center" style="margin-top: 20px;">
+      <a href="login" class="back-link">← Volver al Login</a>
+    </div>
+    
+    <footer>
+      2025 Turnos Online - Todos los derechos reservados
+    </footer>
+  </div>
+
   <script>
     // Elementos del DOM
     const menuToggle = document.getElementById('menu-toggle');
@@ -98,12 +112,52 @@
         closeMenu();
       }
     });
-  </script>
-</body>
-</html>
-    
-  </div>
 
-  <script src="../js/script.js"></script>
+    // Limpiar error cuando el usuario empiece a escribir
+    document.getElementById('email').addEventListener('input', function() {
+      if (this.classList.contains('input-error')) {
+        this.classList.remove('input-error');
+        // También podrías ocultar el mensaje de error aquí si quieres
+      }
+    });
+  </script>
+
+  <style>
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    
+    .alert-error {
+      background-color: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    
+    .input-error {
+      border-color: #dc2626 !important;
+      background-color: #fef2f2;
+    }
+    
+    .back-link {
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    
+    .text-center {
+      text-align: center;
+    }
+  </style>
 </body>
 </html>
