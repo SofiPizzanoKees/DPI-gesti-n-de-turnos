@@ -155,8 +155,8 @@ public class PrimeraapiController {
     public String procesarRegistroAdmin(
         @Valid @ModelAttribute("usuario") Usuario usuario,
         BindingResult bindingResult,
-        @RequestParam(required = false) Long obraSocialId, // Para pacientes (una sola)
-        @RequestParam(required = false) List<Long> obrasSocialesIds, // Para médicos (múltiples)
+        @RequestParam(required = false) Long obraSocialId,
+        @RequestParam(required = false) List<Long> obrasSocialesIds,
         Model model
     ) {
         System.out.println("=== INICIANDO REGISTRO ADMIN ===");
@@ -167,14 +167,29 @@ public class PrimeraapiController {
         System.out.println("Fecha Nacimiento: " + usuario.getFechaNacimiento());
         System.out.println("Obra Social ID: " + obraSocialId);
         System.out.println("Obras Sociales IDs: " + obrasSocialesIds);
+        
         // Cargar obras sociales para el caso de error
         List<ObraSocial> obrasSociales = obraSocialRepository.findByActivoTrue();
         model.addAttribute("obrasSociales", obrasSociales);
 
-        if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
-            usuario.setPassword(usuario.getDni());
+        // 🔐 ESTABLECER AUTOMÁTICAMENTE LA CONTRASEÑA COMO EL DNI
+        String dni = usuario.getDni();
+        if (dni != null && !dni.isBlank()) {
+            usuario.setPassword(dni);
+            System.out.println("✅ Contraseña establecida automáticamente como DNI: " + dni);
+        } else {
+            model.addAttribute("errorGeneral", "El DNI es obligatorio para generar la contraseña");
+            return cargarModeloConErrores(usuario, model, "registroAdmin");
         }
 
+        // Validaciones manuales de la contraseña
+        if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+            bindingResult.rejectValue("password", "error.password", "La contraseña es obligatoria");
+        } else if (usuario.getPassword().length() < 6) {
+            bindingResult.rejectValue("password", "error.password", "La contraseña debe tener al menos 6 caracteres");
+        }
+
+        // Validaciones de fecha de nacimiento
         if (usuario.getFechaNacimiento() != null) {
             LocalDate hoy = LocalDate.now();
             
@@ -193,14 +208,25 @@ public class PrimeraapiController {
         }
 
         String rol = usuario.getRol();
+        System.out.println("🔍 Validando rol: " + rol);
+        
+        // 🔄 VALIDACIONES ESPECÍFICAS SOLO PARA MÉDICOS
         if ("MEDICO".equals(rol)) {
+            System.out.println("🔍 Validando datos de médico...");
+            System.out.println("Matrícula Nacional: " + usuario.getMatriculaNacional());
+            System.out.println("Matrícula Provincial: " + usuario.getMatriculaProvincial());
+            System.out.println("Especialidad: " + usuario.getEspecialidad());
+            
             if (usuario.getMatriculaNacional() == null || usuario.getMatriculaNacional().isBlank()) {
+                System.out.println("❌ Matrícula nacional vacía");
                 bindingResult.rejectValue("matriculaNacional", "error.matricula", "La matrícula nacional es obligatoria para médicos");
             }
             if (usuario.getMatriculaProvincial() == null || usuario.getMatriculaProvincial().isBlank()) {
+                System.out.println("❌ Matrícula provincial vacía");
                 bindingResult.rejectValue("matriculaProvincial", "error.matricula", "La matrícula provincial es obligatoria para médicos");
             }
             if (usuario.getEspecialidad() == null || usuario.getEspecialidad().isBlank()) {
+                System.out.println("❌ Especialidad vacía");
                 bindingResult.rejectValue("especialidad", "error.especialidad", "La especialidad es obligatoria para médicos");
             }
             
@@ -227,57 +253,104 @@ public class PrimeraapiController {
                     }
                 }
             }
-            
+        } else {
+            // ⚠️ PARA OTROS ROLES: LIMPIAR CAMPOS DE MÉDICO PARA EVITAR CONFUSIONES
+            System.out.println("🔄 Limpiando campos de médico para rol: " + rol);
+            usuario.setMatriculaNacional(null);
+            usuario.setMatriculaProvincial(null);
+            usuario.setEspecialidad(null);
+            usuario.setRealizaEstudios(null);
+            usuario.setTipoEstudios(null);
         }
 
+        // 🔄 VALIDACIÓN ESPECÍFICA PARA PACIENTES
+        if ("PACIENTE".equals(rol)) {
+            System.out.println("🔍 Validando datos de paciente...");
+            if (obraSocialId == null) {
+                System.out.println("❌ Obra social no seleccionada para paciente");
+                model.addAttribute("errorObraSocial", "Debe seleccionar una obra social para el paciente");
+                return cargarModeloConErrores(usuario, model, "registroAdmin");
+            }
+        }
+
+        // Verificar si hay errores de validación
         if (bindingResult.hasErrors()) {
-            System.out.println("❌ ERRORES DE VALIDACIÓN:");
-            bindingResult.getAllErrors().forEach(error -> {
-                System.out.println(" - " + error.getDefaultMessage());
+            System.out.println("❌ ERRORES DE VALIDACIÓN ENCONTRADOS:");
+            bindingResult.getFieldErrors().forEach(error -> {
+                System.out.println(" - Campo: " + error.getField() + " -> " + error.getDefaultMessage());
             });
             return cargarModeloConErrores(usuario, model, "registroAdmin");
+        } else {
+            System.out.println("✅ No hay errores de validación");
         }
 
+        // Verificar duplicados
         if (usuarioRepository.existsByDni(usuario.getDni())) {
+            System.out.println("❌ DNI duplicado: " + usuario.getDni());
             model.addAttribute("errorDni", "El DNI ya está registrado");
             return cargarModeloConErrores(usuario, model, "registroAdmin");
+        } else {
+            System.out.println("✅ DNI disponible: " + usuario.getDni());
         }
 
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
-            model.addAttribute("errorEmail", "El email ya está registrado");
+            System.out.println("❌ Email duplicado: " + usuario.getEmail());
+            model.addAttribute("errorEmail", "El email ya está registrado. Por favor use otro email.");
             return cargarModeloConErrores(usuario, model, "registroAdmin");
+        } else {
+            System.out.println("✅ Email disponible: " + usuario.getEmail());
         }
 
         try {
+            System.out.println("💾 Intentando guardar usuario...");
+            
+            // 🔐 ENCRIPTAR LA CONTRASEÑA
             String passwordEncriptada = passwordEncoder.encode(usuario.getPassword());
             usuario.setPassword(passwordEncriptada);
             usuario.setEstado(true);
             
-            // Guardar usuario primero
-            Usuario usuarioGuardado = usuarioRepository.save(usuario);
+            System.out.println("🔐 Contraseña encriptada: " + passwordEncriptada.substring(0, 20) + "...");
             
-            // Asignar obra social si es paciente (una sola)
+            // Guardar usuario
+            Usuario usuarioGuardado = usuarioRepository.save(usuario);
+            System.out.println("✅ Usuario guardado con ID: " + usuarioGuardado.getId());
+            
+            // 🔄 ASIGNACIONES ESPECÍFICAS POR ROL
+            
+            // Para PACIENTES: asignar obra social (una sola)
             if ("PACIENTE".equals(rol) && obraSocialId != null) {
                 Optional<ObraSocial> obraSocialOpt = obraSocialRepository.findById(obraSocialId);
                 if (obraSocialOpt.isPresent()) {
                     UsuarioObraSocial usuarioObraSocial = new UsuarioObraSocial(usuarioGuardado, obraSocialOpt.get());
                     usuarioObraSocialRepository.save(usuarioObraSocial);
+                    System.out.println("✅ Obra social asignada al paciente: " + obraSocialOpt.get().getNombre());
                 }
             }
             
-            // Asignar obras sociales si es médico (múltiples) - CORREGIDO
+            // Para MÉDICOS: asignar obras sociales (múltiples)
             if ("MEDICO".equals(rol) && obrasSocialesIds != null && !obrasSocialesIds.isEmpty()) {
-                for (Long obraSocialIdMedico : obrasSocialesIds) { // Cambié el nombre de la variable
+                System.out.println("🏥 Asignando " + obrasSocialesIds.size() + " obras sociales al médico");
+                for (Long obraSocialIdMedico : obrasSocialesIds) {
                     Optional<ObraSocial> obraSocialOpt = obraSocialRepository.findById(obraSocialIdMedico);
                     if (obraSocialOpt.isPresent()) {
                         UsuarioObraSocial usuarioObraSocial = new UsuarioObraSocial(usuarioGuardado, obraSocialOpt.get());
                         usuarioObraSocialRepository.save(usuarioObraSocial);
+                        System.out.println("✅ Obra social asignada: " + obraSocialOpt.get().getNombre());
                     }
                 }
             }
             
+            // Para ADMIN y SECRETARIO: no requieren asignaciones adicionales
+            if ("ADMIN".equals(rol) || "SECRETARIO".equals(rol)) {
+                System.out.println("✅ " + rol + " registrado sin asignaciones adicionales");
+            }
+            
+            System.out.println("🎉 Registro completado exitosamente para: " + usuario.getNombre() + " " + usuario.getApellido() + " como " + rol);
             return "redirect:/menu?registroExitoso=true";
+            
         } catch (Exception e) {
+            System.out.println("💥 ERROR CRÍTICO al guardar usuario: " + e.getMessage());
+            e.printStackTrace();
             model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
             return cargarModeloConErrores(usuario, model, "registroAdmin");
         }

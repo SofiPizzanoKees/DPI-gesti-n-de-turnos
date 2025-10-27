@@ -7,7 +7,6 @@
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    /* Solo estilos mínimos necesarios para la funcionalidad */
     .role-fields {
       display: none;
     }
@@ -44,9 +43,6 @@
     transition: all 0.3s ease;
     min-height: 80px;
     user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
   }
 
   .role-btn:focus {
@@ -54,174 +50,172 @@
     outline-offset: 2px;
   }
     
-    .role-btn:hover {
+  .role-btn:hover {
+    border-color: #00c2a8;
+  }
+  
+  .role-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    color: #00c2a8;
+  }
+  
+  .role-btn span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  .clinic-info {
+    margin-top: 10px;
+  }
+  
+  .clinic-info h1 {
+    font-size: 1.5rem;
+    margin: 5px 0;
+    color: #333;
+  }
+  
+  .clinic-info h2 {
+    font-size: 1.2rem;
+    margin: 0;
+    color: #666;
+    font-weight: normal;
+  }
+  
+  .form-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #545b62;
+  }
+
+  .matricula-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 5px;
+    display: none;
+  }
+
+  .input-matricula:invalid {
+    border-color: #dc3545;
+  }
+
+  .input-matricula:valid {
+    border-color: #28a745;
+  }
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+  }
+
+  .checkbox-input {
+    display: none;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: white;
+    width: 100%;
+  }
+
+  .checkbox-label:hover {
+    border-color: #00c2a8;
+    background: #f8f9fa;
+  }
+
+  .checkbox-input:checked + .checkbox-label {
+    border-color: #00c2a8;
+    background: #e8f7f5;
+  }
+
+  .checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .checkbox-input:checked + .checkbox-label .checkmark {
+    background: #00c2a8;
+    border-color: #00c2a8;
+  }
+
+  .checkbox-input:checked + .checkbox-label .checkmark::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .checkbox-text {
+    font-weight: 500;
+    color: #333;
+  }
+      /* Estilos para el date input */
+  input[type="date"] {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+  }
+
+  input[type="date"]:focus {
       border-color: #00c2a8;
+      outline: none;
+  }
+    /* Responsive para pantallas muy pequeñas */
+  @media (max-width: 360px) {
+    .role-selector {
+      max-width: 280px;
+      gap: 8px;
+    }
+    
+    .role-btn {
+      padding: 12px 8px;
+      min-height: 70px;
     }
     
     .role-icon {
-      font-size: 1.5rem;
-      margin-bottom: 5px;
-      color: #00c2a8;
+      font-size: 1.3rem;
     }
     
     .role-btn span {
-      font-size: 0.9rem;
-      font-weight: 500;
-      text-align: center;
+      font-size: 0.8rem;
     }
-    
-    .clinic-info {
-      margin-top: 10px;
-    }
-    
-    .clinic-info h1 {
-      font-size: 1.5rem;
-      margin: 5px 0;
-      color: #333;
-    }
-    
-    .clinic-info h2 {
-      font-size: 1.2rem;
-      margin: 0;
-      color: #666;
-      font-weight: normal;
-    }
-    
-    .form-buttons {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    
-    .btn-secondary {
-      background-color: #6c757d;
-      color: white;
-    }
-    
-    .btn-secondary:hover {
-      background-color: #545b62;
-    }
-
-    /* Estilos para mensajes de error de matrículas */
-    .matricula-error {
-      color: #dc3545;
-      font-size: 0.875rem;
-      margin-top: 5px;
-      display: none;
-    }
-
-    .input-matricula:invalid {
-      border-color: #dc3545;
-    }
-
-    .input-matricula:valid {
-      border-color: #28a745;
-    }
-    /* Estilos para checkboxes modernos */
-        .checkbox-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 10px;
-          margin-top: 10px;
-        }
-
-        .checkbox-item {
-          display: flex;
-          align-items: center;
-        }
-
-        .checkbox-input {
-          display: none;
-        }
-
-        .checkbox-label {
-          display: flex;
-          align-items: center;
-          cursor: pointer;
-          padding: 8px 12px;
-          border: 2px solid #e0e0e0;
-          border-radius: 8px;
-          transition: all 0.3s ease;
-          background: white;
-          width: 100%;
-        }
-
-        .checkbox-label:hover {
-          border-color: #00c2a8;
-          background: #f8f9fa;
-        }
-
-        .checkbox-input:checked + .checkbox-label {
-          border-color: #00c2a8;
-          background: #e8f7f5;
-        }
-
-        .checkmark {
-          width: 18px;
-          height: 18px;
-          border: 2px solid #ccc;
-          border-radius: 4px;
-          margin-right: 10px;
-          position: relative;
-          transition: all 0.3s ease;
-        }
-
-        .checkbox-input:checked + .checkbox-label .checkmark {
-          background: #00c2a8;
-          border-color: #00c2a8;
-        }
-
-        .checkbox-input:checked + .checkbox-label .checkmark::after {
-          content: '';
-          position: absolute;
-          left: 4px;
-          top: 1px;
-          width: 6px;
-          height: 10px;
-          border: solid white;
-          border-width: 0 2px 2px 0;
-          transform: rotate(45deg);
-        }
-
-        .checkbox-text {
-          font-weight: 500;
-          color: #333;
-        }
-        /* Estilos para el date input */
-    input[type="date"] {
-        padding: 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-family: inherit;
-        font-size: 16px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    input[type="date"]:focus {
-        border-color: #00c2a8;
-        outline: none;
-    }
-    /* Responsive para pantallas muy pequeñas */
-    @media (max-width: 360px) {
-      .role-selector {
-        max-width: 280px;
-        gap: 8px;
-      }
-      
-      .role-btn {
-        padding: 12px 8px;
-        min-height: 70px;
-      }
-      
-      .role-icon {
-        font-size: 1.3rem;
-      }
-      
-      .role-btn span {
-        font-size: 0.8rem;
-      }
     
     }
   </style>
@@ -262,27 +256,32 @@
 
     <!-- Formulario -->
     <form class="formulario" th:action="@{/registroAdmin}" th:object="${usuario}" method="post" id="registroForm">
+
+    <div th:if="${errorGeneral}" class="alert alert-error" style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        <strong>Error:</strong> <span th:text="${errorGeneral}"></span>
+    </div>
+
       <!-- Selección de Rol -->
       <div class="role-section">
         <h3>Seleccione su perfil:</h3>
         <div class="role-selector">
-        <div class="role-btn admin-btn active" data-role="ADMIN">
-          <i class="fas fa-user-shield role-icon"></i>
-          <span>Administrador</span>
+          <div class="role-btn admin-btn active" data-role="ADMIN">
+            <i class="fas fa-user-shield role-icon"></i>
+            <span>Administrador</span>
+          </div>
+          <div class="role-btn medic-btn" data-role="MEDICO">
+            <i class="fas fa-user-md role-icon"></i>
+            <span>Médicx</span>
+          </div>
+          <div class="role-btn secretary-btn" data-role="SECRETARIO">
+            <i class="fas fa-user-tie role-icon"></i>
+            <span>Secretarix</span>
+          </div>
+          <div class="role-btn patient-btn" data-role="PACIENTE">
+            <i class="fas fa-user-injured role-icon"></i>
+            <span>Paciente</span>
+          </div>
         </div>
-        <div class="role-btn medic-btn" data-role="MEDICO">
-          <i class="fas fa-user-md role-icon"></i>
-          <span>Médicx</span>
-        </div>
-        <div class="role-btn secretary-btn" data-role="SECRETARIO">
-          <i class="fas fa-user-tie role-icon"></i>
-          <span>Secretarix</span>
-        </div>
-        <div class="role-btn patient-btn" data-role="PACIENTE">
-          <i class="fas fa-user-injured role-icon"></i>
-          <span>Paciente</span>
-        </div>
-      </div>
       </div>
 
       <!-- Campo oculto para el rol -->
@@ -300,13 +299,19 @@
         <div class="form-row">
           <div class="input-group">
             <label>DNI</label>
-            <input type="text" th:field="*{dni}" placeholder="----------" 
-                   maxlength="8"
-                   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <input type="text" name="dni" th:field="*{dni}" placeholder="----------" 
+                  maxlength="8" required
+                  oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             <div th:if="${#fields.hasErrors('dni')}" class="error-message">
               <span th:errors="*{dni}"></span>
             </div>
           </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="input-group">
+                <input type="hidden" th:field="*{password}" id="hiddenPassword">
+            </div>
         </div>
 
         <div class="form-row">
@@ -365,19 +370,21 @@
             </div>
         </div>
 
-        <div class="form-row">
-          <div class="input-group">
-            <label>Email</label>
-            <input type="email" th:field="*{email}" placeholder="ejemplo@correo.com">
-            <div th:if="${#fields.hasErrors('email')}" class="error-message">
-              <span th:errors="*{email}"></span>
-            </div>
-            <small class="text-muted">Ingrese un email válido</small>
+      <div class="form-row">
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" th:field="*{email}" placeholder="ejemplo@correo.com">
+          <!-- Mostrar error de email duplicado -->
+          <div th:if="${errorEmail}" class="error-message">
+            <span th:text="${errorEmail}"></span>
           </div>
+          <div th:if="${#fields.hasErrors('email')}" class="error-message">
+            <span th:errors="*{email}"></span>
+          </div>
+          <small class="text-muted">Ingrese un email válido</small>
         </div>
       </div>
-            <!-- Campo oculto para la contraseña -->
-      <input type="hidden" th:field="*{password}" id="hiddenPassword">
+
       <!-- Campos específicos por rol -->
       <div class="role-specific-section">
         <!-- Administrador - Sin campos adicionales -->
@@ -394,7 +401,6 @@
               <label>Matrícula Nacional</label>
               <input type="text" th:field="*{matriculaNacional}" 
                      id="matriculaNacional"
-                     name="matriculaNacional"
                      class="input-matricula"
                      placeholder="6 dígitos"
                      maxlength="6"
@@ -415,7 +421,6 @@
               <label>Matrícula Provincial</label>
               <input type="text" th:field="*{matriculaProvincial}" 
                      id="matriculaProvincial"
-                     name="matriculaProvincial"
                      class="input-matricula"
                      placeholder="6 dígitos"
                      maxlength="6"
@@ -453,29 +458,28 @@
               <input type="text" th:field="*{tipoEstudios}" placeholder="Tipos de estudios que realiza">
             </div>
           </div>
-          <!-- En la sección de médico -->
-       <div class="form-row">
-        <div class="input-group">
-          <label>Obras Sociales que Atiende</label>
-          <div class="checkbox-grid">
-            <div th:each="obraSocial : ${obrasSociales}" class="checkbox-item">
-              <input type="checkbox" 
-                    th:id="${'obraSocial_' + obraSocial.id}"
-                    th:value="${obraSocial.id}" 
-                    name="obrasSocialesIds"
-                    class="checkbox-input">
-              <label th:for="${'obraSocial_' + obraSocial.id}" class="checkbox-label">
-                <span class="checkmark"></span>
-                <span th:text="${obraSocial.nombre}" class="checkbox-text"></span>
-              </label>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Obras Sociales que Atiende</label>
+              <div class="checkbox-grid">
+                <div th:each="obraSocial : ${obrasSociales}" class="checkbox-item">
+                  <input type="checkbox" 
+                         th:id="${'obraSocial_' + obraSocial.id}"
+                         th:value="${obraSocial.id}" 
+                         name="obrasSocialesIds"
+                         class="checkbox-input">
+                  <label th:for="${'obraSocial_' + obraSocial.id}" class="checkbox-label">
+                    <span class="checkmark"></span>
+                    <span th:text="${obraSocial.nombre}" class="checkbox-text"></span>
+                  </label>
+                </div>
+              </div>
+              <small class="text-muted">Seleccione las obras sociales que atiende</small>
             </div>
           </div>
-          <small class="text-muted">Seleccione las obras sociales que atiende</small>
-        </div>
-        </div>
         </div>
 
-        <!-- Secretarix - Sin campos adicionales -->
+        <!-- Secretarix -->
         <div id="secretario-fields" class="role-fields">
           <h4>Datos de Secretarix</h4>
           <p>No se requieren datos adicionales para el perfil de secretarix.</p>
@@ -487,7 +491,7 @@
           <div class="form-row">
             <div class="input-group">
               <label>Obra Social</label>
-              <select name="obraSocialId">
+              <select name="obraSocialId" required>
                 <option value="">Seleccione...</option>
                 <option th:each="obraSocial : ${obrasSociales}" 
                         th:value="${obraSocial.id}"
@@ -514,187 +518,256 @@
   </footer>
 
 <script>
-      
-    function validarNombre(input) {
-        input.value = input.value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
-    }
-    
-    function validarApellido(input) {
-        input.value = input.value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
-    }
-    
-    function validarTelefono(input) {
-        input.value = input.value.replace(/[^0-9]/g, '');
-    }
+function validarNombre(input) {
+    input.value = input.value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
+}
 
-    function validarMatricula(input) {
-        // Remover cualquier caracter que no sea número
-        input.value = input.value.replace(/[^0-9]/g, '');
-        
-        // Limitar a 6 dígitos
-        if (input.value.length > 6) {
-            input.value = input.value.slice(0, 6);
-        }
-        
-        // Mostrar/ocultar mensaje de error
-        const errorElement = document.getElementById(input.id + '-error');
-        if (errorElement) {
-            if (input.value.length > 0 && input.value.length !== 6) {
-                errorElement.style.display = 'block';
-            } else {
-                errorElement.style.display = 'none';
-            }
+function validarApellido(input) {
+    input.value = input.value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
+}
+
+function validarTelefono(input) {
+    input.value = input.value.replace(/[^0-9]/g, '');
+}
+
+function validarMatricula(input) {
+    input.value = input.value.replace(/[^0-9]/g, '');
+    if (input.value.length > 6) {
+        input.value = input.value.slice(0, 6);
+    }
+    
+    const errorElement = document.getElementById(input.id + '-error');
+    if (errorElement) {
+        if (input.value.length > 0 && input.value.length !== 6) {
+            errorElement.style.display = 'block';
+        } else {
+            errorElement.style.display = 'none';
         }
     }
+}
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const roleButtons = document.querySelectorAll('.role-btn');
-        const roleFields = document.querySelectorAll('.role-fields');
-        const selectedRoleInput = document.getElementById('selectedRole');
-        const registroForm = document.getElementById('registroForm');
+document.addEventListener('DOMContentLoaded', function() {
+    const roleButtons = document.querySelectorAll('.role-btn');
+    const roleFields = document.querySelectorAll('.role-fields');
+    const selectedRoleInput = document.getElementById('selectedRole');
+    const registroForm = document.getElementById('registroForm');
+    
+    // Buscar campos de forma más específica
+    const dniInput = document.querySelector('input[name="dni"]');
+    const passwordField = document.getElementById('hiddenPassword');
+    
+    console.log('🔍 Buscando campos:');
+    console.log('- DNI:', dniInput);
+    console.log('- Password:', passwordField);
+    
+    // Función para mostrar campos según el rol y LIMPIAR REQUIRED
+    function showRoleFields(role) {
+        console.log('🎯 Cambiando a rol:', role);
         
-        // Función para mostrar campos según el rol
-        function showRoleFields(role) {
-            console.log('Cambiando a rol:', role);
-            
-            // Ocultar todos los campos de rol
-            roleFields.forEach(field => {
-                field.classList.remove('active');
-            });
-            
-            // Mostrar campos del rol seleccionado
-            const targetFields = document.getElementById(`${role.toLowerCase()}-fields`);
-            if (targetFields) {
-                targetFields.classList.add('active');
-            }
-            
-            // Actualizar estado de botones
-            roleButtons.forEach(button => {
-                if (button.getAttribute('data-role') === role) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
-                }
-            });
-            
-            // Actualizar campo oculto con el rol seleccionado
-            selectedRoleInput.value = role;
-        }
-        
-        // Añadir event listeners a los botones de rol
-        roleButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                 roleButtons.forEach(btn => btn.classList.remove('active'));
-                  this.classList.add('active');
-
-                  // Cambiar valor del campo oculto que se envía al backend
-                  selectedRoleInput.value = this.dataset.role;
-
-                  // Mostrar campos del rol correcto
-                  showRoleFields(this.dataset.role);
-            });
-        });
-
-        // Validación antes del envío del formulario - CON CONTRASEÑA AUTOMÁTICA
-        // Validación antes del envío del formulario - CON MÁS DEBUG DE CONTRASEÑA
-registroForm.addEventListener('submit', function(event) {
-    console.group('🔴 SUBMIT DETECTADO - Iniciando validación...');
-    const selectedRole = selectedRoleInput.value;
-    console.log('Rol seleccionado:', selectedRole);
-    
-    // ESTABLECER CONTRASEÑA AUTOMÁTICAMENTE COMO EL DNI
-    const dniInput = document.querySelector('input[th\\:field="*{dni}"]');
-    const dni = dniInput ? dniInput.value : null;
-    const passwordInput = document.querySelector('input[th\\:field="*{password}"]');
-    
-    console.log('🔍 DEBUG CONTRASEÑA:');
-    console.log(' - DNI encontrado:', dni);
-    console.log(' - Password input encontrado:', passwordInput);
-    console.log(' - Valor actual de password:', passwordInput ? passwordInput.value : 'NO ENCONTRADO');
-    
-    if (dni && passwordInput && (!passwordInput.value || passwordInput.value.trim() === '')) {
-        console.log('🔐 Estableciendo contraseña automáticamente como DNI:', dni);
-        passwordInput.value = dni;
-        console.log('🔐 Nueva contraseña establecida:', passwordInput.value);
-        console.log('🔐 Longitud de la contraseña:', passwordInput.value.length);
-    } else if (passwordInput && passwordInput.value) {
-        console.log('🔐 Contraseña ya tenía valor:', passwordInput.value);
-    }
-    
-    // Si no es médico, quitar required de matrículas
-    if (selectedRole !== 'MEDICO') {
-        console.log('🟡 No es médico - quitando required de matrículas');
-        document.querySelectorAll('#medico-fields .input-matricula').forEach(input => {
+        // 1. Primero remover required de TODOS los campos de roles
+        document.querySelectorAll('#medico-fields input, #medico-fields select').forEach(input => {
             input.removeAttribute('required');
         });
-    }
-    
-    let prevenirEnvio = false;
-    
-    if (selectedRole === 'MEDICO') {
-        console.log('🟡 Validando médico...');
-        const matriculaNacional = document.getElementById('matriculaNacional').value;
-        const matriculaProvincial = document.getElementById('matriculaProvincial').value;
+        document.querySelectorAll('#paciente-fields input, #paciente-fields select').forEach(input => {
+            input.removeAttribute('required');
+        });
         
-        let isValid = true;
+        // 2. Ocultar todos los campos de rol
+        roleFields.forEach(field => {
+            field.classList.remove('active');
+        });
         
-        // Validar matrícula nacional
-        if (!/^\d{6}$/.test(matriculaNacional)) {
-            document.getElementById('matriculaNacional-error').style.display = 'block';
-            isValid = false;
-        } else {
-            document.getElementById('matriculaNacional-error').style.display = 'none';
+        // 3. Mostrar campos del rol seleccionado
+        const targetFields = document.getElementById(`${role.toLowerCase()}-fields`);
+        if (targetFields) {
+            targetFields.classList.add('active');
+            
+            // 4. Agregar required solo si es el rol correspondiente
+            if (role === 'MEDICO') {
+                document.querySelectorAll('#medico-fields input[required], #medico-fields select[required]').forEach(input => {
+                    input.setAttribute('required', 'true');
+                });
+            }
+            if (role === 'PACIENTE') {
+                document.querySelectorAll('#paciente-fields input[required], #paciente-fields select[required]').forEach(input => {
+                    input.setAttribute('required', 'true');
+                });
+            }
         }
         
-        // Validar matrícula provincial
-        if (!/^\d{6}$/.test(matriculaProvincial)) {
-            document.getElementById('matriculaProvincial-error').style.display = 'block';
-            isValid = false;
-        } else {
-            document.getElementById('matriculaProvincial-error').style.display = 'none';
-        }
+        // Actualizar estado de botones
+        roleButtons.forEach(button => {
+            if (button.getAttribute('data-role') === role) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
         
-        if (!isValid) {
-            prevenirEnvio = true;
-            alert('Por favor, complete correctamente las matrículas. Deben tener exactamente 6 dígitos cada una.');
-            showRoleFields('MEDICO');
-        }
+        // Actualizar campo oculto con el rol seleccionado
+        selectedRoleInput.value = role;
     }
     
-    // Solo prevenir envío si hay errores de validación
-    if (prevenirEnvio) {
-        console.log('🚫 PREVINIENDO ENVÍO DEL FORMULARIO');
-        event.preventDefault();
-    } else {
-        console.log('🟢 PERMITIENDO ENVÍO DEL FORMULARIO');
-    }
-    
-    console.groupEnd();
-});
-
-        // Menú lateral
-        const menuToggle = document.getElementById('menu-toggle');
-        const sideMenu = document.getElementById('sideMenu');
-        const overlay = document.getElementById('overlay');
-
-        if (menuToggle) {
-            menuToggle.addEventListener('click', function() {
-                sideMenu.classList.toggle('open');    
-                overlay.classList.toggle('active');
-                document.body.classList.toggle('menu-open');
+    // Función para establecer automáticamente la contraseña como el DNI
+    function setPasswordFromDni() {
+        if (dniInput && passwordField) {
+            console.log('🔐 Configurando sincronización DNI -> Password');
+            
+            // Sincronizar la contraseña con el DNI en tiempo real
+            dniInput.addEventListener('input', function() {
+                passwordField.value = this.value;
+                console.log('🔐 Contraseña actualizada:', this.value);
             });
             
-            overlay.addEventListener('click', function() {
-                sideMenu.classList.remove('open');   
-                overlay.classList.remove('active');
-                document.body.classList.remove('menu-open');
+            // También sincronizar en eventos de cambio
+            dniInput.addEventListener('change', function() {
+                passwordField.value = this.value;
+                console.log('🔐 Contraseña cambiada:', this.value);
+            });
+            
+            // Establecer valor inicial si ya hay un DNI
+            if (dniInput.value) {
+                passwordField.value = dniInput.value;
+                console.log('🔐 Contraseña inicial:', dniInput.value);
+            }
+        } else {
+            console.log('❌ No se encontraron campos DNI o Password');
+        }
+    }
+    
+    // Inicializar
+    setPasswordFromDni();
+    
+    // Asegurar que la contraseña se sincronice al cargar la página
+    setTimeout(() => {
+        if (dniInput && dniInput.value && passwordField) {
+            passwordField.value = dniInput.value;
+            console.log('🔐 Contraseña sincronizada al cargar:', dniInput.value);
+        }
+    }, 100);
+    
+    // Añadir event listeners a los botones de rol
+    roleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const nuevoRol = this.dataset.role;
+            showRoleFields(nuevoRol);
+        });
+    });
+
+    registroForm.addEventListener('submit', function(event) {
+        const selectedRole = selectedRoleInput.value;
+        
+        console.log("📝 ENVIANDO FORMULARIO ==========");
+        console.log("Rol:", selectedRole);
+        console.log("DNI:", dniInput ? dniInput.value : 'NO ENCONTRADO');
+        console.log("Password:", passwordField ? passwordField.value : 'NO ENCONTRADO');
+        
+        // Asegurar que la contraseña esté sincronizada ANTES de enviar
+        if (dniInput && dniInput.value && passwordField) {
+            passwordField.value = dniInput.value;
+            console.log('🔐 Contraseña forzada al enviar:', dniInput.value);
+        }
+        
+        // Remover required de campos que no corresponden al rol actual
+        if (selectedRole !== 'MEDICO') {
+            document.querySelectorAll('#medico-fields input, #medico-fields select').forEach(input => {
+                input.removeAttribute('required');
             });
         }
-
+        
+        if (selectedRole !== 'PACIENTE') {
+            document.querySelectorAll('#paciente-fields input, #paciente-fields select').forEach(input => {
+                input.removeAttribute('required');
+            });
+        }
+        
+        // Solo para médicos, verificar matrículas
+        if (selectedRole === 'MEDICO') {
+            const matriculaNacional = document.getElementById('matriculaNacional');
+            const matriculaProvincial = document.getElementById('matriculaProvincial');
+            
+            const matriculaNacionalVal = matriculaNacional ? matriculaNacional.value : '';
+            const matriculaProvincialVal = matriculaProvincial ? matriculaProvincial.value : '';
+            
+            console.log("🔍 Validando médico:");
+            console.log("- Matrícula Nacional:", matriculaNacionalVal);
+            console.log("- Matrícula Provincial:", matriculaProvincialVal);
+            
+            let isValid = true;
+            
+            if (!/^\d{6}$/.test(matriculaNacionalVal)) {
+                const errorElement = document.getElementById('matriculaNacional-error');
+                if (errorElement) errorElement.style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!/^\d{6}$/.test(matriculaProvincialVal)) {
+                const errorElement = document.getElementById('matriculaProvincial-error');
+                if (errorElement) errorElement.style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+                alert('Para médicos: Complete correctamente las matrículas (6 dígitos cada una).');
+                showRoleFields('MEDICO');
+                return false;
+            }
+        }
+        
+        // Para pacientes, validar obra social
+        if (selectedRole === 'PACIENTE') {
+            const obraSocialSelect = document.querySelector('select[name="obraSocialId"]');
+            if (!obraSocialSelect || !obraSocialSelect.value) {
+                event.preventDefault();
+                alert('Para pacientes: Seleccione una obra social.');
+                showRoleFields('PACIENTE');
+                return false;
+            }
+        }
+        
+        // Validación final crítica
+        if (!passwordField || !passwordField.value) {
+            console.log('❌ ERROR CRÍTICO: No hay contraseña');
+            event.preventDefault();
+            alert('Error: No se pudo establecer la contraseña. Verifique el DNI.');
+            return false;
+        }
+        
+        if (!dniInput || !dniInput.value) {
+            console.log('❌ ERROR CRÍTICO: No hay DNI');
+            event.preventDefault();
+            alert('Error: El DNI es obligatorio.');
+            return false;
+        }
+        
+        console.log("✅ FORMULARIO LISTO PARA ENVIAR");
+        console.log("================================");
     });
+
+    // Menú lateral
+    const menuToggle = document.getElementById('menu-toggle');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            sideMenu.classList.toggle('open');    
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+        
+        overlay.addEventListener('click', function() {
+            sideMenu.classList.remove('open');   
+            overlay.classList.remove('active');
+            document.body.classList.remove('menu-open');
+        });
+    }
+
+    // Inicializar con el rol por defecto
+    showRoleFields(selectedRoleInput.value);
+    console.log('✅ Formulario inicializado correctamente');
+});
 </script>
 </body>
 </html>
-  <footer>
-    2025 Turnos Online - Todos los derechos reservados
-  </footer>

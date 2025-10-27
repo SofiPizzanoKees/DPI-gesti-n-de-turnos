@@ -60,7 +60,6 @@ public class Usuario {
     private LocalDate fechaNacimiento;
 
     @Column(name = "password", nullable = false, length = 255)
-    @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 
