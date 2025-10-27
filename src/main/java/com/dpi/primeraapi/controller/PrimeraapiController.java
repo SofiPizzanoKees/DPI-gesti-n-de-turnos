@@ -54,6 +54,10 @@ public class PrimeraapiController {
     public String menu() {
         return "menu";
     }
+    @GetMapping("/horarioMedico")
+    public String horarioMedico() {
+        return "horarioMedico";
+    }
     
     @GetMapping("/miperfil")
     public String miperfil() {

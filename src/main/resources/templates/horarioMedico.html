@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Turnos Online</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <!-- Iconos de menú -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  
+<body>
+  <!-- Barra superior con menú hamburguesa -->
+  <header class="top-bar">
+    <p class="registrarse">
+    <div class="menu-icon" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+
+  <!-- Menú lateral -->
+  <aside id="sideMenu" class="side-menu">
+    <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+  
+  <!-- Overlay para cerrar menú al hacer click fuera -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Contenedor principal -->
+  <div class="container-horario">
+
+    <!-- Logo -->
+    <div class="logo">
+      <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
+    </div>
+
+      <h3 class="title">Selecciona día y hora</h3>
+  
+ <div class="input-group">
+      <label>Días disponibles:</label>
+      <div class="weekday-selector">
+        <div class="weekday-options">
+          <label class="weekday-checkbox">
+            <input type="checkbox" name="weekday" value="lunes">
+            <span class="checkmark">L</span>
+          </label>
+          <label class="weekday-checkbox">
+            <input type="checkbox" name="weekday" value="martes">
+            <span class="checkmark">M</span>
+          </label>
+          <label class="weekday-checkbox">
+            <input type="checkbox" name="weekday" value="miercoles">
+            <span class="checkmark">X</span>
+          </label>
+          <label class="weekday-checkbox">
+            <input type="checkbox" name="weekday" value="jueves">
+            <span class="checkmark">J</span>
+          </label>
+          <label class="weekday-checkbox">
+            <input type="checkbox" name="weekday" value="viernes">
+            <span class="checkmark">V</span>
+          </label>
+          <label class="weekday-checkbox">
+            <input type="checkbox" name="weekday" value="sabado">
+            <span class="checkmark">S</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="input-group">
+      <label for="hora">Hora:</label>
+      <div class="field-container">
+        <input type="time" id="hora" name="hora" class="time-input">
+        <button class="edit-icon" onclick="document.getElementById('hora').showPicker()">⏰</button>
+      </div>
+    </div>
+    
+    <button class="btn btn-confirmar">Confirmar</button>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2024 Todos los derechos reservados</p>
+</footer>
+
+<script>
+  // JavaScript para el menú hamburguesa
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuIcon = document.querySelector('.menu-icon');
+    const sideMenu = document.querySelector('.side-menu');
+    const overlay = document.querySelector('.overlay');
+    const body = document.body;
+
+    menuIcon.addEventListener('click', function() {
+      sideMenu.classList.toggle('open');
+      overlay.classList.toggle('active');
+      body.classList.toggle('menu-open');
+    });
+
+    overlay.addEventListener('click', function() {
+      sideMenu.classList.remove('open');
+      overlay.classList.remove('active');
+      body.classList.remove('menu-open');
+    });
+  });
+</script>
