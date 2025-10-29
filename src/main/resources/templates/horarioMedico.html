@@ -9,11 +9,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-  
-<body>
   <!-- Barra superior con menú hamburguesa -->
   <header class="top-bar">
-    <p class="registrarse">
+    <p class="registrarse"></p>
     <div class="menu-icon" id="menu-toggle">
       <i class="fas fa-bars"></i>
     </div>
@@ -31,82 +29,172 @@
   
   <!-- Overlay para cerrar menú al hacer click fuera -->
   <div class="overlay" id="overlay"></div>
-
-  <!-- Contenedor principal -->
-  <div class="container-horario">
-
     <!-- Logo -->
+    <main class="container">
     <div class="logo">
-      <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
+      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
     </div>
 
-      <h3 class="title">Selecciona día y hora</h3>
-  
- <div class="input-group">
-      <label>Días disponibles:</label>
-      <div class="weekday-selector">
-        <div class="weekday-options">
-          <label class="weekday-checkbox">
-            <input type="checkbox" name="weekday" value="lunes">
-            <span class="checkmark">L</span>
-          </label>
-          <label class="weekday-checkbox">
-            <input type="checkbox" name="weekday" value="martes">
-            <span class="checkmark">M</span>
-          </label>
-          <label class="weekday-checkbox">
-            <input type="checkbox" name="weekday" value="miercoles">
-            <span class="checkmark">X</span>
-          </label>
-          <label class="weekday-checkbox">
-            <input type="checkbox" name="weekday" value="jueves">
-            <span class="checkmark">J</span>
-          </label>
-          <label class="weekday-checkbox">
-            <input type="checkbox" name="weekday" value="viernes">
-            <span class="checkmark">V</span>
-          </label>
-          <label class="weekday-checkbox">
-            <input type="checkbox" name="weekday" value="sabado">
-            <span class="checkmark">S</span>
-          </label>
+    <h3 class="title">Configura tus horarios de atención</h3>
+    
+    <!-- Lista de días con horarios -->
+    <div class="dias-horarios">
+      <!-- Lunes -->
+      <div class="dia-horario">
+        <div class="dia-header">
+          <input type="checkbox" id="lunes" class="dia-checkbox">
+          <label for="lunes" class="dia-label">Lunes</label>
+        </div>
+        <div class="horario-fields">
+          <div class="time-group">
+            <label>Desde:</label>
+            <input type="time" class="time-input" id="lunes-desde">
+          </div>
+          <div class="time-group">
+            <label>Hasta:</label>
+            <input type="time" class="time-input" id="lunes-hasta">
+          </div>
+        </div>
+      </div>
+
+      <!-- Martes -->
+      <div class="dia-horario">
+        <div class="dia-header">
+          <input type="checkbox" id="martes" class="dia-checkbox">
+          <label for="martes" class="dia-label">Martes</label>
+        </div>
+        <div class="horario-fields">
+          <div class="time-group">
+            <label>Desde:</label>
+            <input type="time" class="time-input" id="martes-desde">
+          </div>
+          <div class="time-group">
+            <label>Hasta:</label>
+            <input type="time" class="time-input" id="martes-hasta">
+          </div>
+        </div>
+      </div>
+
+      <!-- Miércoles -->
+      <div class="dia-horario">
+        <div class="dia-header">
+          <input type="checkbox" id="miercoles" class="dia-checkbox">
+          <label for="miercoles" class="dia-label">Miércoles</label>
+        </div>
+        <div class="horario-fields">
+          <div class="time-group">
+            <label>Desde:</label>
+            <input type="time" class="time-input" id="miercoles-desde">
+          </div>
+          <div class="time-group">
+            <label>Hasta:</label>
+            <input type="time" class="time-input" id="miercoles-hasta">
+          </div>
+        </div>
+      </div>
+
+      <!-- Jueves -->
+      <div class="dia-horario">
+        <div class="dia-header">
+          <input type="checkbox" id="jueves" class="dia-checkbox">
+          <label for="jueves" class="dia-label">Jueves</label>
+        </div>
+        <div class="horario-fields">
+          <div class="time-group">
+            <label>Desde:</label>
+            <input type="time" class="time-input" id="jueves-desde">
+          </div>
+          <div class="time-group">
+            <label>Hasta:</label>
+            <input type="time" class="time-input" id="jueves-hasta">
+          </div>
+        </div>
+      </div>
+
+      <!-- Viernes -->
+      <div class="dia-horario">
+        <div class="dia-header">
+          <input type="checkbox" id="viernes" class="dia-checkbox">
+          <label for="viernes" class="dia-label">Viernes</label>
+        </div>
+        <div class="horario-fields">
+          <div class="time-group">
+            <label>Desde:</label>
+            <input type="time" class="time-input" id="viernes-desde">
+          </div>
+          <div class="time-group">
+            <label>Hasta:</label>
+            <input type="time" class="time-input" id="viernes-hasta">
+          </div>
+        </div>
+      </div>
+
+      <!-- Sábado -->
+      <div class="dia-horario">
+        <div class="dia-header">
+          <input type="checkbox" id="sabado" class="dia-checkbox">
+          <label for="sabado" class="dia-label">Sábado</label>
+        </div>
+        <div class="horario-fields">
+          <div class="time-group">
+            <label>Desde:</label>
+            <input type="time" class="time-input" id="sabado-desde">
+          </div>
+          <div class="time-group">
+            <label>Hasta:</label>
+            <input type="time" class="time-input" id="sabado-hasta">
+          </div>
         </div>
       </div>
     </div>
-    <div class="input-group">
-      <label for="hora">Hora:</label>
-      <div class="field-container">
-        <input type="time" id="hora" name="hora" class="time-input">
-        <button class="edit-icon" onclick="document.getElementById('hora').showPicker()">⏰</button>
-      </div>
-    </div>
     
-    <button class="btn btn-confirmar">Confirmar</button>
+    <button class="btn btn-confirmar">Guardar horarios</button>
   </div>
-</div>
 
-<footer>
-  <p>&copy; 2024 Todos los derechos reservados</p>
-</footer>
+  <footer>
+    <p>&copy; 2024 Todos los derechos reservados</p>
+  </footer>
 
-<script>
-  // JavaScript para el menú hamburguesa
-  document.addEventListener('DOMContentLoaded', function() {
-    const menuIcon = document.querySelector('.menu-icon');
-    const sideMenu = document.querySelector('.side-menu');
-    const overlay = document.querySelector('.overlay');
-    const body = document.body;
+  <script>
+    // JavaScript para el menú hamburguesa
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuIcon = document.querySelector('.menu-icon');
+      const sideMenu = document.querySelector('.side-menu');
+      const overlay = document.querySelector('.overlay');
+      const body = document.body;
 
-    menuIcon.addEventListener('click', function() {
-      sideMenu.classList.toggle('open');
-      overlay.classList.toggle('active');
-      body.classList.toggle('menu-open');
+      menuIcon.addEventListener('click', function() {
+        sideMenu.classList.toggle('open');
+        overlay.classList.toggle('active');
+        body.classList.toggle('menu-open');
+      });
+
+      overlay.addEventListener('click', function() {
+        sideMenu.classList.remove('open');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+      });
+
+      // Habilitar/deshabilitar campos de horario según checkbox
+      const checkboxes = document.querySelectorAll('.dia-checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const diaHorario = this.closest('.dia-horario');
+          const timeInputs = diaHorario.querySelectorAll('.time-input');
+          
+          timeInputs.forEach(input => {
+            input.disabled = !this.checked;
+          });
+        });
+        
+        // Inicializar estado de los campos
+        const diaHorario = checkbox.closest('.dia-horario');
+        const timeInputs = diaHorario.querySelectorAll('.time-input');
+        timeInputs.forEach(input => {
+          input.disabled = !checkbox.checked;
+        });
+      });
     });
-
-    overlay.addEventListener('click', function() {
-      sideMenu.classList.remove('open');
-      overlay.classList.remove('active');
-      body.classList.remove('menu-open');
-    });
-  });
-</script>
+  </script>
+</body>
+</html>
