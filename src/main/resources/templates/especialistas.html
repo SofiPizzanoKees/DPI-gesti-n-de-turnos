@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Estudios - Turnos Online</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <!-- Iconos de menú -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <!-- Menú hamburguesa -->
+  <div class="top-bar">
+    <div class="menu-icon" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" onclick="toggleMenu()"></div>
+
+  <!-- Menú lateral -->
+ <aside id="sideMenu" class="side-menu">
+   <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+
+  <!-- Contenido principal -->
+  <div class="especialistas-container">
+    <div class="hero-section">
+      <h1><i class="fas fa-user-md"></i> Nuestros Especialistas</h1>
+      <p>Conoce al equipo médico altamente calificado de nuestro Centro de Diagnóstico por Imagen. Profesionales comprometidos con tu salud y bienestar.</p>
+    </div>
+
+    <div class="especialistas-grid">
+      <!-- Especialista 1 -->
+      <div class="especialista-card">
+        <div class="doctor-header">
+          <div class="doctor-avatar">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <div class="doctor-info">
+            <h2 class="doctor-name">Dr. Carlos Martínez</h2>
+            <p class="doctor-specialty">Radiología General</p>
+          </div>
+        </div>
+        <p class="doctor-description">
+          Especialista en diagnóstico por imágenes con más de 15 años de experiencia. Experto en radiología convencional, ecografías y estudios contrastados.
+        </p>
+        <div class="doctor-details">
+          <div class="detail-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Universidad Nacional de Buenos Aires</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-certificate"></i>
+            <span>Matrícula Nacional N° 12345</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span>Lunes a Viernes: 8:00 - 14:00</span>
+          </div>
+        </div>
+        <div class="doctor-badges">
+          <span class="badge"><i class="fas fa-star"></i> 15+ años</span>
+          <span class="badge"><i class="fas fa-award"></i> Certificado</span>
+        </div>
+      </div>
+
+      <!-- Especialista 2 -->
+      <div class="especialista-card">
+        <div class="doctor-header">
+          <div class="doctor-avatar">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <div class="doctor-info">
+            <h2 class="doctor-name">Dra. María Fernández</h2>
+            <p class="doctor-specialty">Ecografía y Doppler</p>
+          </div>
+        </div>
+        <p class="doctor-description">
+          Especialista en ecografía general y doppler vascular. Amplia experiencia en diagnóstico prenatal y estudios cardiovasculares avanzados.
+        </p>
+        <div class="doctor-details">
+          <div class="detail-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Universidad de La Plata</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-certificate"></i>
+            <span>Matrícula Provincial N° 54321</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span>Martes y Jueves: 9:00 - 15:00</span>
+          </div>
+        </div>
+        <div class="doctor-badges">
+          <span class="badge"><i class="fas fa-star"></i> 12+ años</span>
+          <span class="badge"><i class="fas fa-heartbeat"></i> Doppler</span>
+        </div>
+      </div>
+
+      <!-- Especialista 3 -->
+      <div class="especialista-card">
+        <div class="doctor-header">
+          <div class="doctor-avatar">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <div class="doctor-info">
+            <h2 class="doctor-name">Dr. Roberto Sánchez</h2>
+            <p class="doctor-specialty">Tomografía Computada</p>
+          </div>
+        </div>
+        <p class="doctor-description">
+          Experto en tomografía computada y estudios de alta complejidad. Especializado en diagnóstico oncológico y neuroimágenes avanzadas.
+        </p>
+        <div class="doctor-details">
+          <div class="detail-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Hospital Italiano de Buenos Aires</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-certificate"></i>
+            <span>Matrícula Nacional N° 67890</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span>Miércoles a Viernes: 10:00 - 16:00</span>
+          </div>
+        </div>
+        <div class="doctor-badges">
+          <span class="badge"><i class="fas fa-star"></i> 18+ años</span>
+          <span class="badge"><i class="fas fa-microscope"></i> Oncología</span>
+        </div>
+      </div>
+
+      <!-- Especialista 4 -->
+      <div class="especialista-card">
+        <div class="doctor-header">
+          <div class="doctor-avatar">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <div class="doctor-info">
+            <h2 class="doctor-name">Dra. Ana López</h2>
+            <p class="doctor-specialty">Resonancia Magnética</p>
+          </div>
+        </div>
+        <p class="doctor-description">
+          Especialista en resonancia magnética con subespecialización en estudios musculoesqueléticos y neurológicos de alta precisión.
+        </p>
+        <div class="doctor-details">
+          <div class="detail-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Universidad Austral</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-certificate"></i>
+            <span>Matrícula Provincial N° 11223</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span>Lunes a Miércoles: 14:00 - 20:00</span>
+          </div>
+        </div>
+        <div class="doctor-badges">
+          <span class="badge"><i class="fas fa-star"></i> 10+ años</span>
+          <span class="badge"><i class="fas fa-brain"></i> Neuroimagen</span>
+        </div>
+      </div>
+
+      <!-- Especialista 5 -->
+      <div class="especialista-card">
+        <div class="doctor-header">
+          <div class="doctor-avatar">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <div class="doctor-info">
+            <h2 class="doctor-name">Dr. Diego Pérez</h2>
+            <p class="doctor-specialty">Mamografía Digital</p>
+          </div>
+        </div>
+        <p class="doctor-description">
+          Radiólogo especializado en diagnóstico mamario y estudios de detección precoz de cáncer de mama con equipamiento de última generación.
+        </p>
+        <div class="doctor-details">
+          <div class="detail-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Universidad de Córdoba</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-certificate"></i>
+            <span>Matrícula Nacional N° 33445</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span>Martes a Viernes: 8:00 - 13:00</span>
+          </div>
+        </div>
+        <div class="doctor-badges">
+          <span class="badge"><i class="fas fa-star"></i> 14+ años</span>
+          <span class="badge"><i class="fas fa-ribbon"></i> Prevención</span>
+        </div>
+      </div>
+
+      <!-- Especialista 6 -->
+      <div class="especialista-card">
+        <div class="doctor-header">
+          <div class="doctor-avatar">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <div class="doctor-info">
+            <h2 class="doctor-name">Dra. Laura Gómez</h2>
+            <p class="doctor-specialty">Pediatría Radiológica</p>
+          </div>
+        </div>
+        <p class="doctor-description">
+          Especialista en diagnóstico por imágenes pediátricas. Experta en el cuidado y atención de pacientes infantiles con protocolos especializados.
+        </p>
+        <div class="doctor-details">
+          <div class="detail-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Hospital Garrahan</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-certificate"></i>
+            <span>Matrícula Provincial N° 77889</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span>Lunes a Jueves: 9:00 - 15:00</span>
+          </div>
+        </div>
+        <div class="doctor-badges">
+          <span class="badge"><i class="fas fa-star"></i> 11+ años</span>
+          <span class="badge"><i class="fas fa-child"></i> Pediatría</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Centro de Diagnóstico por Imagen. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.querySelector('.side-menu');
+      const overlay = document.querySelector('.overlay');
+      const body = document.body;
+      
+      menu.classList.toggle('open');
+      overlay.classList.toggle('active');
+      body.classList.toggle('menu-open');
+    }
+  </script>
+</body>
+</html>

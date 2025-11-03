@@ -62,9 +62,17 @@ public class PrimeraapiController {
     public String editarEstudio() {
         return "editarEstudio";
     }
+     @GetMapping("/especialistas")
+    public String especialistas() {
+        return "especialistas";
+    }
     @GetMapping("/horarioMedico")
     public String horarioMedico() {
         return "horarioMedico";
+    }
+    @GetMapping("/quienessomos")
+    public String quienessomos() {
+        return "quienessomos";
     }
      @GetMapping("/perfilMedico")
     public String perfilMedico() {

@@ -36,8 +36,6 @@
     <div class="logo">
       <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
     </div>
-
-    <h1>Gestión de Estudios</h1>
     
     <!-- CONTENEDOR DE BOTONES CON CLASES CSS -->
     <div class="button-container">
@@ -93,12 +91,14 @@
         function mostrarFormularioAgregar() {
             document.getElementById('formularioAgregar').style.display = 'block';
             document.getElementById('formularioEliminar').style.display = 'none';
+            document.querySelector('.button-container').style.display = 'none';
         }
         
         // Función para mostrar el formulario de eliminar
         function mostrarFormularioEliminar() {
             document.getElementById('formularioEliminar').style.display = 'block';
             document.getElementById('formularioAgregar').style.display = 'none';
+             document.querySelector('.button-container').style.display = 'none';
             actualizarListaEliminar();
         }
         
@@ -106,7 +106,9 @@
         function ocultarFormularios() {
             document.getElementById('formularioAgregar').style.display = 'none';
             document.getElementById('formularioEliminar').style.display = 'none';
-        }
+            document.querySelector('.button-container').style.display = 'block';
+}
+        
         
         // Función para agregar un nuevo estudio
         function agregarEstudio() {
