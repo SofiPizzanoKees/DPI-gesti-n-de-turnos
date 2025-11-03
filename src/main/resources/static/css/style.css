@@ -928,3 +928,312 @@ footer {
     padding: 0.75rem 0.875rem;
   }
 }
+
+/* ================== BOTONES DE GESTIÓN DE ESTUDIOS ================== */
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.main-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  min-width: 10rem;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.main-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.main-button:hover::before {
+  left: 100%;
+}
+
+.main-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.main-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Botón Agregar */
+.add-button {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: white;
+}
+
+.add-button:hover {
+  background: linear-gradient(135deg, #27ae60 0%, #219653 100%);
+}
+
+/* Botón Eliminar */
+.delete-button {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+}
+
+.delete-button:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #a23526 100%);
+}
+
+/* Botones de formulario - COMPACTOS */
+.form-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.form-button {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 7.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.save-button {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(52, 152, 219, 0.25);
+}
+
+.save-button:hover {
+  background: linear-gradient(135deg, #2980b9 0%, #2471a3 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(52, 152, 219, 0.35);
+}
+
+.cancel-button {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(149, 165, 166, 0.25);
+}
+
+.cancel-button:hover {
+  background: linear-gradient(135deg, #7f8c8d 0%, #6c7b7d 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(149, 165, 166, 0.35);
+}
+
+.delete-form-button {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.25);
+}
+
+.delete-form-button:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #a23526 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(231, 76, 60, 0.35);
+}
+
+/* Efectos de pulso más sutiles */
+@keyframes subtle-pulse {
+  0% {
+    box-shadow: 0 3px 8px rgba(46, 204, 113, 0.3);
+  }
+  50% {
+    box-shadow: 0 3px 12px rgba(46, 204, 113, 0.5);
+  }
+  100% {
+    box-shadow: 0 3px 8px rgba(46, 204, 113, 0.3);
+  }
+}
+
+.add-button {
+  animation: subtle-pulse 3s infinite;
+}
+
+/* Responsive para botones compactos */
+@media (max-width: 36rem) {
+  .button-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .main-button {
+    min-width: 100%;
+    max-width: 16rem;
+    padding: 0.625rem 1.25rem;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .form-button {
+    min-width: 100%;
+    padding: 0.625rem 1rem;
+  }
+}
+
+/* Estados deshabilitados */
+.main-button:disabled,
+.form-button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  animation: none;
+}
+
+.main-button:disabled:hover,
+.form-button:disabled:hover {
+  background: #bdc3c7;
+  transform: none;
+  box-shadow: none;
+}
+
+.main-button:disabled::before,
+.form-button:disabled::before {
+  display: none;
+}
+    .form-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      z-index: 1000;
+      max-width: 90%;
+      width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .form-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: none;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+        .form-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      z-index: 1000;
+      max-width: 90%;
+      width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .form-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: none;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Estilos para notificaciones */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      color: white;
+      font-weight: 600;
+      z-index: 1100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      max-width: 300px;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      border-left: 4px solid #219653;
+    }
+    
+    .notification.error {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      border-left: 4px solid #a23526;
+    }
+    
+    .notification i {
+      font-size: 1.2rem;
+    }
+    
+    /* Animación de desvanecimiento */
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    .notification.fade-out {
+      animation: fadeOut 0.5s ease forwards;
+    }
+    .hidden {
+  display: none !important;
+}

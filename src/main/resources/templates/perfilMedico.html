@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil - Turnos Online</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <!-- Iconos de menú -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+  
+  <!-- Barra superior con menú hamburguesa -->
+  <header class="top-bar">
+    <p class="registrarse"></p>
+    <div class="menu-icon" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+  
+  <!-- Menú lateral -->
+  <aside id="sideMenu" class="side-menu">
+     <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+
+  <!-- Overlay para cerrar menú al hacer click fuera -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Overlay para formularios -->
+  <div class="form-overlay" id="formOverlay" onclick="ocultarFormularios()"></div>
+  
+  <!-- Contenedor para notificaciones -->
+  <div id="notificationContainer"></div>
+  
+  <!-- Tarjeta central -->
+  <div class="container-horario">
+    <div class="logo">
+      <img src="../assets/LOGO DPI.jpg" alt="Logo DPI" />
+    </div>
+    <h1 class="title">Datos Personales</h1>
+    <form id="personalDataForm">
+      <!-- DNI -->
+      <div class="form-group">
+        <label for="dni">DNI</label>
+        <input type="text" id="dni" name="dni" class="readonly-field" value="35.678.901" readonly>
+      </div>
+      
+      <!-- Nombre y Apellido -->
+      <div class="form-group">
+        <label for="nombre">Nombre y Apellido:</label>
+        <input type="text" id="nombre" name="nombre" class="readonly-field" value="María González" readonly>
+      </div>
+      
+      <!-- Fecha de Nacimiento -->
+      <div class="form-group">
+        <label for="fechaNacimiento">Fecha de Nacimiento</label>
+        <input type="date" id="fechaNacimiento" name="fechaNacimiento" class="readonly-field" value="1985-05-15" readonly>
+      </div>
+      
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="field-container">
+          <input type="email" id="email" name="email" class="editable-field" value="maria.gonzalez@ejemplo.com" readonly>
+          <button type="button" class="edit-icon" data-field="email">
+            <span class="material-icons">edit</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Obra Social -->
+      <div class="form-group">
+        <label for="obraSocial">Obra Social</label>
+        <div class="field-container">
+          <input type="text" id="obraSocial" name="obraSocial" class="editable-field" value="OSDE" readonly>
+          <button type="button" class="edit-icon" data-field="obraSocial">
+            <span class="material-icons">edit</span>
+          </button>
+        </div>
+        <!-- Botones para Obra Social -->
+        <div class="button-container" style="margin-top: 0.5rem;">
+          <button type="button" class="form-button add-button" onclick="mostrarFormularioAgregarObraSocial()">Agregar Obra Social</button>
+          <button type="button" class="form-button delete-button" onclick="mostrarFormularioEliminarObraSocial()">Eliminar Obra Social</button>
+        </div>
+      </div>
+      
+      <!-- Estudios -->
+      <div class="form-group">
+        <label for="estudios">Estudios</label>
+        <div class="field-container">
+          <input type="text" id="estudios" name="estudios" class="editable-field" value="Radiografía de tórax" readonly>
+          <button type="button" class="edit-icon" data-field="estudios">
+            <span class="material-icons">edit</span>
+          </button>
+        </div>
+        <!-- Botones para Estudios -->
+        <div class="button-container" style="margin-top: 0.5rem;">
+          <button type="button" class="form-button add-button" onclick="mostrarFormularioAgregarEstudio()">Agregar Estudio</button>
+          <button type="button" class="form-button delete-button" onclick="mostrarFormularioEliminarEstudio()">Eliminar Estudio</button>
+        </div>
+      </div>
+      
+      <div class="form-buttons">
+        <button type="button" class="btn btn-cancelar hidden" id="cancelBtn">Cancelar</button>
+        <button type="button" class="btn btn-guardar hidden" id="saveBtn">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Formularios para Obra Social -->
+  <div id="formularioAgregarObraSocial" class="form-container hidden">
+    <h2>Agregar Nueva Obra Social</h2>
+    <form id="agregarObraSocialForm">
+      <div class="form-group">
+        <label for="obraSocialAgregar">Selecciona una obra social:</label>
+        <select id="obraSocialAgregar" name="obraSocialAgregar">
+          <option value="OSDE">OSDE</option>
+          <option value="Swiss Medical">Swiss Medical</option>
+          <option value="Galeno">Galeno</option>
+          <option value="Omint">Omint</option>
+          <option value="Medifé">Medifé</option>
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button type="button" class="form-button save-button" onclick="agregarObraSocial()">Guardar Obra Social</button>
+        <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="formularioEliminarObraSocial" class="form-container hidden">
+    <h2>Eliminar Obra Social</h2>
+    <form id="eliminarObraSocialForm">
+      <div class="form-group">
+        <label for="obraSocialEliminar">Selecciona una obra social para eliminar:</label>
+        <select id="obraSocialEliminar" name="obraSocialEliminar">
+          <!-- Se llenará dinámicamente -->
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button type="button" class="form-button delete-form-button" onclick="eliminarObraSocial()">Eliminar Obra Social</button>
+        <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Formularios para Estudios -->
+  <div id="formularioAgregarEstudio" class="form-container hidden">
+    <h2>Agregar Nuevo Estudio</h2>
+    <form id="agregarEstudioForm">
+      <div class="form-group">
+        <label for="estudioAgregar">Selecciona un estudio:</label>
+        <select id="estudioAgregar" name="estudioAgregar">
+          <option value="Radiografía de tórax">Radiografía de tórax</option>
+          <option value="Ecografía abdominal">Ecografía abdominal</option>
+          <option value="Tomografía computada">Tomografía computada</option>
+          <option value="Resonancia magnética">Resonancia magnética</option>
+          <option value="Mamografía">Mamografía</option>
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button type="button" class="form-button save-button" onclick="agregarEstudio()">Guardar Estudio</button>
+        <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="formularioEliminarEstudio" class="form-container hidden">
+    <h2>Eliminar Estudio</h2>
+    <form id="eliminarEstudioForm">
+      <div class="form-group">
+        <label for="estudioEliminar">Selecciona un estudio para eliminar:</label>
+        <select id="estudioEliminar" name="estudioEliminar">
+          <!-- Se llenará dinámicamente -->
+        </select>
+      </div>
+      <div class="form-buttons">
+        <button type="button" class="form-button delete-form-button" onclick="eliminarEstudio()">Eliminar Estudio</button>
+        <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+  <div class="form-buttons">
+    <button type="button" class="btn btn-cancelar" onclick="cancelarTodosLosCambios()">Cancelar</button>
+    <button type="button" class="btn btn-guardar" onclick="guardarTodosLosCambios()">Guardar Cambios</button>
+</div>
+
+  <script>
+    // Arrays para almacenar datos
+    let obrasSocialesUsuario = ["OSDE"];
+    let estudiosUsuario = ["Radiografía de tórax"];
+    
+    // Listas completas disponibles
+    const todasObrasSociales = ["OSDE", "Swiss Medical", "Galeno", "Omint", "Medifé"];
+    const todosEstudios = ["Radiografía de tórax", "Ecografía abdominal", "Tomografía computada", "Resonancia magnética", "Mamografía"];
+
+    // Función para mostrar notificaciones
+    function mostrarNotificacion(mensaje, tipo = 'success') {
+      const container = document.getElementById('notificationContainer');
+      const notification = document.createElement('div');
+      notification.className = `notification ${tipo}`;
+      
+      notification.innerHTML = `
+        <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${mensaje}</span>
+      `;
+      
+      container.appendChild(notification);
+      
+      // Mostrar notificación
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 100);
+      
+      // Ocultar y eliminar notificación después de 3 segundos
+      setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 500);
+      }, 3000);
+    }
+
+    // Funciones para Obra Social - CORREGIDAS
+    function mostrarFormularioAgregarObraSocial() {
+      ocultarTodosFormularios();
+      document.getElementById('formularioAgregarObraSocial').classList.remove('hidden');
+      document.getElementById('formOverlay').style.display = 'block';
+    }
+
+    function mostrarFormularioEliminarObraSocial() {
+      ocultarTodosFormularios();
+      actualizarListaObrasSocialesEliminar();
+      document.getElementById('formularioEliminarObraSocial').classList.remove('hidden');
+      document.getElementById('formOverlay').style.display = 'block';
+    }
+
+    function agregarObraSocial() {
+      const select = document.getElementById('obraSocialAgregar');
+      const obraSocialSeleccionada = select.value;
+      
+      if (obraSocialSeleccionada) {
+        if (!obrasSocialesUsuario.includes(obraSocialSeleccionada)) {
+          obrasSocialesUsuario.push(obraSocialSeleccionada);
+        }
+        // Actualizar el campo principal
+        document.getElementById('obraSocial').value = obraSocialSeleccionada;
+        ocultarFormularios();
+        mostrarNotificacion('¡Obra Social guardada con éxito!', 'success');
+      } else {
+        mostrarNotificacion('Por favor, selecciona una obra social', 'error');
+      }
+    }
+
+    function eliminarObraSocial() {
+      const select = document.getElementById('obraSocialEliminar');
+      const obraSocialSeleccionada = select.value;
+      
+      if (obraSocialSeleccionada) {
+        const indice = obrasSocialesUsuario.indexOf(obraSocialSeleccionada);
+        if (indice !== -1) {
+          obrasSocialesUsuario.splice(indice, 1);
+          // Actualizar el campo principal si estamos eliminando el actual
+          if (document.getElementById('obraSocial').value === obraSocialSeleccionada) {
+            document.getElementById('obraSocial').value = obrasSocialesUsuario.length > 0 ? obrasSocialesUsuario[0] : '';
+          }
+          ocultarFormularios();
+          mostrarNotificacion('¡Obra Social eliminada con éxito!', 'success');
+        }
+      } else {
+        mostrarNotificacion('Por favor, selecciona una obra social para eliminar', 'error');
+      }
+    }
+
+    function actualizarListaObrasSocialesEliminar() {
+      const select = document.getElementById('obraSocialEliminar');
+      select.innerHTML = '';
+      
+      obrasSocialesUsuario.forEach(obraSocial => {
+        const option = document.createElement('option');
+        option.value = obraSocial;
+        option.textContent = obraSocial;
+        select.appendChild(option);
+      });
+    }
+
+    // Funciones para Estudios - CORREGIDAS
+    function mostrarFormularioAgregarEstudio() {
+      ocultarTodosFormularios();
+      document.getElementById('formularioAgregarEstudio').classList.remove('hidden');
+      document.getElementById('formOverlay').style.display = 'block';
+    }
+
+    function mostrarFormularioEliminarEstudio() {
+      ocultarTodosFormularios();
+      actualizarListaEstudiosEliminar();
+      document.getElementById('formularioEliminarEstudio').classList.remove('hidden');
+      document.getElementById('formOverlay').style.display = 'block';
+    }
+
+    function agregarEstudio() {
+      const select = document.getElementById('estudioAgregar');
+      const estudioSeleccionado = select.value;
+      
+      if (estudioSeleccionado) {
+        if (!estudiosUsuario.includes(estudioSeleccionado)) {
+          estudiosUsuario.push(estudioSeleccionado);
+        }
+        // Actualizar el campo principal
+        document.getElementById('estudios').value = estudioSeleccionado;
+        ocultarFormularios();
+        mostrarNotificacion('¡Estudio guardado con éxito!', 'success');
+      } else {
+        mostrarNotificacion('Por favor, selecciona un estudio', 'error');
+      }
+    }
+
+    function eliminarEstudio() {
+      const select = document.getElementById('estudioEliminar');
+      const estudioSeleccionado = select.value;
+      
+      if (estudioSeleccionado) {
+        const indice = estudiosUsuario.indexOf(estudioSeleccionado);
+        if (indice !== -1) {
+          estudiosUsuario.splice(indice, 1);
+          // Actualizar el campo principal si estamos eliminando el actual
+          if (document.getElementById('estudios').value === estudioSeleccionado) {
+            document.getElementById('estudios').value = estudiosUsuario.length > 0 ? estudiosUsuario[0] : '';
+          }
+          ocultarFormularios();
+          mostrarNotificacion('¡Estudio eliminado con éxito!', 'success');
+        }
+      } else {
+        mostrarNotificacion('Por favor, selecciona un estudio para eliminar', 'error');
+      }
+    }
+
+    function actualizarListaEstudiosEliminar() {
+      const select = document.getElementById('estudioEliminar');
+      select.innerHTML = '';
+      
+      estudiosUsuario.forEach(estudio => {
+        const option = document.createElement('option');
+        option.value = estudio;
+        option.textContent = estudio;
+        select.appendChild(option);
+      });
+    }
+    
+
+    // Funciones generales
+    function ocultarTodosFormularios() {
+      const formularios = document.querySelectorAll('.form-container');
+      formularios.forEach(form => {
+        form.classList.add('hidden');
+      });
+      document.getElementById('formOverlay').style.display = 'none';
+    }
+
+    function ocultarFormularios() {
+      ocultarTodosFormularios();
+    }
+
+    // Código existente para edición de campos - CORREGIDO
+    document.addEventListener('DOMContentLoaded', function() {
+      const editButtons = document.querySelectorAll('.edit-icon');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      
+      let originalValues = {};
+      let currentEditingField = null;
+      
+      function enableEditing(fieldId) {
+        if (currentEditingField && currentEditingField !== fieldId) {
+          cancelEditing();
+        }
+        
+        const field = document.getElementById(fieldId);
+        originalValues[fieldId] = field.value;
+        
+        field.removeAttribute('readonly');
+        field.classList.add('editing');
+        
+        cancelBtn.classList.remove('hidden');
+        saveBtn.classList.remove('hidden');
+        
+        currentEditingField = fieldId;
+        field.focus();
+      }
+      
+      function cancelEditing() {
+        if (currentEditingField) {
+          const field = document.getElementById(currentEditingField);
+          field.value = originalValues[currentEditingField];
+          field.setAttribute('readonly', true);
+          field.classList.remove('editing');
+          
+          cancelBtn.classList.add('hidden');
+          saveBtn.classList.add('hidden');
+          
+          currentEditingField = null;
+          originalValues = {};
+        }
+      }
+      
+      function saveChanges() {
+        if (currentEditingField) {
+          const field = document.getElementById(currentEditingField);
+          
+          if (currentEditingField === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(field.value)) {
+              mostrarNotificacion('Por favor, ingresa un email válido', 'error');
+              field.focus();
+              return;
+            }
+          }
+          
+          if (field.value.trim() === '') {
+            mostrarNotificacion('Este campo no puede estar vacío', 'error');
+            field.focus();
+            return;
+          }
+          
+          field.setAttribute('readonly', true);
+          field.classList.remove('editing');
+          
+          cancelBtn.classList.add('hidden');
+          saveBtn.classList.add('hidden');
+          
+          currentEditingField = null;
+          originalValues = {};
+          
+          mostrarNotificacion('¡Cambios guardados correctamente!', 'success');
+        }
+      }
+      
+      editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const fieldId = this.getAttribute('data-field');
+          enableEditing(fieldId);
+        });
+      });
+      
+      cancelBtn.addEventListener('click', cancelEditing);
+      saveBtn.addEventListener('click', saveChanges);
+      
+      document.addEventListener('keydown', function(e) {
+        if (currentEditingField) {
+          if (e.key === 'Enter') {
+            saveChanges();
+          } else if (e.key === 'Escape') {
+            cancelEditing();
+          }
+        }
+      });
+    });
+
+    // Código existente para el menú hamburguesa
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuToggle = document.getElementById('menu-toggle');
+      const sideMenu = document.getElementById('sideMenu');
+      const overlay = document.getElementById('overlay');
+      const menuLinks = document.querySelectorAll('.menu-link');
+      const body = document.body;
+
+      function openMenu() {
+        sideMenu.classList.add('open');
+        overlay.classList.add('active');
+        body.classList.add('menu-open');
+      }
+
+      function closeMenu() {
+        sideMenu.classList.remove('open');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+      }
+
+      function toggleMenu() {
+        if (sideMenu.classList.contains('open')) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      }
+
+      menuToggle.addEventListener('click', toggleMenu);
+      overlay.addEventListener('click', closeMenu);
+      
+      menuLinks.forEach(link => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeMenu();
+        }
+      });
+    });
+  </script>
+
+  <footer>
+    2025 Turnos Online - Todos los derechos reservados
+  </footer>
+</body>
+</html>
