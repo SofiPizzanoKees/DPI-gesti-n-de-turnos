@@ -66,6 +66,10 @@ public class PrimeraapiController {
     public String especialistas() {
         return "especialistas";
     }
+    @GetMapping("/turnoMedico")
+    public String turnoMedico() {
+        return "turnoMedico";
+    }
     @GetMapping("/horarioMedico")
     public String horarioMedico() {
         return "horarioMedico";

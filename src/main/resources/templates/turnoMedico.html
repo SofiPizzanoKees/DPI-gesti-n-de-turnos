@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turnos - Diagnóstico Valle Medio</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap" rel="stylesheet">
+  <!-- Iconos de menú -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- Barra superior con menú hamburguesa -->
+  <header class="top-bar">
+    <p class="registrarse"></p>
+    <div class="menu-icon" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+
+   <!-- Menú lateral -->
+  <aside id="sideMenu" class="side-menu">
+  <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+
+  <!-- Overlay para cerrar menú al hacer click fuera -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Contenedor principal -->
+  <div class="container-horario">
+
+    <!-- Logo -->
+    <div class="logo">
+      <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
+    </div>
+
+  <div class="turnos-grid">
+    
+    <!-- Turno 1 -->
+    <div class="turno-card" data-turno-id="1">
+      <div class="turno-header">
+        <div class="turno-numero">
+          <i class="fas fa-calendar-check"></i>
+          Turno #1
+        </div>
+        <span class="turno-estado">Confirmado</span>
+      </div>
+      
+      <div class="turno-details">
+        <div class="detail-row">
+          <i class="fas fa-calendar-day"></i>
+          <span class="detail-label">Fecha:</span>
+          <span class="detail-value editable" contenteditable="false">
+            <input type="date" value="2025-11-15" disabled>
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-clock"></i>
+          <span class="detail-label">Hora:</span>
+          <span class="detail-value editable" contenteditable="false">
+            <input type="time" value="09:30" disabled>
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-user"></i>
+          <span class="detail-label">Paciente:</span>
+          <span class="detail-value">Juan García</span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-stethoscope"></i>
+          <span class="detail-label">Estudio:</span>
+          <span class="detail-value">Radiografía de Tórax</span>
+        </div>
+      </div>
+    
+      
+      <div class="turno-actions">
+        <button class="btn-accion btn-editar" onclick="editarTurno(1)">
+          <i class="fas fa-edit"></i>
+          Editar
+        </button>
+        <button class="btn-accion btn-cancelar-turno" onclick="cancelarTurno(1)">
+          <i class="fas fa-times"></i>
+          Cancelar
+        </button>
+      </div>
+    </div>
+
+    <!-- Turno 2 -->
+    <div class="turno-card" data-turno-id="2">
+      <div class="turno-header">
+        <div class="turno-numero">
+          <i class="fas fa-calendar-check"></i>
+          Turno #2
+        </div>
+        <span class="turno-estado">Confirmado</span>
+      </div>
+      
+      <div class="turno-details">
+        <div class="detail-row">
+          <i class="fas fa-calendar-day"></i>
+          <span class="detail-label">Fecha:</span>
+          <span class="detail-value editable" contenteditable="false">
+            <input type="date" value="2025-11-20" disabled>
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-clock"></i>
+          <span class="detail-label">Hora:</span>
+          <span class="detail-value editable" contenteditable="false">
+            <input type="time" value="14:00" disabled>
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-user"></i>
+          <span class="detail-label">Paciente:</span>
+          <span class="detail-value">María López</span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-stethoscope"></i>
+          <span class="detail-label">Estudio:</span>
+          <span class="detail-value">Ecografía Abdominal</span>
+        </div>
+      </div>
+     
+      
+      <div class="turno-actions">
+        <button class="btn-accion btn-editar" onclick="editarTurno(2)">
+          <i class="fas fa-edit"></i>
+          Editar
+        </button>
+        <button class="btn-accion btn-cancelar-turno" onclick="cancelarTurno(2)">
+          <i class="fas fa-times"></i>
+          Cancelar
+        </button>
+      </div>
+    </div>
+
+    <!-- Turno 3 -->
+    <div class="turno-card" data-turno-id="3">
+      <div class="turno-header">
+        <div class="turno-numero">
+          <i class="fas fa-calendar-check"></i>
+          Turno #3
+        </div>
+        <span class="turno-estado">Confirmado</span>
+      </div>
+      
+      <div class="turno-details">
+        <div class="detail-row">
+          <i class="fas fa-calendar-day"></i>
+          <span class="detail-label">Fecha:</span>
+          <span class="detail-value editable" contenteditable="false">
+            <input type="date" value="2025-11-25" disabled>
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-clock"></i>
+          <span class="detail-label">Hora:</span>
+          <span class="detail-value editable" contenteditable="false">
+            <input type="time" value="11:15" disabled>
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-user"></i>
+          <span class="detail-label">Paciente:</span>
+          <span class="detail-value">Carlos Fernández</span>
+        </div>
+        
+        <div class="detail-row">
+          <i class="fas fa-stethoscope"></i>
+          <span class="detail-label">Estudio:</span>
+          <span class="detail-value">Tomografía Computada</span>
+        </div>
+      </div>
+      
+      
+      <div class="turno-actions">
+        <button class="btn-accion btn-editar" onclick="editarTurno(3)">
+          <i class="fas fa-edit"></i>
+          Editar
+        </button>
+        <button class="btn-accion btn-cancelar-turno" onclick="cancelarTurno(3)">
+          <i class="fas fa-times"></i>
+          Cancelar
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Botones de acción finales -->
+  <div class="acciones-finales">
+    <button type="button" class="btn" onclick="window.location.href='login'">
+      <i class="fas fa-arrow-left"></i>
+      Volver
+    </button>
+    <button type="button" class="btn-guardar-cambios" id="btnGuardarCambios" disabled onclick="guardarCambios()">
+      <i class="fas fa-save"></i>
+      Guardar Cambios
+    </button>
+  </div>
+
+</div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <i class="fas fa-mobile-alt"></i>
+        <span>+54 9 291 123-4567</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-envelope"></i>
+        <span>info@centroimagen.com</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Av. Colón 123, Bahía Blanca</span>
+      </div>
+      
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://facebook.com" target="_blank" title="Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+
+    </div>
+  </footer>
+<script>
+    // Elementos del DOM
+    const menuToggle = document.getElementById('menu-toggle');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const body = document.body;
+
+    // Función para abrir menú
+    function openMenu() {
+      sideMenu.classList.add('open');
+      overlay.classList.add('active');
+      body.classList.add('menu-open');
+    }
+
+    // Función para cerrar menú
+    function closeMenu() {
+      sideMenu.classList.remove('open');
+      overlay.classList.remove('active');
+      body.classList.remove('menu-open');
+    }
+
+    // Función para toggle menú
+    function toggleMenu() {
+      if (sideMenu.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    // Event listeners
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    // Cerrar menú al hacer click en el overlay
+    overlay.addEventListener('click', closeMenu);
+    
+    // Cerrar menú al hacer click en un enlace
+    menuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Cerrar menú con la tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+    // Variables para rastrear cambios
+let turnosModificados = new Set();
+
+// Función para editar turno
+function editarTurno(turnoId) {
+  const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
+  const inputs = card.querySelectorAll('input[type="date"], input[type="time"]');
+  const btnEditar = card.querySelector('.btn-editar');
+  
+  // Verificar si ya está en modo edición
+  const estaEditando = !inputs[0].disabled;
+  
+  if (estaEditando) {
+    // Guardar cambios individuales
+    inputs.forEach(input => {
+      input.disabled = true;
+      input.parentElement.style.background = 'transparent';
+      input.parentElement.style.border = 'none';
+    });
+    btnEditar.innerHTML = '<i class="fas fa-edit"></i> Editar';
+    card.classList.remove('modificado');
+    
+    // Marcar como modificado
+    turnosModificados.add(turnoId);
+    habilitarGuardado();
+  } else {
+    // Habilitar edición
+    inputs.forEach(input => {
+      input.disabled = false;
+      input.parentElement.style.background = 'white';
+      input.parentElement.style.border = '2px solid #3498db';
+    });
+    btnEditar.innerHTML = '<i class="fas fa-check"></i> Confirmar';
+    card.classList.add('modificado');
+  }
+}
+
+// Función para cancelar turno
+function cancelarTurno(turnoId) {
+  if (confirm('¿Está seguro que desea cancelar este turno?')) {
+    const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
+    card.style.opacity = '0.5';
+    card.style.pointerEvents = 'none';
+    
+    const estado = card.querySelector('.turno-estado');
+    estado.textContent = 'Cancelado';
+    estado.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+    
+    turnosModificados.add(turnoId);
+    habilitarGuardado();
+    
+    // Aquí irían las acciones para cancelar en el backend
+    console.log(`Turno ${turnoId} cancelado`);
+  }
+}
+
+// Función para habilitar el botón de guardar
+function habilitarGuardado() {
+  const btnGuardar = document.getElementById('btnGuardarCambios');
+  if (turnosModificados.size > 0) {
+    btnGuardar.disabled = false;
+    btnGuardar.style.animation = 'pulse 1.5s infinite';
+  }
+}
+
+// Función para guardar todos los cambios
+function guardarCambios() {
+  if (turnosModificados.size === 0) return;
+  
+  // Recopilar todos los datos modificados
+  const cambios = [];
+  turnosModificados.forEach(turnoId => {
+    const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
+    const fecha = card.querySelector('input[type="date"]').value;
+    const hora = card.querySelector('input[type="time"]').value;
+    
+    cambios.push({
+      id: turnoId,
+      fecha: fecha,
+      hora: hora
+    });
+  });
+  
+  console.log('Guardando cambios:', cambios);
+  
+  // Aquí iría la llamada al backend
+  alert('Cambios guardados exitosamente');
+  
+  // Resetear el estado
+  turnosModificados.clear();
+  document.getElementById('btnGuardarCambios').disabled = true;
+  document.getElementById('btnGuardarCambios').style.animation = 'none';
+  
+  // Remover indicadores de modificación
+  document.querySelectorAll('.turno-card.modificado').forEach(card => {
+    card.classList.remove('modificado');
+  });
+}
+
+// Agregar animación de pulso al CSS
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+`;
+document.head.appendChild(style);
+  </script>
+</body>
+</html>
