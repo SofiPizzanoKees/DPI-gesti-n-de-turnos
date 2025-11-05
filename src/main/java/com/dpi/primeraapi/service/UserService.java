@@ -52,7 +52,7 @@ public class UserService {
             }
             
             // Obtener usuario y actualizar contraseña
-            Usuario usuario = resetToken.getUsuario();
+            Usuario usuario = resetToken.getusuario()
             String encryptedPassword = passwordEncoderService.encode(newPassword);
             usuario.setPassword(encryptedPassword);
             usuarioRepository.save(usuario);

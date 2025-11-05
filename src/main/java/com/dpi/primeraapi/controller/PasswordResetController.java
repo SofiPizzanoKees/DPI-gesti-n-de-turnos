@@ -1,5 +1,6 @@
 package com.dpi.primeraapi.controller;
 
+import com.dpi.primeraapi.model.Usuario;  // ← AGREGAR este import
 import com.dpi.primeraapi.service.EmailService;
 import com.dpi.primeraapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +25,15 @@ public class PasswordResetController {
     public ResponseEntity<?> forgotPassword(@RequestParam String email) {
         try {
             // Buscar usuario por email
-            Object user = userService.findByEmail(email);
-            if (user == null) {
+            Usuario usuario = userService.findByEmail(email);  // ← CAMBIADO: Object user → Usuario usuario
+            if (usuario == null) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Si el email existe, recibirás un enlace de recuperación");
-                return ResponseEntity.ok(response); // Por seguridad, no revelar si existe o no
+                return ResponseEntity.ok(response);
             }
             
             // Generar token
-            String token = userService.generatePasswordResetToken(user);
+            String token = userService.generatePasswordResetToken(usuario);  // ← CAMBIADO: user → usuario
             
             // Enviar email
             emailService.sendPasswordResetEmail(email, token);
