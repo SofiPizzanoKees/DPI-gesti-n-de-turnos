@@ -1,14 +1,21 @@
 package com.dpi.primeraapi.controller;
 
-import com.dpi.primeraapi.model.Usuario;  // ← AGREGAR este import
-import com.dpi.primeraapi.service.EmailService;
-import com.dpi.primeraapi.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dpi.primeraapi.model.Usuario;
+import com.dpi.primeraapi.repository.UsuarioRepository;
+import com.dpi.primeraapi.service.EmailService;
+import com.dpi.primeraapi.service.PasswordEncoderService;
+import com.dpi.primeraapi.service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,12 +27,42 @@ public class PasswordResetController {
     
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoderService passwordEncoderService;
+    
+    @PostMapping("/create-test-user")
+    public String createTestUser() {
+        try {
+            // Verificar si ya existe
+            if (usuarioRepository.findByEmail("test@ejemplo.com").isPresent()) {
+                return "✅ Usuario de prueba ya existe: test@ejemplo.com / password123";
+            }
+            
+            Usuario usuario = new Usuario();
+            usuario.setDni("12345678");
+            usuario.setNombre("Usuario");
+            usuario.setApellido("Prueba");
+            usuario.setEmail("test@ejemplo.com");
+            usuario.setPassword(passwordEncoderService.encode("password123"));
+            usuario.setRol("PACIENTE");
+            usuario.setTelefono("1122334455");
+            
+            usuarioRepository.save(usuario);
+            return "✅ Usuario de prueba creado: test@ejemplo.com / password123";
+        } catch (Exception e) {
+            return "❌ Error creando usuario: " + e.getMessage();
+        }
+    }
     
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam String email) {
         try {
             // Buscar usuario por email
-            Usuario usuario = userService.findByEmail(email);  // ← CAMBIADO: Object user → Usuario usuario
+            Usuario usuario = userService.findByEmail(email);
             if (usuario == null) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Si el email existe, recibirás un enlace de recuperación");
@@ -33,7 +70,7 @@ public class PasswordResetController {
             }
             
             // Generar token
-            String token = userService.generatePasswordResetToken(usuario);  // ← CAMBIADO: user → usuario
+            String token = userService.generatePasswordResetToken(usuario);
             
             // Enviar email
             emailService.sendPasswordResetEmail(email, token);
