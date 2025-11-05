@@ -57,6 +57,25 @@ public class PasswordResetController {
             return "❌ Error creando usuario: " + e.getMessage();
         }
     }
+
+    @PostMapping("/update-test-user-email")
+    public String updateTestUserEmail() {
+        try {
+            // Buscar el usuario de prueba
+            Usuario usuario = usuarioRepository.findByEmail("test@ejemplo.com").orElse(null);
+            if (usuario == null) {
+                return "❌ Usuario de prueba no encontrado";
+            }
+            
+            // Actualizar email
+            usuario.setEmail("dpi.vallemedio1@gmail.com");
+            usuarioRepository.save(usuario);
+            
+            return "✅ Email actualizado: test@ejemplo.com → dpi.vallemedio1@gmail.com";
+        } catch (Exception e) {
+            return "❌ Error actualizando email: " + e.getMessage();
+        }
+    }
     
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam String email) {
