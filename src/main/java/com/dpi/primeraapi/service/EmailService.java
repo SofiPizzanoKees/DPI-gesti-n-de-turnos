@@ -43,11 +43,27 @@ public class EmailService {
             request.setBody(mail.build());
             
             Response response = sg.api(request);
-            System.out.println("Email enviado a " + toEmail + ". Status: " + response.getStatusCode());
+            
+            // ✅ DEBUGGING DETALLADO - ESTO ES LO NUEVO
+            System.out.println("=== DEBUG SENDGRID ===");
+            System.out.println("From Email: " + fromEmail);
+            System.out.println("To Email: " + toEmail);
+            System.out.println("Status Code: " + response.getStatusCode());
+            System.out.println("Response Body: " + response.getBody());
+            System.out.println("Response Headers: " + response.getHeaders());
+            System.out.println("=== FIN DEBUG ===");
+            
+            if (response.getStatusCode() == 202) {
+                System.out.println("✅ Email aceptado por SendGrid");
+            } else {
+                System.out.println("❌ Error de SendGrid: " + response.getStatusCode());
+                // Lanza una excepción más específica para debugging
+                throw new RuntimeException("SendGrid error: " + response.getStatusCode() + " - " + response.getBody());
+            }
             
         } catch (IOException ex) {
             System.err.println("Error enviando email: " + ex.getMessage());
-            throw new RuntimeException("Error enviando email de recuperación");
+            throw new RuntimeException("Error enviando email de recuperación: " + ex.getMessage());
         }
     }
 }
