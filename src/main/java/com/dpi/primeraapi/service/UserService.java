@@ -1,13 +1,14 @@
 package com.dpi.primeraapi.service;
 
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.dpi.primeraapi.entity.PasswordResetToken;
 import com.dpi.primeraapi.model.Usuario;
 import com.dpi.primeraapi.repository.PasswordResetTokenRepository;
 import com.dpi.primeraapi.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -52,7 +53,7 @@ public class UserService {
             }
             
             // Obtener usuario y actualizar contraseña
-            Usuario usuario = resetToken.getusuario()
+            Usuario usuario = resetToken.getUsuario();
             String encryptedPassword = passwordEncoderService.encode(newPassword);
             usuario.setPassword(encryptedPassword);
             usuarioRepository.save(usuario);
