@@ -62,6 +62,10 @@ public class PrimeraapiController {
     public String editarEstudio() {
         return "editarEstudio";
     }
+      @GetMapping("/menuMedico")
+    public String menuMedico() {
+        return "menuMedico";
+    }
      @GetMapping("/especialistas")
     public String especialistas() {
         return "especialistas";
