@@ -26,6 +26,9 @@ public class Turno {
     @Column(nullable = false)
     private LocalTime hora;
     
+    @Column(name = "hora_fin")
+    private LocalTime horaFin; // ✅ NUEVO: Para saber cuándo termina
+    
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
     private Usuario paciente;
@@ -39,7 +42,10 @@ public class Turno {
     private Estudio estudio;
     
     @Column(nullable = false)
-    private String estado = "PENDIENTE"; // PENDIENTE, CONFIRMADO, CANCELADO, COMPLETADO
+    private String estado = "PENDIENTE";
+    
+    @Column(name = "codigo_turno", unique = true, length = 20)
+    private String codigoTurno; // ✅ NUEVO: Para identificar turno fácilmente
     
     // Constructores
     public Turno() {}
@@ -50,6 +56,24 @@ public class Turno {
         this.estudio = estudio;
         this.fecha = fecha;
         this.hora = hora;
+        this.horaFin = hora.plusMinutes(30); // Default 30 min
+        this.codigoTurno = generarCodigoTurno();
+    }
+    
+    // Método privado para generar código de turno único y descriptivo
+    private String generarCodigoTurno() {
+        String fechaCodigo = String.format("%02d%02d%02d", 
+            fecha.getYear() % 100, // Últimos 2 dígitos del año
+            fecha.getMonthValue(), 
+            fecha.getDayOfMonth()
+        );
+        
+        String randomCodigo = String.format("%04d", 
+            (int)(Math.random() * 10000) // Número aleatorio de 4 dígitos
+        );
+        
+        return "T" + fechaCodigo + randomCodigo;
+        // Ejemplo: "T2412151234" para 15/12/2024
     }
     
     // Getters y Setters
@@ -74,7 +98,19 @@ public class Turno {
     }
     
     public void setHora(LocalTime hora) { 
-        this.hora = hora; 
+        this.hora = hora;
+        // Calcular horaFin automáticamente si no está definida
+        if (this.horaFin == null) {
+            this.horaFin = hora.plusMinutes(30);
+        }
+    }
+    
+    public LocalTime getHoraFin() { 
+        return horaFin; 
+    }
+    
+    public void setHoraFin(LocalTime horaFin) { 
+        this.horaFin = horaFin; 
     }
     
     public Usuario getPaciente() { 
@@ -107,5 +143,28 @@ public class Turno {
     
     public void setEstado(String estado) { 
         this.estado = estado; 
+    }
+    
+    public String getCodigoTurno() { 
+        return codigoTurno; 
+    }
+    
+    public void setCodigoTurno(String codigoTurno) { 
+        this.codigoTurno = codigoTurno; 
+    }
+    
+    @Override
+    public String toString() {
+        return "Turno{" +
+                "idTurno=" + idTurno +
+                ", fecha=" + fecha +
+                ", hora=" + hora +
+                ", horaFin=" + horaFin +
+                ", paciente=" + (paciente != null ? paciente.getNombre() + " " + paciente.getApellido() : "null") +
+                ", medico=" + (medico != null ? medico.getNombre() + " " + medico.getApellido() : "null") +
+                ", estudio=" + (estudio != null ? estudio.getNombre() : "null") +
+                ", estado='" + estado + '\'' +
+                ", codigoTurno='" + codigoTurno + '\'' +
+                '}';
     }
 }

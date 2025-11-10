@@ -7,9 +7,12 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dpi.primeraapi.model.Turno;
+import com.dpi.primeraapi.model.Usuario;
 
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
-    List<Turno> findByFecha(LocalDate fecha);
-    List<Turno> findByMedicoIdAndFecha(Long medicoId, LocalDate fecha);
-    boolean existsByMedicoIdAndFechaAndHora(Long medicoId, LocalDate fecha, LocalTime hora);
+    List<Turno> findByMedicoAndFecha(Usuario medico, LocalDate fecha);
+    List<Turno> findByMedicoAndFechaAndEstado(Usuario medico, LocalDate fecha, String estado);
+    List<Turno> findByPaciente(Usuario paciente);
+    boolean existsByMedicoAndFechaAndHora(Usuario medico, LocalDate fecha, LocalTime hora);
+    Turno findByCodigoTurno(String codigoTurno);
 }
