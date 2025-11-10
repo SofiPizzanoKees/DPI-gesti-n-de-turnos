@@ -37,22 +37,186 @@
     <!-- Logo -->
     <div class="logo">
       <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
-      <h2>VER TURNOS</h2>
     </div>
 
-    <!-- Botones de turnos -->
-    <button class="btn">Turno 1 - Detalles</button>
-    <button class="btn">Turno 2 - Detalles</button>
-    <button class="btn">Turno 3 - Detalles</button>
-    <button class="btn">Turno 4 - Detalles</button>
-
-    <!-- Botón volver -->
-    <button type="button" class="btn" onclick="window.location.href='login'">Volver</button>
+   <!-- Reemplaza desde aquí -->
+<div class="turnos-grid">
+  
+  <!-- Turno 1 -->
+  <div class="turno-card">
+    <div class="turno-header">
+      <div class="turno-numero">
+        <i class="fas fa-calendar-check"></i>
+        Turno #1
+      </div>
+      <span class="turno-estado">Confirmado</span>
+    </div>
+    
+    <div class="turno-details">
+      <div class="detail-row">
+        <i class="fas fa-calendar-day"></i>
+        <span class="detail-label">Fecha:</span>
+        <span class="detail-value">15/11/2025</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-clock"></i>
+        <span class="detail-label">Hora:</span>
+        <span class="detail-value">09:30 hs</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-user-md"></i>
+        <span class="detail-label">Especialista:</span>
+        <span class="detail-value">Dr. Juan Pérez</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-stethoscope"></i>
+        <span class="detail-label">Estudio:</span>
+        <span class="detail-value">Radiografía de Tórax</span>
+      </div>
+    </div>
+    
+    <div class="turno-descripcion">
+      <p>Presentarse 15 minutos antes. Traer orden médica y DNI.</p>
+    </div>
+    
+      <button class="btn-accion btn-cancelar-turno">
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+    </div>
   </div>
 
+  <!-- Turno 2 -->
+  <div class="turno-card">
+    <div class="turno-header">
+      <div class="turno-numero">
+        <i class="fas fa-calendar-check"></i>
+        Turno #2
+      </div>
+      <span class="turno-estado">Confirmado</span>
+    </div>
+    
+    <div class="turno-details">
+      <div class="detail-row">
+        <i class="fas fa-calendar-day"></i>
+        <span class="detail-label">Fecha:</span>
+        <span class="detail-value">20/11/2025</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-clock"></i>
+        <span class="detail-label">Hora:</span>
+        <span class="detail-value">14:00 hs</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-user-md"></i>
+        <span class="detail-label">Especialista:</span>
+        <span class="detail-value">Dra. María González</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-stethoscope"></i>
+        <span class="detail-label">Estudio:</span>
+        <span class="detail-value">Ecografía Abdominal</span>
+      </div>
+    </div>
+    
+    <div class="turno-descripcion">
+      <p>Ayuno de 8 horas. Traer estudios previos si los tiene.</p>
+    </div>
+    
+      <button class="btn-accion btn-cancelar-turno">
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- Turno 3 -->
+  <div class="turno-card">
+    <div class="turno-header">
+      <div class="turno-numero">
+        <i class="fas fa-calendar-check"></i>
+        Turno #3
+      </div>
+      <span class="turno-estado">Confirmado</span>
+    </div>
+    
+    <div class="turno-details">
+      <div class="detail-row">
+        <i class="fas fa-calendar-day"></i>
+        <span class="detail-label">Fecha:</span>
+        <span class="detail-value">25/11/2025</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-clock"></i>
+        <span class="detail-label">Hora:</span>
+        <span class="detail-value">11:15 hs</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-user-md"></i>
+        <span class="detail-label">Especialista:</span>
+        <span class="detail-value">Dr. Carlos Rodríguez</span>
+      </div>
+      
+      <div class="detail-row">
+        <i class="fas fa-stethoscope"></i>
+        <span class="detail-label">Estudio:</span>
+        <span class="detail-value">Tomografía Computada</span>
+      </div>
+    </div>
+    
+    <div class="turno-descripcion">
+      <p>Llegar 30 minutos antes. No ingerir alimentos sólidos 4 horas antes.</p>
+    </div>
+    
+      <button class="btn-accion btn-cancelar-turno">
+        <i class="fas fa-times"></i>
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+<button type="button" class="btn" onclick="window.location.href='login'">Volver</button>
+
   <footer>
-  2025 Turnos Online - Todos los derechos reservados
-</footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <i class="fas fa-mobile-alt"></i>
+        <span>+54 9 291 123-4567</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-envelope"></i>
+        <span>info@centroimagen.com</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Av. Colón 123, Bahía Blanca</span>
+      </div>
+      
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://facebook.com" target="_blank" title="Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+
+    </div>
+  </footer>
 <script>
     // Elementos del DOM
     const menuToggle = document.getElementById('menu-toggle');

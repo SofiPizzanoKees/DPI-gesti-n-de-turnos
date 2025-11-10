@@ -8,19 +8,19 @@
   <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
-  
   <!-- Barra superior con menú hamburguesa -->
   <header class="top-bar">
-    <p class="registrarse"></p>
+    <p class="registrarse">
     <div class="menu-icon" id="menu-toggle">
       <i class="fas fa-bars"></i>
     </div>
   </header>
 
-  <!-- Menú lateral -->
+   <!-- Menú lateral -->
   <aside id="sideMenu" class="side-menu">
-    <nav class="menu-nav">
+   <nav class="menu-nav">
       <a href="login" class="menu-link">Inicio</a>
       <a href="miperfil" class="menu-link">Mi Perfil</a>
       <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
@@ -31,37 +31,13 @@
   <!-- Overlay para cerrar menú al hacer click fuera -->
   <div class="overlay" id="overlay"></div>
 
-  <!-- Contenido principal -->
-  <div class="container">
-    <!-- 🔹 Encabezado con logo -->
-    <header class="header">
-      <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio" class="logologin">
-    </header>
-
-    <!-- Título -->
-    <h2 class="title">TURNOS ONLINE</h2>
-
-    <!-- Formulario de login -->
-    <form class="login-form" th:action="@{/login}" method="post">
-      <label for="dni">DNI</label>
-      <input type="text" id="dni" name="dni" required placeholder="Ingrese su dni">
-
-      <label for="password">Contraseña</label>
-      <input type="password" id="password" name="password" placeholder="Ingrese su contraseña">
-      <button type="submit" class="btn">INGRESAR</button>
-    </form>
-    
-    <!-- Mensaje de error si falla el login -->
-    <p th:if="${error}" th:text="${error}" style="color:red;"></p>
-
-    <!-- Enlaces adicionales -->
-    <div class="links">
-      <!-- 🔗 Conexión agregada al recuperar.html -->
-      <p><a th:href="@{/recuperar}">¿Olvidaste tu contraseña? Aquí.</a></p>
-      <p><a th:href="@{/formulario}">¿No tienes usuario? Regístrate aquí.</a></p>
+  <main class="container">
+    <div class="logo">
+      <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
     </div>
-  </div>
 
+    <button type="button" class="btn" onclick="window.location.href='turnoMedico'">VER MIS TURNOS</button>
+  </main>
   <footer>
     <div class="footer-content">
       <div class="footer-section">
@@ -95,6 +71,7 @@
     </div>
   </footer>
 
+
   <script>
     // Elementos del DOM
     const menuToggle = document.getElementById('menu-toggle');
@@ -117,7 +94,7 @@
       body.classList.remove('menu-open');
     }
 
-    // Función para alternar menú
+    // Función para toggle menú
     function toggleMenu() {
       if (sideMenu.classList.contains('open')) {
         closeMenu();
@@ -128,16 +105,22 @@
 
     // Event listeners
     menuToggle.addEventListener('click', toggleMenu);
+    
+    // Cerrar menú al hacer click en el overlay
     overlay.addEventListener('click', closeMenu);
+    
+    // Cerrar menú al hacer click en un enlace
     menuLinks.forEach(link => {
       link.addEventListener('click', closeMenu);
     });
 
+    // Cerrar menú con la tecla ESC
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeMenu();
       }
     });
   </script>
+
 </body>
 </html>

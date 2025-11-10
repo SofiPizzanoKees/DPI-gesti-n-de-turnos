@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Quiénes Somos? - Turnos Online</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  
+  <!-- Barra superior con menú hamburguesa -->
+  <header class="top-bar">
+    <p class="registrarse"></p>
+    <div class="menu-icon" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+  
+  <!-- Menú lateral -->
+  <aside id="sideMenu" class="side-menu">
+    <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Contenido principal -->
+  <div class="about-page">
+    
+    <!-- Hero Section -->
+    <div class="about-hero">
+      <h1>¿Quiénes Somos?</h1>
+      <p class="subtitle">Diagnóstico por Imagen Valle Medio</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-number">15+</div>
+        <div class="stat-label">Años de Experiencia</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">20K+</div>
+        <div class="stat-label">Pacientes Atendidos</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">20+</div>
+        <div class="stat-label">Profesionales</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Compromiso</div>
+      </div>
+    </div>
+
+    <!-- Nosotros -->
+    <div class="section-card">
+      <h2><i class="fas fa-hospital"></i> Nosotros</h2>
+      <p>
+        Somos un centro de diagnóstico por imágenes de vanguardia, comprometidos con la excelencia en el cuidado de la salud. 
+        Desde nuestra fundación, nos hemos dedicado a proporcionar servicios de diagnóstico de la más alta calidad, 
+        utilizando tecnología de punta y contando con un equipo de profesionales altamente capacitados.
+      </p>
+      <p>
+        Nuestro compromiso es brindar atención personalizada, eficiente y precisa, contribuyendo al diagnóstico temprano 
+        y tratamiento efectivo de diversas condiciones médicas. Trabajamos en estrecha colaboración con médicos y especialistas 
+        para garantizar que cada paciente reciba el mejor cuidado posible.
+      </p>
+      <p>
+        Ubicados estratégicamente para servir a nuestra comunidad, contamos con instalaciones modernas equipadas con 
+        tecnología de última generación que nos permite ofrecer estudios precisos y resultados confiables en el menor tiempo posible.
+      </p>
+    </div>
+
+    <!-- Misión y Visión -->
+    <div class="section-card">
+      <h2><i class="fas fa-compass"></i> Misión y Visión</h2>
+      <div class="mission-vision-grid">
+        <div class="mv-card">
+          <h3><i class="fas fa-bullseye"></i> Nuestra Misión</h3>
+          <p>
+            Proporcionar servicios de diagnóstico por imágenes de la más alta calidad, con tecnología avanzada y 
+            un equipo profesional comprometido, garantizando precisión, rapidez y calidez humana en cada estudio realizado. 
+            Nos esforzamos por ser aliados estratégicos de médicos y pacientes en el proceso de diagnóstico y tratamiento.
+          </p>
+        </div>
+        <div class="mv-card">
+          <h3><i class="fas fa-eye"></i> Nuestra Visión</h3>
+          <p>
+            Ser el centro de diagnóstico por imágenes de referencia en la región, reconocido por nuestra excelencia técnica, 
+            innovación constante y atención centrada en el paciente. Aspiramos a contribuir significativamente a la salud 
+            de nuestra comunidad mediante servicios de diagnóstico confiables y accesibles.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Valores -->
+    <div class="section-card">
+      <h2><i class="fas fa-heart"></i> Nuestros Valores</h2>
+      <div class="values-grid">
+        <div class="value-card">
+          <i class="fas fa-shield-alt"></i>
+          <h3>Calidad</h3>
+          <p>Excelencia y precisión en cada diagnóstico que realizamos</p>
+        </div>
+        <div class="value-card">
+          <i class="fas fa-user-md"></i>
+          <h3>Profesionalismo</h3>
+          <p>Equipo altamente capacitado y en constante actualización</p>
+        </div>
+        <div class="value-card">
+          <i class="fas fa-hands-helping"></i>
+          <h3>Empatía</h3>
+          <p>Atención humana, cálida y personalizada para cada paciente</p>
+        </div>
+        <div class="value-card">
+          <i class="fas fa-lightbulb"></i>
+          <h3>Innovación</h3>
+          <p>Tecnología de última generación y mejora continua</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Servicios -->
+    <div class="section-card">
+      <h2><i class="fas fa-stethoscope"></i> Nuestros Servicios</h2>
+      <p style="text-align: center; margin-bottom: 2rem;">
+        Ofrecemos una amplia gama de estudios diagnósticos con equipamiento de última tecnología
+      </p>
+      <div class="services-grid">
+        <div class="service-item">
+          <i class="fas fa-x-ray"></i>
+          <h4>Radiografías</h4>
+        </div>
+        <div class="service-item">
+          <i class="fas fa-brain"></i>
+          <h4>Tomografías</h4>
+        </div>
+        <div class="service-item">
+          <i class="fas fa-heartbeat"></i>
+          <h4>Resonancias Magnéticas</h4>
+        </div>
+        <div class="service-item">
+          <i class="fas fa-baby"></i>
+          <h4>Ecografías</h4>
+        </div>
+        <div class="service-item">
+          <i class="fas fa-female"></i>
+          <h4>Mamografías</h4>
+        </div>
+        <div class="service-item">
+          <i class="fas fa-bone"></i>
+          <h4>Densitometría Ósea</h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- Equipo -->
+    <div class="section-card">
+      <h2><i class="fas fa-users"></i> Nuestro Equipo</h2>
+      <p>
+        Contamos con un equipo multidisciplinario de médicos radiólogos, técnicos en diagnóstico por imágenes, 
+        y personal administrativo altamente capacitado. Cada miembro de nuestro equipo está comprometido con 
+        brindar atención de excelencia y trato personalizado a cada paciente.
+      </p>
+      <p>
+        Nuestros profesionales participan regularmente en programas de capacitación y actualización, 
+        manteniéndose al día con los últimos avances en tecnología diagnóstica y mejores prácticas médicas.
+      </p>
+    </div>
+
+
+  <!-- Script del menú -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuToggle = document.getElementById('menu-toggle');
+      const sideMenu = document.getElementById('sideMenu');
+      const overlay = document.getElementById('overlay');
+      const menuLinks = document.querySelectorAll('.menu-link');
+      const body = document.body;
+
+      function openMenu() {
+        sideMenu.classList.add('open');
+        overlay.classList.add('active');
+        body.classList.add('menu-open');
+      }
+
+      function closeMenu() {
+        sideMenu.classList.remove('open');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+      }
+
+      function toggleMenu() {
+        if (sideMenu.classList.contains('open')) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      }
+
+      menuToggle.addEventListener('click', toggleMenu);
+      overlay.addEventListener('click', closeMenu);
+      
+      menuLinks.forEach(link => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeMenu();
+        }
+      });
+    });
+  </script>
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <i class="fas fa-mobile-alt"></i>
+        <span>+54 9 291 123-4567</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-envelope"></i>
+        <span>info@centroimagen.com</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Av. Colón 123, Bahía Blanca</span>
+      </div>
+      
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://facebook.com" target="_blank" title="Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+
+    </div>
+  </footer>
+
+  
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Estudios - Turnos Online</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <!-- Iconos de menú -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  
+  <!-- Barra superior con menú hamburguesa -->
+  <header class="top-bar">
+    <p class="registrarse">
+    <div class="menu-icon" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+
+   <!-- Menú lateral -->
+  <aside id="sideMenu" class="side-menu">
+   <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+  <!-- Overlay para cerrar menú al hacer click fuera -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Contenedor principal -->
+  <div class="container-horario">
+    <!-- Logo -->
+    <div class="logo">
+      <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
+    </div>
+    
+    <!-- CONTENEDOR DE BOTONES CON CLASES CSS -->
+    <div class="button-container">
+        <button class="main-button add-button" onclick="mostrarFormularioAgregar()">Agregar Estudio</button>
+        <button class="main-button delete-button" onclick="mostrarFormularioEliminar()">Eliminar Estudio</button>
+    </div>
+    
+    <!-- Formulario para agregar estudio (oculto inicialmente) -->
+    <div id="formularioAgregar" style="display:none; margin-top: 20px;">
+        <h2>Agregar Nuevo Estudio</h2>
+        <form id="agregarForm">
+            <label for="nombre">Nombre del estudio:</label><br>
+            <input type="text" id="nombre" name="nombre" required><br><br>
+            
+            <label for="descripcion">Descripción:</label><br>
+            <textarea id="descripcion" name="descripcion" rows="4" cols="50" required></textarea><br><br>
+            
+            <!-- BOTONES CON CLASES CSS -->
+            <div class="form-buttons">
+                <button type="button" class="form-button save-button" onclick="agregarEstudio()">Guardar Estudio</button>
+                <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Formulario para eliminar estudio -->
+    <div id="formularioEliminar" style="display:none; margin-top: 20px;">
+        <form id="eliminarForm">
+            <label for="estudios">Selecciona un estudio para eliminar:</label><br>
+              <select id="estudio" name="estudio" required>
+          <option value="">-----------------------------</option>
+          <option value="estudio1">Estudio 1</option>
+          <option value="estudio2">Estudio 2</option>
+          <option value="estudio3">Estudio 3</option>
+          <option value="estudio4">Estudio 4</option>
+          <option value="estudio5">Estudio 5</option>
+        </select>
+
+            <!-- BOTONES CON CLASES CSS - CORREGIDA LA FUNCIÓN -->
+            <div class="form-buttons">
+                <button type="button" class="form-button delete-form-button" onclick="eliminarEstudio()">Eliminar Estudio</button>
+                <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+
+  <script>
+        // Array para almacenar los estudios
+        let estudios = [];
+        
+        // Función para mostrar el formulario de agregar
+        function mostrarFormularioAgregar() {
+            document.getElementById('formularioAgregar').style.display = 'block';
+            document.getElementById('formularioEliminar').style.display = 'none';
+            document.querySelector('.button-container').style.display = 'none';
+        }
+        
+        // Función para mostrar el formulario de eliminar
+        function mostrarFormularioEliminar() {
+            document.getElementById('formularioEliminar').style.display = 'block';
+            document.getElementById('formularioAgregar').style.display = 'none';
+             document.querySelector('.button-container').style.display = 'none';
+            actualizarListaEliminar();
+        }
+        
+        // Función para ocultar ambos formularios
+        function ocultarFormularios() {
+            document.getElementById('formularioAgregar').style.display = 'none';
+            document.getElementById('formularioEliminar').style.display = 'none';
+            document.querySelector('.button-container').style.display = 'block';
+}
+        
+        
+        // Función para agregar un nuevo estudio
+        function agregarEstudio() {
+            const nombre = document.getElementById('nombre').value;
+            const descripcion = document.getElementById('descripcion').value;
+            
+            if (nombre && descripcion) {
+                // Agregar el estudio al array
+                estudios.push({
+                    nombre: nombre,
+                    descripcion: descripcion
+                });
+                
+                // Limpiar el formulario
+                document.getElementById('agregarForm').reset();
+                
+                // Actualizar la lista visual
+                actualizarListaVisual();
+                
+                // Ocultar el formulario
+                ocultarFormularios();
+                
+                alert('Estudio agregado correctamente');
+            } else {
+                alert('Por favor, completa todos los campos');
+            }
+        }
+        
+        // Función para eliminar un estudio
+        function eliminarEstudio() {
+            const select = document.getElementById('estudios');
+            const indice = select.selectedIndex;
+            
+            if (indice !== -1) {
+                // Eliminar el estudio del array
+                estudios.splice(indice, 1);
+                
+                // Actualizar las listas
+                actualizarListaVisual();
+                actualizarListaEliminar();
+                
+                alert('Estudio eliminado correctamente');
+            } else {
+                alert('Por favor, selecciona un estudio para eliminar');
+            }
+        }
+        
+        // Función para actualizar la lista visual de estudios
+        function actualizarListaVisual() {
+            const lista = document.getElementById('lista');
+            lista.innerHTML = '';
+            
+            estudios.forEach((estudio, index) => {
+                const item = document.createElement('li');
+                item.innerHTML = `<strong>${estudio.nombre}</strong>: ${estudio.descripcion}`;
+                lista.appendChild(item);
+            });
+        }
+        
+        // Función para actualizar la lista del selector de eliminación
+        function actualizarListaEliminar() {
+            const select = document.getElementById('estudios');
+            select.innerHTML = '';
+            
+            estudios.forEach((estudio, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = estudio.nombre;
+                select.appendChild(option);
+            });
+        }
+
+        // Script del menú hamburguesa (si lo necesitas)
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sideMenu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('overlay');
+
+            menuToggle.addEventListener('click', function() {
+                sideMenu.classList.toggle('open');
+                overlay.classList.toggle('active');
+                document.body.classList.toggle('menu-open');
+            });
+
+            overlay.addEventListener('click', function() {
+                sideMenu.classList.remove('open');
+                overlay.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            });
+        });
+    </script>
+      <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <i class="fas fa-mobile-alt"></i>
+        <span>+54 9 291 123-4567</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-envelope"></i>
+        <span>info@centroimagen.com</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Av. Colón 123, Bahía Blanca</span>
+      </div>
+      
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://facebook.com" target="_blank" title="Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+
+    </div>
+  </footer>
+</body>
+</html>

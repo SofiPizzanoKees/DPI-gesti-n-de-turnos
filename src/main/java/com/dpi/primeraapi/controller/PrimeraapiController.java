@@ -54,6 +54,38 @@ public class PrimeraapiController {
     public String menu() {
         return "menu";
     }
+    @GetMapping("/menuAdmin")
+    public String menuAdmin() {
+        return "menuAdmin";
+    }
+     @GetMapping("/editarEstudio")
+    public String editarEstudio() {
+        return "editarEstudio";
+    }
+      @GetMapping("/menuMedico")
+    public String menuMedico() {
+        return "menuMedico";
+    }
+     @GetMapping("/especialistas")
+    public String especialistas() {
+        return "especialistas";
+    }
+    @GetMapping("/turnoMedico")
+    public String turnoMedico() {
+        return "turnoMedico";
+    }
+    @GetMapping("/horarioMedico")
+    public String horarioMedico() {
+        return "horarioMedico";
+    }
+    @GetMapping("/quienessomos")
+    public String quienessomos() {
+        return "quienessomos";
+    }
+     @GetMapping("/perfilMedico")
+    public String perfilMedico() {
+        return "perfilMedico";
+    }
     
     @GetMapping("/miperfil")
     public String miperfil() {

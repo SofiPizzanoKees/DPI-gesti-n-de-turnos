@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Turnos - Diagnóstico Valle Medio</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap" rel="stylesheet">
   <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<body>
-  
-  <!-- Barra superior con menú hamburguesa -->
+    <!-- Barra superior con menú hamburguesa -->
   <header class="top-bar">
-    <p class="registrarse">
+    <p class="registrarse"></p>
     <div class="menu-icon" id="menu-toggle">
       <i class="fas fa-bars"></i>
     </div>
@@ -28,65 +27,26 @@
       <a href="especialistas" class="menu-link">Especialistas</a>
     </nav>
   </aside>
+
   <!-- Overlay para cerrar menú al hacer click fuera -->
   <div class="overlay" id="overlay"></div>
 
-  <!-- Tarjeta central -->
+  <!-- Contenedor principal -->
   <div class="container-horario">
+
+    <!-- Logo -->
     <div class="logo">
-      <img src="../assets/LOGO DPI.jpg" alt="Logo DPI" />
+      <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
     </div>
 
-    <h3><em>Elegir el horario</em></h3>
-
-    <div class="select-wrapper">
-      <select>
-        <option selected disabled>hora disponible</option>
-        <option>09:00</option>
-        <option>10:00</option>
-        <option>11:00</option>
-        <option>12:00</option>
-        <option>13:00</option>
-        <option>14:00</option>
-      </select>
-    </div>
-
-    <button type="button" class="btn" onclick="window.location.href='confirmacionturno'">CONFIRMAR TURNO</button>
+    <!-- Botones de turnos -->
+     <button type="button" class="btn" onclick="window.location.href='horarioMedico'">Editar Horarios</button>
+     <button type="button" class="btn" onclick="window.location.href='editarEstudio'">Editar Estudios</button>
+     <button type="button" class="btn" onclick="window.location.href='registroAdmin'">Registrar usuario</button>
+    <button type="button" class="btn" onclick="window.location.href='login'">Volver</button>
   </div>
 
-  <footer>
-    <div class="footer-content">
-      <div class="footer-section">
-        <i class="fas fa-mobile-alt"></i>
-        <span>+54 9 291 123-4567</span>
-      </div>
-      
-      <div class="footer-section">
-        <i class="fas fa-envelope"></i>
-        <span>info@centroimagen.com</span>
-      </div>
-      
-      <div class="footer-section">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>Av. Colón 123, Bahía Blanca</span>
-      </div>
-      
-      <div class="social-links">
-        <a href="https://instagram.com" target="_blank" title="Instagram">
-          <i class="fab fa-instagram"></i>
-        </a>
-        <a href="https://facebook.com" target="_blank" title="Facebook">
-          <i class="fab fa-facebook"></i>
-        </a>
-        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
-          <i class="fab fa-whatsapp"></i>
-        </a>
-      </div>
-    </div>
-
-    </div>
-  </footer>
-    <script>
+<script>
     // Elementos del DOM
     const menuToggle = document.getElementById('menu-toggle');
     const sideMenu = document.getElementById('sideMenu');
@@ -135,5 +95,37 @@
       }
     });
   </script>
+    <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <i class="fas fa-mobile-alt"></i>
+        <span>+54 9 291 123-4567</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-envelope"></i>
+        <span>info@centroimagen.com</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Av. Colón 123, Bahía Blanca</span>
+      </div>
+      
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://facebook.com" target="_blank" title="Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+
+    </div>
+  </footer>
 </body>
 </html>
