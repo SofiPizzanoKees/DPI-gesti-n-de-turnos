@@ -452,11 +452,25 @@
               </select>
             </div>
           </div>
+          <!-- Estudios que realiza -->
           <div class="form-row">
-            <div class="input-group">
-              <label>Tipo de Estudios</label>
-              <input type="text" th:field="*{tipoEstudios}" placeholder="Tipos de estudios que realiza">
-            </div>
+              <div class="input-group">
+                  <label>Estudios que Realiza</label>
+                  <div class="checkbox-grid">
+                      <div th:each="estudio : ${estudios}" class="checkbox-item">
+                          <input type="checkbox" 
+                                th:id="${'estudio_' + estudio.id}"
+                                th:value="${estudio.id}" 
+                                name="estudiosIds"
+                                class="checkbox-input">
+                          <label th:for="${'estudio_' + estudio.id}" class="checkbox-label">
+                              <span class="checkmark"></span>
+                              <span th:text="${estudio.nombre}" class="checkbox-text"></span>
+                          </label>
+                      </div>
+                  </div>
+                  <small class="text-muted">Seleccione los estudios que realiza el médico</small>
+              </div>
           </div>
           <div class="form-row">
             <div class="input-group">

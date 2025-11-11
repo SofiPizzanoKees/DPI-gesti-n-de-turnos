@@ -31,7 +31,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     // Buscar usuarios por rol y estado activo
     List<Usuario> findByRolAndEstadoTrue(String rol);
-    
+    List<Usuario> findByRolAndEstado(String rol, boolean estado);
     // Buscar usuarios por rol, especialidad y estado activo
     List<Usuario> findByRolAndEspecialidadAndEstadoTrue(String rol, String especialidad);
 }

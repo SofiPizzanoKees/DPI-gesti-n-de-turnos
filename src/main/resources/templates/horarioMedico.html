@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Disponibilidad Médica</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
-  <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -29,144 +28,147 @@
   
   <!-- Overlay para cerrar menú al hacer click fuera -->
   <div class="overlay" id="overlay"></div>
-    <!-- Logo -->
-    <main class="container">
+  
+  <!-- Logo -->
+  <main class="container">
     <div class="logo">
       <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
     </div>
 
     <h3 class="title">Configura tus horarios de atención</h3>
 
-        <!-- Formulario de selección -->
-    <form class="formulario">
+    <!-- Mensajes de éxito/error -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <!-- Formulario de selección -->
+    <form class="formulario" th:action="@{/guardarHorarios}" method="post">
         <!-- Especialista -->
-      <div class="select-wrapper">
-        <label for="especialista"><em>Especialista:</em></label>
-        <select id="especialista" name="especialista" required>
-          <option value="">-----------------------------</option>
-          <option value="nombre1">Nombre 1</option>
-          <option value="nombre2">Nombre 2</option>
-          <option value="nombre3">Nombre 3</option>
-          <option value="nombre4">Nombre 4</option>
-        </select>
-      </div>
+        <div class="select-wrapper">
+            <label for="medicoId"><em>Especialista:</em></label>
+            <select id="medicoId" name="medicoId" required>
+                <option value="">Seleccione un especialista</option>
+                <option th:each="medico : ${medicos}" 
+                        th:value="${medico.id}"
+                        th:text="${medico.apellido + ', ' + medico.nombre + ' - ' + medico.especialidad}">
+                </option>
+            </select>
+        </div>
 
-    
-    <!-- Lista de días con horarios -->
-    <div class="dias-horarios">
-      <!-- Lunes -->
-      <div class="dia-horario">
-        <div class="dia-header">
-          <input type="checkbox" id="lunes" class="dia-checkbox">
-          <label for="lunes" class="dia-label">Lunes</label>
-        </div>
-        <div class="horario-fields">
-          <div class="time-group">
-            <label>Desde:</label>
-            <input type="time" class="time-input" id="lunes-desde">
-          </div>
-          <div class="time-group">
-            <label>Hasta:</label>
-            <input type="time" class="time-input" id="lunes-hasta">
-          </div>
-        </div>
-      </div>
+        <!-- Lista de días con horarios -->
+        <div class="dias-horarios">
+            <!-- Lunes -->
+            <div class="dia-horario">
+                <div class="dia-header">
+                    <input type="checkbox" id="lunes" name="lunes" class="dia-checkbox">
+                    <label for="lunes" class="dia-label">Lunes</label>
+                </div>
+                <div class="horario-fields">
+                    <div class="time-group">
+                        <label>Desde:</label>
+                        <input type="time" class="time-input" name="lunes-desde" id="lunes-desde">
+                    </div>
+                    <div class="time-group">
+                        <label>Hasta:</label>
+                        <input type="time" class="time-input" name="lunes-hasta" id="lunes-hasta">
+                    </div>
+                </div>
+            </div>
 
-      <!-- Martes -->
-      <div class="dia-horario">
-        <div class="dia-header">
-          <input type="checkbox" id="martes" class="dia-checkbox">
-          <label for="martes" class="dia-label">Martes</label>
-        </div>
-        <div class="horario-fields">
-          <div class="time-group">
-            <label>Desde:</label>
-            <input type="time" class="time-input" id="martes-desde">
-          </div>
-          <div class="time-group">
-            <label>Hasta:</label>
-            <input type="time" class="time-input" id="martes-hasta">
-          </div>
-        </div>
-      </div>
+            <!-- Martes -->
+            <div class="dia-horario">
+                <div class="dia-header">
+                    <input type="checkbox" id="martes" name="martes" class="dia-checkbox">
+                    <label for="martes" class="dia-label">Martes</label>
+                </div>
+                <div class="horario-fields">
+                    <div class="time-group">
+                        <label>Desde:</label>
+                        <input type="time" class="time-input" name="martes-desde" id="martes-desde">
+                    </div>
+                    <div class="time-group">
+                        <label>Hasta:</label>
+                        <input type="time" class="time-input" name="martes-hasta" id="martes-hasta">
+                    </div>
+                </div>
+            </div>
 
-      <!-- Miércoles -->
-      <div class="dia-horario">
-        <div class="dia-header">
-          <input type="checkbox" id="miercoles" class="dia-checkbox">
-          <label for="miercoles" class="dia-label">Miércoles</label>
-        </div>
-        <div class="horario-fields">
-          <div class="time-group">
-            <label>Desde:</label>
-            <input type="time" class="time-input" id="miercoles-desde">
-          </div>
-          <div class="time-group">
-            <label>Hasta:</label>
-            <input type="time" class="time-input" id="miercoles-hasta">
-          </div>
-        </div>
-      </div>
+            <!-- Miércoles -->
+            <div class="dia-horario">
+                <div class="dia-header">
+                    <input type="checkbox" id="miercoles" name="miercoles" class="dia-checkbox">
+                    <label for="miercoles" class="dia-label">Miércoles</label>
+                </div>
+                <div class="horario-fields">
+                    <div class="time-group">
+                        <label>Desde:</label>
+                        <input type="time" class="time-input" name="miercoles-desde" id="miercoles-desde">
+                    </div>
+                    <div class="time-group">
+                        <label>Hasta:</label>
+                        <input type="time" class="time-input" name="miercoles-hasta" id="miercoles-hasta">
+                    </div>
+                </div>
+            </div>
 
-      <!-- Jueves -->
-      <div class="dia-horario">
-        <div class="dia-header">
-          <input type="checkbox" id="jueves" class="dia-checkbox">
-          <label for="jueves" class="dia-label">Jueves</label>
-        </div>
-        <div class="horario-fields">
-          <div class="time-group">
-            <label>Desde:</label>
-            <input type="time" class="time-input" id="jueves-desde">
-          </div>
-          <div class="time-group">
-            <label>Hasta:</label>
-            <input type="time" class="time-input" id="jueves-hasta">
-          </div>
-        </div>
-      </div>
+            <!-- Jueves -->
+            <div class="dia-horario">
+                <div class="dia-header">
+                    <input type="checkbox" id="jueves" name="jueves" class="dia-checkbox">
+                    <label for="jueves" class="dia-label">Jueves</label>
+                </div>
+                <div class="horario-fields">
+                    <div class="time-group">
+                        <label>Desde:</label>
+                        <input type="time" class="time-input" name="jueves-desde" id="jueves-desde">
+                    </div>
+                    <div class="time-group">
+                        <label>Hasta:</label>
+                        <input type="time" class="time-input" name="jueves-hasta" id="jueves-hasta">
+                    </div>
+                </div>
+            </div>
 
-      <!-- Viernes -->
-      <div class="dia-horario">
-        <div class="dia-header">
-          <input type="checkbox" id="viernes" class="dia-checkbox">
-          <label for="viernes" class="dia-label">Viernes</label>
-        </div>
-        <div class="horario-fields">
-          <div class="time-group">
-            <label>Desde:</label>
-            <input type="time" class="time-input" id="viernes-desde">
-          </div>
-          <div class="time-group">
-            <label>Hasta:</label>
-            <input type="time" class="time-input" id="viernes-hasta">
-          </div>
-        </div>
-      </div>
+            <!-- Viernes -->
+            <div class="dia-horario">
+                <div class="dia-header">
+                    <input type="checkbox" id="viernes" name="viernes" class="dia-checkbox">
+                    <label for="viernes" class="dia-label">Viernes</label>
+                </div>
+                <div class="horario-fields">
+                    <div class="time-group">
+                        <label>Desde:</label>
+                        <input type="time" class="time-input" name="viernes-desde" id="viernes-desde">
+                    </div>
+                    <div class="time-group">
+                        <label>Hasta:</label>
+                        <input type="time" class="time-input" name="viernes-hasta" id="viernes-hasta">
+                    </div>
+                </div>
+            </div>
 
-      <!-- Sábado -->
-      <div class="dia-horario">
-        <div class="dia-header">
-          <input type="checkbox" id="sabado" class="dia-checkbox">
-          <label for="sabado" class="dia-label">Sábado</label>
+            <!-- Sábado -->
+            <div class="dia-horario">
+                <div class="dia-header">
+                    <input type="checkbox" id="sabado" name="sabado" class="dia-checkbox">
+                    <label for="sabado" class="dia-label">Sábado</label>
+                </div>
+                <div class="horario-fields">
+                    <div class="time-group">
+                        <label>Desde:</label>
+                        <input type="time" class="time-input" name="sabado-desde" id="sabado-desde">
+                    </div>
+                    <div class="time-group">
+                        <label>Hasta:</label>
+                        <input type="time" class="time-input" name="sabado-hasta" id="sabado-hasta">
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="horario-fields">
-          <div class="time-group">
-            <label>Desde:</label>
-            <input type="time" class="time-input" id="sabado-desde">
-          </div>
-          <div class="time-group">
-            <label>Hasta:</label>
-            <input type="time" class="time-input" id="sabado-hasta">
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <button class="btn btn-confirmar">Guardar horarios</button>
-  </div>
-<div>
-  
+        
+        <button type="submit" class="btn btn-confirmar">Guardar horarios</button>
+    </form>
+  </main>
 
   <script>
     // JavaScript para el menú hamburguesa
@@ -197,6 +199,9 @@
           
           timeInputs.forEach(input => {
             input.disabled = !this.checked;
+            if (!this.checked) {
+              input.value = ''; // Limpiar valores cuando se desactiva
+            }
           });
         });
         
