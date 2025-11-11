@@ -83,6 +83,11 @@ public class PrimeraapiController {
     public String menuAdmin() {
         return "menuAdmin";
     }
+     @GetMapping("/formularioSecretaria")
+    public String formularioSecretaria() {
+        return "formularioSecretaria";
+    }
+
       @GetMapping("/menuMedico")
     public String menuMedico() {
         return "menuMedico";
@@ -117,6 +122,10 @@ public class PrimeraapiController {
     @GetMapping("/pedirturno")
     public String pedirTurno() {
         return "pedirturno"; 
+    }
+    @GetMapping("/inicio")
+    public String inicio() {
+        return "inicio"; 
     }
 
     @GetMapping("/resultado")

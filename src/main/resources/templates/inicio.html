@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro Paciente</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <!-- Barra superior con menú hamburguesa -->
+  <header class="top-bar">
+    <p class="registrarse">
+    <div class="menu-icon" id="menu-toggle">
+         <a href="#" class="btn-turno-header">Solicitar Turno Online</a>
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+
+  <!-- Menú lateral -->
+  <aside id="sideMenu" class="side-menu">
+   <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+
+  <!-- Overlay para cerrar menú al hacer click fuera -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo">
+      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Centro de Diagnóstico por Imágen Valle Medio</h1>
+    <p>Tecnología de punta y profesionales especializados para cuidar tu salud. Realizamos estudios de alta calidad con equipamiento moderno y atención personalizada.</p>
+  </section>
+
+  <!-- Servicios -->
+  <section class="servicios-section">
+    <h2 class="section-title">Nuestros Servicios</h2>
+    <div class="servicios-grid">
+      
+      <!-- Mamografía -->
+      <div class="servicio-card">
+        <div class="servicio-icon">
+          <i class="fas fa-heartbeat"></i>
+        </div>
+        <h3>Mamografía</h3>
+        <p>Los exámenes de detección verifican la presencia de signos de enfermedad, como el cáncer de mama, antes de que la persona tenga síntomas. Contamos con tecnología digital de última generación.</p>
+        <a href="#" class="servicio-link">Más Información »</a>
+      </div>
+
+      <!-- Ecografía -->
+      <div class="servicio-card">
+        <div class="servicio-icon">
+          <i class="fas fa-wave-square"></i>
+        </div>
+        <h3>Ecografía</h3>
+        <p>Estudios ecográficos generales y especializados con equipos de alta resolución. Ecografías abdominales, ginecológicas, obstétricas, partes blandas y más.</p>
+        <a href="#" class="servicio-link">Más Información »</a>
+      </div>
+
+      <!-- Radiología -->
+      <div class="servicio-card">
+        <div class="servicio-icon">
+          <i class="fas fa-x-ray"></i>
+        </div>
+        <h3>Radiología</h3>
+        <p>Radiografías digitales de todas las regiones anatómicas con mínima radiación y máxima calidad de imagen. Resultados inmediatos disponibles online.</p>
+        <a href="#" class="servicio-link">Más Información »</a>
+      </div>
+
+      <!-- Densitometría -->
+      <div class="servicio-card">
+        <div class="servicio-icon">
+          <i class="fas fa-bone"></i>
+        </div>
+        <h3>Densitometría Ósea</h3>
+        <p>Estudio fundamental para la detección temprana de osteoporosis y evaluación de la densidad mineral ósea. Procedimiento rápido e indoloro.</p>
+        <a href="#" class="servicio-link">Más Información »</a>
+      </div>
+
+
+    </div>
+  </section>
+
+<!-- Sección Mapa -->
+<section class="mapa-section">
+  <h2 class="section-title">Nuestra Ubicación</h2>
+  <div class="mapa-container">
+    <iframe 
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3091.234567890123!2d-65.66666666666667!3d-39.28333333333333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMznCsDE3JzAwLjAiUyA2NcKwNDAnMDAuMCJX!5e0!3m2!1ses!2sar!4v1234567890123!5m2!1ses!2sar&q=Avellaneda+y+Argentina,+Choele+Choel,+Río+Negro" 
+      width="100%" 
+      height="600" 
+      style="border:0;" 
+      allowfullscreen="" 
+      loading="lazy" 
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+  </div>
+</section>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <i class="fas fa-mobile-alt"></i>
+        <span>+54 9 291 123-4567</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-envelope"></i>
+        <span>info@centroimagen.com</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Av. Colón 123, Bahía Blanca</span>
+      </div>
+      
+      <div class="social-links">
+        <a href="https://instagram.com" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://facebook.com" target="_blank" title="Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+
+    </div>
+  </footer>
+
+  <script>
+    // Elementos del DOM
+    const menuToggle = document.getElementById('menu-toggle');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const body = document.body;
+
+    // Función para abrir menú
+    function openMenu() {
+      sideMenu.classList.add('open');
+      overlay.classList.add('active');
+      body.classList.add('menu-open');
+    }
+
+    // Función para cerrar menú
+    function closeMenu() {
+      sideMenu.classList.remove('open');
+      overlay.classList.remove('active');
+      body.classList.remove('menu-open');
+    }
+
+    // Función para toggle menú
+    function toggleMenu() {
+      if (sideMenu.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    // Event listeners
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    // Cerrar menú al hacer click en el overlay
+    overlay.addEventListener('click', closeMenu);
+    
+    // Cerrar menú al hacer click en un enlace
+    menuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Cerrar menú con la tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+  </script>
+</body>
+</html>
