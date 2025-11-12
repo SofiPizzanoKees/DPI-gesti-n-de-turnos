@@ -522,8 +522,14 @@
 
       <div class="form-buttons">
         <button type="submit" class="btn btn-primary">REGISTRAR USUARIO</button>
-        <a th:href="@{/login}" class="btn btn-secondary">CANCELAR</a>
       </div>
+        <div style="margin-top: 20px;">
+      <button type="button" class="btn" onclick="history.back()"
+              style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+          <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+          Volver
+      </button>
+  </div>
     </form>
   </main>
 

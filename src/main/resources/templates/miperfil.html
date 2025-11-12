@@ -30,59 +30,107 @@
   <!-- Overlay para cerrar menú al hacer click fuera -->
   <div class="overlay" id="overlay"></div>
   
-  <!-- Tarjeta central -->
-  <div class="container-horario">
+<!-- Tarjeta central -->
+<div class="container-horario">
     <div class="logo">
-      <img src="../assets/LOGO DPI.jpg" alt="Logo DPI" />
+        <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo DPI" />
     </div>
+    
+    <!-- Información del rol -->
+    <div th:if="${rolUsuario != null}" 
+         style="background: #e8f5e8; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+        <span style="font-weight: bold; color: #2c3e50;">
+            <i class="fas fa-user-tag" style="margin-right: 5px;"></i>
+            Perfil de <span th:text="${rolUsuario}"></span>
+        </span>
+    </div>
+    
     <h1 class="title">Datos Personales</h1>
+    
     <form id="personalDataForm">
-      <!-- DNI -->
-      <div class="form-group">
-        <label for="dni">DNI</label>
-        <input type="text" id="dni" name="dni" class="readonly-field" value="35.678.901" readonly>
-      </div>
-      
-      <!-- Nombre y Apellido -->
-      <div class="form-group">
-        <label for="nombre">Nombre y Apellido:</label>
-        <input type="text" id="nombre" name="nombre" class="readonly-field" value="María González" readonly>
-      </div>
-      
-      <!-- Fecha de Nacimiento -->
-      <div class="form-group">
-        <label for="fechaNacimiento">Fecha de Nacimiento</label>
-        <input type="date" id="fechaNacimiento" name="fechaNacimiento" class="readonly-field" value="1985-05-15" readonly>
-      </div>
-      
-      <!-- Obra Social -->
-      <div class="form-group">
-        <label for="obraSocial">Obra Social</label>
-        <div class="field-container">
-          <input type="text" id="obraSocial" name="obraSocial" class="editable-field" value="OSDE" readonly>
-          <button type="button" class="edit-icon" data-field="obraSocial">
-            <span class="material-icons">edit</span>
-          </button>
+        <!-- DNI -->
+        <div class="form-group">
+            <label for="dni">DNI</label>
+            <input type="text" id="dni" name="dni" class="readonly-field" 
+                   th:value="${usuario.dni}" readonly>
         </div>
-      </div>
-      
-      <!-- Email -->
-      <div class="form-group">
-        <label for="email">Email</label>
-        <div class="field-container">
-          <input type="email" id="email" name="email" class="editable-field" value="maria.gonzalez@ejemplo.com" readonly>
-          <button type="button" class="edit-icon" data-field="email">
-            <span class="material-icons">edit</span>
-          </button>
+        
+        <!-- Nombre y Apellido -->
+        <div class="form-group">
+            <label for="nombre">Nombre y Apellido:</label>
+            <input type="text" id="nombre" name="nombre" class="readonly-field" 
+                   th:value="${usuario.nombre} + ' ' + ${usuario.apellido}" readonly>
         </div>
-      </div>
-      
-      <div class="form-buttons">
-        <button type="button" class="btn btn-cancelar hidden" id="cancelBtn">Cancelar</button>
-        <button type="button" class="btn btn-guardar hidden" id="saveBtn">Guardar Cambios</button>
-      </div>
+        
+        <!-- Fecha de Nacimiento -->
+        <div class="form-group">
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <input type="date" id="fechaNacimiento" name="fechaNacimiento" class="readonly-field" 
+                   th:value="${usuario.fechaNacimiento}" readonly>
+        </div>
+        
+        <!-- Obra Social (solo para pacientes) -->
+        <div th:if="${rolUsuario == 'PACIENTE'}" class="form-group">
+            <label for="obraSocial">Obra Social</label>
+            <div class="field-container">
+                <input type="text" id="obraSocial" name="obraSocial" class="readonly-field" 
+                       th:value="${obraSocial}" readonly>
+                <!-- Quitamos el botón de edición temporalmente -->
+            </div>
+        </div>
+        
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email">Email</label>
+            <div class="field-container">
+                <input type="email" id="email" name="email" class="editable-field" 
+                       th:value="${usuario.email}" readonly>
+                <button type="button" class="edit-icon" data-field="email">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Campos adicionales para médicos -->
+        <div th:if="${rolUsuario == 'MEDICO'}">
+            <!-- Especialidad -->
+            <div class="form-group">
+                <label for="especialidad">Especialidad</label>
+                <input type="text" id="especialidad" name="especialidad" class="readonly-field" 
+                       th:value="${usuario.especialidad}" readonly>
+            </div>
+            
+            <!-- Matrícula Nacional -->
+            <div class="form-group">
+                <label for="matriculaNacional">Matrícula Nacional</label>
+                <input type="text" id="matriculaNacional" name="matriculaNacional" class="readonly-field" 
+                       th:value="${usuario.matriculaNacional}" readonly>
+            </div>
+            
+            <!-- Matrícula Provincial -->
+            <div class="form-group">
+                <label for="matriculaProvincial">Matrícula Provincial</label>
+                <input type="text" id="matriculaProvincial" name="matriculaProvincial" class="readonly-field" 
+                       th:value="${usuario.matriculaProvincial}" readonly>
+            </div>
+        </div>
+        
+        <div class="form-buttons">
+            <button type="button" class="btn btn-cancelar hidden" id="cancelBtn">Cancelar</button>
+            <button type="button" class="btn btn-guardar hidden" id="saveBtn">Guardar Cambios</button>
+        </div>
     </form>
+    
+    <!-- Botón Volver dinámico - VERSIÓN CORREGIDA -->
+<!-- Botón Volver universal -->
+  <div style="margin-top: 20px;">
+      <button type="button" class="btn" onclick="history.back()"
+              style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+          <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+          Volver
+      </button>
   </div>
+</div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -126,37 +174,39 @@
         }
       }
       
-      function saveChanges() {
-        if (currentEditingField) {
-          const field = document.getElementById(currentEditingField);
-          
-          if (currentEditingField === 'email') {
+function saveChanges() {
+    if (currentEditingField) {
+        const field = document.getElementById(currentEditingField);
+        
+        if (currentEditingField === 'email') {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(field.value)) {
-              alert('Por favor, ingresa un email válido.');
-              field.focus();
-              return;
+                alert('Por favor, ingresa un email válido.');
+                field.focus();
+                return;
             }
-          }
-          
-          if (field.value.trim() === '') {
+        }
+        
+        if (field.value.trim() === '') {
             alert('Este campo no puede estar vacío.');
             field.focus();
             return;
-          }
-          
-          field.setAttribute('readonly', true);
-          field.classList.remove('editing');
-          
-          cancelBtn.classList.add('hidden');
-          saveBtn.classList.add('hidden');
-          
-          currentEditingField = null;
-          originalValues = {};
-          
-          alert('Cambios guardados correctamente.');
         }
-      }
+        
+        // Aquí puedes agregar una llamada AJAX para guardar en el servidor
+        // Por ahora solo mostramos un mensaje
+        alert('Cambios guardados correctamente (función en desarrollo).');
+        
+        field.setAttribute('readonly', true);
+        field.classList.remove('editing');
+        
+        cancelBtn.classList.add('hidden');
+        saveBtn.classList.add('hidden');
+        
+        currentEditingField = null;
+        originalValues = {};
+    }
+}
       
       editButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -228,7 +278,7 @@
   </script>
 </body>
  
-   <footer>
+  <footer>
     <div class="footer-content">
       <div class="footer-section">
         <i class="fas fa-mobile-alt"></i>
@@ -242,17 +292,17 @@
       
       <div class="footer-section">
         <i class="fas fa-map-marker-alt"></i>
-        <span>Av. Colón 123, Bahía Blanca</span>
+        <span>Tello 337, Choele Choel, Argentina</span>
       </div>
       
       <div class="social-links">
-        <a href="https://instagram.com" target="_blank" title="Instagram">
+        <a href="https://www.instagram.com/dpi_vallemedio/" target="_blank" title="Instagram">
           <i class="fab fa-instagram"></i>
         </a>
-        <a href="https://facebook.com" target="_blank" title="Facebook">
+        <a href="https://www.facebook.com/DPIValleMedio" target="_blank" title="Facebook">
           <i class="fab fa-facebook"></i>
         </a>
-        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+        <a href="https://wa.me/0294615508112" target="_blank" title="WhatsApp">
           <i class="fab fa-whatsapp"></i>
         </a>
       </div>

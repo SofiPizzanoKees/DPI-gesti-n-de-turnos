@@ -3,43 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Calendario - Turnos Online</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
-  <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
- <!-- Contenedor principal -->
+<body>
+  <!-- Contenedor principal -->
   <div class="container-horario">
-<body>
-<body>
-  <div class="logo">
-      <img src="../assets/LOGO DPI.jpg" alt="Logo DPI" />
+    
+    <div class="logo">
+      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo DPI" />
     </div>
 
-  <!-- Barra superior con menú hamburguesa -->
-  <header class="top-bar">
-    <p class="registrarse">
-    <div class="menu-icon" id="menu-toggle">
-      <i class="fas fa-bars"></i>
+    <!-- Barra superior con menú hamburguesa -->
+    <header class="top-bar">
+      <p class="registrarse"></p>
+      <div class="menu-icon" id="menu-toggle">
+        <i class="fas fa-bars"></i>
+      </div>
+    </header>
+
+    <!-- Menú lateral -->
+    <aside id="sideMenu" class="side-menu">
+      <nav class="menu-nav">
+        <a href="login" class="menu-link">Inicio</a>
+        <a href="miperfil" class="menu-link">Mi Perfil</a>
+        <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+        <a href="especialistas" class="menu-link">Especialistas</a>
+      </nav>
+    </aside>
+
+    <!-- Overlay para cerrar menú al hacer click fuera -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Información del turno seleccionado -->
+    <div th:if="${paciente}" class="turno-info" style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #007bff;">
+      <h4>Resumen del Turno</h4>
+      <p><strong>Paciente:</strong> <span th:text="${paciente.nombre + ' ' + paciente.apellido}"></span></p>
+      <p><strong>Estudio:</strong> <span th:text="${estudio.nombre}"></span></p>
+      <p><strong>Médico:</strong> <span th:text="${medico.nombre + ' ' + medico.apellido}"></span></p>
+      <p><strong>Especialidad:</strong> <span th:text="${medico.especialidad}"></span></p>
     </div>
-  </header>
 
-  <!-- Menú lateral -->
-  <aside id="sideMenu" class="side-menu">
-    <nav class="menu-nav">
-      <a href="login" class="menu-link">Inicio</a>
-      <a href="miperfil" class="menu-link">Mi Perfil</a>
-      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
-      <a href="especialistas" class="menu-link">Especialistas</a>
-    </nav>
-  </aside>
+    <!-- Mensajes de error -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-  <!-- Overlay para cerrar menú al hacer click fuera -->
-  <div class="overlay" id="overlay"></div>
-
-    <!-- Texto informativo -->
+    <!-- Contenedor del calendario -->
     <div class="calendar-container">
-
       <div class="legend">
         <span class="legend-item ocupado"> NO disponible</span>
         <span class="legend-item disponible">Lugares disponibles</span>
@@ -65,19 +75,23 @@
 
       <!-- Contenedor de días dinámicos -->
       <div class="calendar" id="calendar"></div>
-      
 
-      <!-- 🔹 Botón corregido -->
-      <button type="button" class="btn" onclick="window.location.href='horarios'">
-      ELEGIR TURNO
-      </button>
+      <!-- FORMULARIO -->
+      <form th:action="@{/calendario/continuar}" method="post" id="formCalendario" style="display: inline;">
+        <input type="hidden" name="fechaSeleccionada" id="inputFechaSeleccionada">
+        <button type="submit" class="btn" id="btnElegirTurno">
+          ELEGIR TURNO
+        </button>
+      </form>
 
       <!-- Botón volver -->
-      <button type="button" class="btn" onclick="window.location.href='estudio'">VOLVER</button>
+      <button type="button" class="btn" onclick="window.location.href='estudio'" style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); margin-top: 10px;">
+        VOLVER
+      </button>
     </div>
 
-  
   </div>
+
   <footer>
     <div class="footer-content">
       <div class="footer-section">
@@ -92,28 +106,157 @@
       
       <div class="footer-section">
         <i class="fas fa-map-marker-alt"></i>
-        <span>Av. Colón 123, Bahía Blanca</span>
+        <span>Tello 337, Choele Choel, Argentina</span>
       </div>
       
       <div class="social-links">
-        <a href="https://instagram.com" target="_blank" title="Instagram">
+        <a href="https://www.instagram.com/dpi_vallemedio/" target="_blank" title="Instagram">
           <i class="fab fa-instagram"></i>
         </a>
-        <a href="https://facebook.com" target="_blank" title="Facebook">
+        <a href="https://www.facebook.com/DPIValleMedio" target="_blank" title="Facebook">
           <i class="fab fa-facebook"></i>
         </a>
-        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+        <a href="https://wa.me/0294615508112" target="_blank" title="WhatsApp">
           <i class="fab fa-whatsapp"></i>
         </a>
       </div>
     </div>
-
-    </div>
   </footer>
 
-  <script src="../js/calendario.js"></script>
+  <!-- SCRIPT DE DATOS -->
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    // DATOS DESDE EL CONTROLLER
+    const diasDisponibles = /*[[${diasDisponibles}]]*/ [1];
+    const medicoId = /*[[${medico.id}]]*/ 0;
+    const medicoNombre = /*[[${medico.nombre + ' ' + medico.apellido}]]*/ 'Médico Ejemplo';
+    
+    console.log("=== DATOS DEL CONTROLADOR ===");
+    console.log("Médico:", medicoNombre);
+    console.log("Días disponibles:", diasDisponibles);
+    console.log("=== FIN DATOS ===");
+    /*]]>*/
+  </script>
+
+  <!-- SCRIPT DEL CALENDARIO - DIRECTAMENTE EN EL HTML -->
   <script>
-    // Elementos del DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("🎯 CALENDARIO INICIADO DESDE HTML");
+        console.log("Días disponibles:", diasDisponibles);
+        
+        const calendar = document.getElementById('calendar');
+        const monthYear = document.getElementById('month-year');
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+
+        let currentDate = new Date();
+        let selectedDate = null;
+
+        function renderCalendar() {
+            console.log("📅 RENDERIZANDO CALENDARIO...");
+            calendar.innerHTML = '';
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const firstDayOfWeek = firstDay.getDay();
+            
+            // CÁLCULO CORREGIDO DE ESPACIOS
+            const startEmptyDays = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+
+            console.log(`Mes: ${month + 1}/${year}, Días: ${daysInMonth}, Primer día: ${firstDayOfWeek}, Espacios: ${startEmptyDays}`);
+
+            // Header
+            monthYear.textContent = currentDate.toLocaleDateString('es-ES', { 
+                year: 'numeric', 
+                month: 'long' 
+            });
+
+            // Espacios vacíos
+            for (let i = 0; i < startEmptyDays; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day empty';
+                calendar.appendChild(emptyDay);
+            }
+
+            // Días del mes
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day';
+                dayElement.textContent = day;
+                
+                const dayOfWeek = date.getDay();
+                const dayName = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab'][dayOfWeek];
+                const isAvailable = diasDisponibles.includes(dayOfWeek);
+                const isPast = date < new Date();
+
+                console.log(`Día ${day} (${dayName}): Disponible = ${isAvailable}`);
+
+                if (isPast) {
+                    dayElement.classList.add('pasado');
+                } else if (isAvailable) {
+                    dayElement.classList.add('disponible');
+                    dayElement.addEventListener('click', () => selectDate(dayElement, date));
+                } else {
+                    dayElement.classList.add('no-disponible');
+                }
+
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        function selectDate(dayElement, date) {
+            document.querySelectorAll('.day.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            dayElement.classList.add('selected');
+            selectedDate = date;
+            
+            const inputFecha = document.getElementById('inputFechaSeleccionada');
+            if (inputFecha) {
+                inputFecha.value = selectedDate.toISOString().split('T')[0];
+            }
+            
+            console.log('📍 Fecha seleccionada:', date.toLocaleDateString('es-ES'));
+        }
+
+        // Navegación
+        prevBtn.addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            selectedDate = null;
+            renderCalendar();
+        });
+
+        nextBtn.addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            selectedDate = null;
+            renderCalendar();
+        });
+
+        // Botón
+        const btnElegirTurno = document.getElementById('btnElegirTurno');
+        if (btnElegirTurno) {
+            btnElegirTurno.addEventListener('click', function(e) {
+                if (!selectedDate) {
+                    alert('❌ Por favor selecciona una fecha disponible');
+                    e.preventDefault();
+                    return false;
+                }
+                console.log("📤 Enviando formulario...");
+            });
+        }
+
+        // Inicializar
+        renderCalendar();
+    });
+  </script>
+
+  <!-- SCRIPT DEL MENÚ -->
+  <script>
+    // Elementos del DOM para el menú
     const menuToggle = document.getElementById('menu-toggle');
     const sideMenu = document.getElementById('sideMenu');
     const overlay = document.getElementById('overlay');
@@ -143,7 +286,7 @@
       }
     }
 
-    // Event listeners
+    // Event listeners del menú
     menuToggle.addEventListener('click', toggleMenu);
     
     // Cerrar menú al hacer click en el overlay

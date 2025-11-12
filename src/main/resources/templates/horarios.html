@@ -3,55 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Horarios - Turnos Online</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
-  <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<body>
-  
   <!-- Barra superior con menú hamburguesa -->
   <header class="top-bar">
-    <p class="registrarse">
+    <p class="registrarse"></p>
     <div class="menu-icon" id="menu-toggle">
       <i class="fas fa-bars"></i>
     </div>
   </header>
 
-   <!-- Menú lateral -->
+  <!-- Menú lateral -->
   <aside id="sideMenu" class="side-menu">
-  <nav class="menu-nav">
+    <nav class="menu-nav">
       <a href="login" class="menu-link">Inicio</a>
       <a href="miperfil" class="menu-link">Mi Perfil</a>
       <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
       <a href="especialistas" class="menu-link">Especialistas</a>
     </nav>
   </aside>
+
   <!-- Overlay para cerrar menú al hacer click fuera -->
   <div class="overlay" id="overlay"></div>
 
   <!-- Tarjeta central -->
   <div class="container-horario">
     <div class="logo">
-      <img src="../assets/LOGO DPI.jpg" alt="Logo DPI" />
+      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo DPI" />
+    </div>
+
+    <!-- Información del turno -->
+    <div th:if="${paciente}" class="turno-info" style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #007bff;">
+      <h4>Resumen del Turno</h4>
+      <p><strong>Paciente:</strong> <span th:text="${paciente.nombre + ' ' + paciente.apellido}"></span></p>
+      <p><strong>Estudio:</strong> <span th:text="${estudio.nombre}"></span></p>
+      <p><strong>Médico:</strong> <span th:text="${medico.nombre + ' ' + medico.apellido}"></span></p>
+      <p><strong>Fecha:</strong> <span th:text="${fechaSeleccionada}"></span></p>
+      <p><strong>Día:</strong> <span th:text="${diaSemana}"></span></p>
     </div>
 
     <h3><em>Elegir el horario</em></h3>
 
-    <div class="select-wrapper">
-      <select>
-        <option selected disabled>hora disponible</option>
-        <option>09:00</option>
-        <option>10:00</option>
-        <option>11:00</option>
-        <option>12:00</option>
-        <option>13:00</option>
-        <option>14:00</option>
-      </select>
+    <!-- Mensaje si no hay horarios disponibles -->
+    <div th:if="${#lists.isEmpty(horariosDisponibles)}" class="alert alert-error">
+      No hay horarios disponibles para este día. Por favor selecciona otra fecha.
     </div>
 
-    <button type="button" class="btn" onclick="window.location.href='confirmacionturno'">CONFIRMAR TURNO</button>
+    <!-- Select de horarios disponibles -->
+    <div class="select-wrapper" th:unless="${#lists.isEmpty(horariosDisponibles)}">
+      <form th:action="@{/horarios/confirmar}" method="post" id="formHorario">
+        <input type="hidden" name="fechaSeleccionada" th:value="${fechaSeleccionada}">
+        <select name="horarioSeleccionado" required>
+          <option value="" selected disabled>Selecciona un horario disponible</option>
+          <option th:each="horario : ${horariosDisponibles}" 
+                  th:value="${horario}"
+                  th:text="${horario}">
+          </option>
+        </select>
+        
+        <button type="submit" class="btn" style="margin-top: 15px;">
+          CONFIRMAR TURNO
+        </button>
+      </form>
+    </div>
+
+    <!-- Botón para volver si no hay horarios -->
+    <div th:if="${#lists.isEmpty(horariosDisponibles)}" style="margin-top: 20px;">
+      <button type="button" class="btn" onclick="window.location.href='calendario'" 
+              style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+        VOLVER AL CALENDARIO
+      </button>
+    </div>
   </div>
 
   <footer>
@@ -68,25 +93,24 @@
       
       <div class="footer-section">
         <i class="fas fa-map-marker-alt"></i>
-        <span>Av. Colón 123, Bahía Blanca</span>
+        <span>Tello 337, Choele Choel, Argentina</span>
       </div>
       
       <div class="social-links">
-        <a href="https://instagram.com" target="_blank" title="Instagram">
+        <a href="https://www.instagram.com/dpi_vallemedio/" target="_blank" title="Instagram">
           <i class="fab fa-instagram"></i>
         </a>
-        <a href="https://facebook.com" target="_blank" title="Facebook">
+        <a href="https://www.facebook.com/DPIValleMedio" target="_blank" title="Facebook">
           <i class="fab fa-facebook"></i>
         </a>
-        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+        <a href="https://wa.me/0294615508112" target="_blank" title="WhatsApp">
           <i class="fab fa-whatsapp"></i>
         </a>
       </div>
     </div>
-
-    </div>
   </footer>
-    <script>
+
+  <script>
     // Elementos del DOM
     const menuToggle = document.getElementById('menu-toggle');
     const sideMenu = document.getElementById('sideMenu');

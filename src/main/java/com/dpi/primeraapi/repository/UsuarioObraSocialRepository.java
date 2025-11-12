@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.dpi.primeraapi.model.Usuario;
 import com.dpi.primeraapi.model.UsuarioObraSocial;
 
 public interface UsuarioObraSocialRepository extends JpaRepository<UsuarioObraSocial, Long> {
     List<UsuarioObraSocial> findByUsuarioId(Long usuarioId);
+    List<UsuarioObraSocial> findByUsuario(Usuario usuario);
     boolean existsByUsuarioIdAndObraSocialId(Long usuarioId, Long obraSocialId);
 }

@@ -3,17 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Turnos Online</title>
+  <title>Seleccionar Estudio - Turnos Online</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
-  <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-  
-<body>
   <!-- Barra superior con menú hamburguesa -->
   <header class="top-bar">
-    <p class="registrarse">
+    <p class="registrarse"></p>
     <div class="menu-icon" id="menu-toggle">
       <i class="fas fa-bars"></i>
     </div>
@@ -29,130 +26,102 @@
     </nav>
   </aside>
   
-  <!-- Overlay para cerrar menú al hacer click fuera -->
+  <!-- Overlay -->
   <div class="overlay" id="overlay"></div>
-
-  <!-- Contenedor principal -->
-  <div class="container-horario">
-
-    <!-- Logo -->
+  
+  <!-- Logo -->
+  <main class="container">
     <div class="logo">
-      <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
+      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
     </div>
 
-    <!-- Formulario de selección -->
-    <form class="formulario">
-        <!-- Especialista -->
-      <div class="select-wrapper">
-        <label for="especialista"><em>Especialista:</em></label>
-        <select id="especialista" name="especialista" required>
-          <option value="">-----------------------------</option>
-          <option value="nombre1">Nombre 1</option>
-          <option value="nombre2">Nombre 2</option>
-          <option value="nombre3">Nombre 3</option>
-          <option value="nombre4">Nombre 4</option>
-        </select>
-      </div>
+    <h3 class="title">Seleccionar Estudio Médico</h3>
 
+<!-- En estudio.html, después del logo y antes del formulario -->
+<div th:if="${rolUsuario == 'SECRETARIO'}" class="paciente-info" 
+     style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #007bff;">
+    <h4>Paciente Seleccionado</h4>
+    <p><strong>Nombre:</strong> <span th:text="${paciente.nombre + ' ' + paciente.apellido}"></span></p>
+    <p><strong>DNI:</strong> <span th:text="${paciente.dni}"></span></p>
+    <a th:href="@{/elegirPaciente}" class="btn" 
+       style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); margin-top: 10px;">
+        CAMBIAR PACIENTE
+    </a>
+</div>
+
+<div th:if="${rolUsuario == 'PACIENTE'}" class="paciente-info" 
+     style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+    <h4>Mis Datos</h4>
+    <p><strong>Nombre:</strong> <span th:text="${paciente.nombre + ' ' + paciente.apellido}"></span></p>
+    <p><strong>DNI:</strong> <span th:text="${paciente.dni}"></span></p>
+</div>
+    <!-- Mensajes -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+
+  <!-- Formulario corregido -->
+  <form class="formulario" th:action="@{/estudio/continuar}" method="post">
+      <input type="hidden" name="pacienteId" th:value="${paciente.id}">
       
-      <!-- Estudio -->
+      <!-- Selección de Estudio -->
       <div class="select-wrapper">
-        <label for="estudio"><em>Estudio a realizar:</em></label>
-        <select id="estudio" name="estudio" required>
-          <option value="">-----------------------------</option>
-          <option value="estudio1">Estudio 1</option>
-          <option value="estudio2">Estudio 2</option>
-          <option value="estudio3">Estudio 3</option>
-          <option value="estudio4">Estudio 4</option>
-          <option value="estudio5">Estudio 5</option>
-        </select>
+          <label for="estudioId"><em>Estudio:</em></label>
+          <select id="estudioId" name="estudioId" required>
+              <option value="">Seleccione un estudio</option>
+              <option th:each="estudio : ${estudios}" 
+                      th:value="${estudio.id}"
+                      th:text="${estudio.nombre}">
+              </option>
+          </select>
       </div>
 
-      <button type="button" class="btn" onclick="window.location.href='calendario'">
-        SIGUIENTE
+      <!-- Selección de Médico -->
+      <div class="select-wrapper">
+          <label for="medicoId"><em>Médico:</em></label>
+          <select id="medicoId" name="medicoId" required>
+              <option value="">Seleccione un médico</option>
+              <option th:each="medico : ${medicos}" 
+                      th:value="${medico.id}"
+                      th:text="${medico.apellido + ', ' + medico.nombre + ' - ' + medico.especialidad}">
+              </option>
+          </select>
+      </div>
+
+      <div class="form-buttons">
+          <button type="submit" class="btn btn-confirmar">
+              Continuar
+          </button>
+      </div>
+  </form>
+    <div style="margin-top: 20px;">
+      <button type="button" class="btn" onclick="history.back()"
+              style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+          <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+          Volver
       </button>
-
- 
-  <footer>
-    <div class="footer-content">
-      <div class="footer-section">
-        <i class="fas fa-mobile-alt"></i>
-        <span>+54 9 291 123-4567</span>
-      </div>
-      
-      <div class="footer-section">
-        <i class="fas fa-envelope"></i>
-        <span>info@centroimagen.com</span>
-      </div>
-      
-      <div class="footer-section">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>Av. Colón 123, Bahía Blanca</span>
-      </div>
-      
-      <div class="social-links">
-        <a href="https://instagram.com" target="_blank" title="Instagram">
-          <i class="fab fa-instagram"></i>
-        </a>
-        <a href="https://facebook.com" target="_blank" title="Facebook">
-          <i class="fab fa-facebook"></i>
-        </a>
-        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
-          <i class="fab fa-whatsapp"></i>
-        </a>
-      </div>
-    </div>
-
-    </div>
-  </footer>
+  </div>
+  </main>
 
   <script>
-    // Elementos del DOM
-    const menuToggle = document.getElementById('menu-toggle');
-    const sideMenu = document.getElementById('sideMenu');
-    const overlay = document.getElementById('overlay');
-    const menuLinks = document.querySelectorAll('.menu-link');
-    const body = document.body;
+    // Menú hamburguesa
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuIcon = document.querySelector('.menu-icon');
+      const sideMenu = document.querySelector('.side-menu');
+      const overlay = document.querySelector('.overlay');
+      const body = document.body;
 
-    // Función para abrir menú
-    function openMenu() {
-      sideMenu.classList.add('open');
-      overlay.classList.add('active');
-      body.classList.add('menu-open');
-    }
+      menuIcon.addEventListener('click', function() {
+        sideMenu.classList.toggle('open');
+        overlay.classList.toggle('active');
+        body.classList.toggle('menu-open');
+      });
 
-    // Función para cerrar menú
-    function closeMenu() {
-      sideMenu.classList.remove('open');
-      overlay.classList.remove('active');
-      body.classList.remove('menu-open');
-    }
-
-    // Función para toggle menú
-    function toggleMenu() {
-      if (sideMenu.classList.contains('open')) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
-    }
-
-    // Event listeners
-    menuToggle.addEventListener('click', toggleMenu);
-    
-    // Cerrar menú al hacer click en el overlay
-    overlay.addEventListener('click', closeMenu);
-    
-    // Cerrar menú al hacer click en un enlace
-    menuLinks.forEach(link => {
-      link.addEventListener('click', closeMenu);
-    });
-
-    // Cerrar menú con la tecla ESC
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeMenu();
-      }
+      overlay.addEventListener('click', function() {
+        sideMenu.classList.remove('open');
+        overlay.classList.remove('active');
+        body.classList.remove('menu-open');
+      });
     });
   </script>
 </body>

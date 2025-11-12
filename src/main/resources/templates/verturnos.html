@@ -39,151 +39,99 @@
       <img src="../assets/LOGO DPI.jpg" alt="Logo Valle Medio">
     </div>
 
-   <!-- Reemplaza desde aquí -->
 <div class="turnos-grid">
   
-  <!-- Turno 1 -->
-  <div class="turno-card">
-    <div class="turno-header">
-      <div class="turno-numero">
-        <i class="fas fa-calendar-check"></i>
-        Turno #1
-      </div>
-      <span class="turno-estado">Confirmado</span>
-    </div>
-    
-    <div class="turno-details">
-      <div class="detail-row">
-        <i class="fas fa-calendar-day"></i>
-        <span class="detail-label">Fecha:</span>
-        <span class="detail-value">15/11/2025</span>
-      </div>
-      
-      <div class="detail-row">
-        <i class="fas fa-clock"></i>
-        <span class="detail-label">Hora:</span>
-        <span class="detail-value">09:30 hs</span>
-      </div>
-      
-      <div class="detail-row">
-        <i class="fas fa-user-md"></i>
-        <span class="detail-label">Especialista:</span>
-        <span class="detail-value">Dr. Juan Pérez</span>
-      </div>
-      
-      <div class="detail-row">
-        <i class="fas fa-stethoscope"></i>
-        <span class="detail-label">Estudio:</span>
-        <span class="detail-value">Radiografía de Tórax</span>
-      </div>
-    </div>
-    
-    <div class="turno-descripcion">
-      <p>Presentarse 15 minutos antes. Traer orden médica y DNI.</p>
-    </div>
-    
-      <button class="btn-accion btn-cancelar-turno">
-        <i class="fas fa-times"></i>
-        Cancelar
-      </button>
-    </div>
+  <!-- Mensaje si no hay turnos -->
+  <div th:if="${#lists.isEmpty(turnos)}" class="no-turnos" style="text-align: center; padding: 40px; color: #666;">
+    <i class="fas fa-calendar-times" style="font-size: 48px; margin-bottom: 20px; color: #ccc;"></i>
+    <h3>No tienes turnos programados</h3>
+    <p>Cuando reserves un turno, aparecerá aquí.</p>
+    <a th:href="@{/pedirturno}" class="btn" 
+       style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); margin-top: 15px;">
+      PEDIR MI PRIMER TURNO
+    </a>
   </div>
 
-  <!-- Turno 2 -->
-  <div class="turno-card">
+  <!-- Turnos dinámicos -->
+  <div th:each="turno, iterStat : ${turnos}" class="turno-card">
     <div class="turno-header">
       <div class="turno-numero">
         <i class="fas fa-calendar-check"></i>
-        Turno #2
+        Turno <span th:text="${iterStat.index + 1}"></span>
       </div>
-      <span class="turno-estado">Confirmado</span>
+    <span th:classappend="'turno-estado-' + ${#strings.toLowerCase(turno.estado)}" 
+          class="turno-estado" th:text="${turno.estado}">
+    </span>
     </div>
     
     <div class="turno-details">
       <div class="detail-row">
         <i class="fas fa-calendar-day"></i>
         <span class="detail-label">Fecha:</span>
-        <span class="detail-value">20/11/2025</span>
+        <span class="detail-value" th:text="${#temporals.format(turno.fecha, 'dd/MM/yyyy')}"></span>
       </div>
       
       <div class="detail-row">
         <i class="fas fa-clock"></i>
         <span class="detail-label">Hora:</span>
-        <span class="detail-value">14:00 hs</span>
+        <span class="detail-value" th:text="${#temporals.format(turno.hora, 'HH:mm')} + ' hs'"></span>
       </div>
       
       <div class="detail-row">
         <i class="fas fa-user-md"></i>
         <span class="detail-label">Especialista:</span>
-        <span class="detail-value">Dra. María González</span>
+        <span class="detail-value" th:text="${turno.medico.nombre + ' ' + turno.medico.apellido}"></span>
       </div>
       
       <div class="detail-row">
         <i class="fas fa-stethoscope"></i>
         <span class="detail-label">Estudio:</span>
-        <span class="detail-value">Ecografía Abdominal</span>
+        <span class="detail-value" th:text="${turno.estudio.nombre}"></span>
+      </div>
+      
+      <div class="detail-row" th:if="${turno.codigoTurno}">
+        <i class="fas fa-barcode"></i>
+        <span class="detail-label">Código:</span>
+        <span class="detail-value" style="font-family: monospace; font-weight: bold;" 
+              th:text="${turno.codigoTurno}"></span>
       </div>
     </div>
     
     <div class="turno-descripcion">
-      <p>Ayuno de 8 horas. Traer estudios previos si los tiene.</p>
+      <p th:if="${turno.estado == 'CONFIRMADO'}">
+        ✅ Turno confirmado. Presentarse 15 minutos antes con DNI.
+      </p>
+      <p th:if="${turno.estado == 'PENDIENTE'}">
+        ⏳ Turno pendiente de confirmación.
+      </p>
+      <p th:if="${turno.estado == 'CANCELADO'}">
+        ❌ Turno cancelado.
+      </p>
     </div>
     
-      <button class="btn-accion btn-cancelar-turno">
+    <div class="turno-actions" th:if="${turno.estado == 'CONFIRMADO' or turno.estado == 'PENDIENTE'}">
+    <button class="btn-accion btn-cancelar-turno" 
+            th:attr="data-codigo=${turno.codigoTurno}"
+            onclick="cancelarTurno(this.getAttribute('data-codigo'))">
         <i class="fas fa-times"></i>
         Cancelar
-      </button>
-    </div>
-  </div>
-
-  <!-- Turno 3 -->
-  <div class="turno-card">
-    <div class="turno-header">
-      <div class="turno-numero">
-        <i class="fas fa-calendar-check"></i>
-        Turno #3
-      </div>
-      <span class="turno-estado">Confirmado</span>
-    </div>
-    
-    <div class="turno-details">
-      <div class="detail-row">
-        <i class="fas fa-calendar-day"></i>
-        <span class="detail-label">Fecha:</span>
-        <span class="detail-value">25/11/2025</span>
-      </div>
-      
-      <div class="detail-row">
-        <i class="fas fa-clock"></i>
-        <span class="detail-label">Hora:</span>
-        <span class="detail-value">11:15 hs</span>
-      </div>
-      
-      <div class="detail-row">
-        <i class="fas fa-user-md"></i>
-        <span class="detail-label">Especialista:</span>
-        <span class="detail-value">Dr. Carlos Rodríguez</span>
-      </div>
-      
-      <div class="detail-row">
-        <i class="fas fa-stethoscope"></i>
-        <span class="detail-label">Estudio:</span>
-        <span class="detail-value">Tomografía Computada</span>
-      </div>
-    </div>
-    
-    <div class="turno-descripcion">
-      <p>Llegar 30 minutos antes. No ingerir alimentos sólidos 4 horas antes.</p>
-    </div>
-    
-      <button class="btn-accion btn-cancelar-turno">
-        <i class="fas fa-times"></i>
-        Cancelar
-      </button>
+    </button>
     </div>
   </div>
 </div>
-<button type="button" class="btn" onclick="window.location.href='login'">Volver</button>
+
+<!-- Botón Volver con JavaScript - VERSIÓN CORREGIDA -->
+<div th:if="${rolUsuario != null}">
+    <button type="button" class="btn" 
+            th:attr="onclick=|window.location.href='${rolUsuario == 'PACIENTE' ? '/pedirturno' : 
+                                                rolUsuario == 'SECRETARIO' ? '/menuSecretaria' : 
+                                                rolUsuario == 'ADMIN' ? '/menuAdmin' : 
+                                                rolUsuario == 'MEDICO' ? '/menuMedico' : '/menu'}'|"
+            style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+        <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+        Volver al Menú
+    </button>
+</div>
 
   <footer>
     <div class="footer-content">
@@ -265,6 +213,13 @@
         closeMenu();
       }
     });
+    function cancelarTurno(codigoTurno) {
+        if (confirm('¿Estás seguro de que deseas cancelar este turno?')) {
+            // Aquí puedes implementar la lógica para cancelar el turno
+            alert('Función de cancelación en desarrollo. Código: ' + codigoTurno);
+            // window.location.href = '/cancelar-turno?codigo=' + codigoTurno;
+        }
+    }
   </script>
 </body>
 </html>

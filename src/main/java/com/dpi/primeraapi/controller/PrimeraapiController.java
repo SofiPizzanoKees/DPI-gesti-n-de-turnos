@@ -1,6 +1,7 @@
 package com.dpi.primeraapi.controller;
 
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
@@ -9,7 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,8 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.dpi.primeraapi.dto.TurnoRequestDTO;
 import com.dpi.primeraapi.model.DisponibilidadMedica;
 import com.dpi.primeraapi.model.Estudio;
+import com.dpi.primeraapi.model.Turno;
 import com.dpi.primeraapi.model.Usuario;
 import com.dpi.primeraapi.model.UsuarioEstudio;
 import com.dpi.primeraapi.model.UsuarioObraSocial;
@@ -35,6 +40,7 @@ import com.dpi.primeraapi.repository.UsuarioEstudioRepository;
 import com.dpi.primeraapi.repository.UsuarioObraSocialRepository;
 import com.dpi.primeraapi.repository.UsuarioRepository;
 import com.dpi.primeraapi.service.PasswordEncoderService;
+import com.dpi.primeraapi.service.TurnoService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -45,10 +51,13 @@ public class PrimeraapiController {
     private final ObraSocialRepository obraSocialRepository;
     private final UsuarioObraSocialRepository usuarioObraSocialRepository;
     private final PasswordEncoderService passwordEncoder;
+    private final TurnoService turnoService;
  // NUEVAS DEPENDENCIAS AGREGADAS
     private final DisponibilidadMedicaRepository disponibilidadMedicaRepository;
     private final EstudioRepository estudioRepository;
     private final UsuarioEstudioRepository usuarioEstudioRepository;
+    @Autowired
+    private DisponibilidadMedicaRepository disponibilidadRepository;
 // CONSTRUCTOR ACTUALIZADO CON LAS NUEVAS DEPENDENCIAS
     public PrimeraapiController(UsuarioRepository usuarioRepository, 
                                 ObraSocialRepository obraSocialRepository,
@@ -58,7 +67,8 @@ public class PrimeraapiController {
                                 DisponibilidadExcepcionalRepository disponibilidadExcepcionalRepository, // NUEVO  
                                 BloqueoHorarioRepository bloqueoHorarioRepository,
                                 EstudioRepository estudioRepository,                    // NUEVO
-                                UsuarioEstudioRepository usuarioEstudioRepository) {    // NUEVO
+                                UsuarioEstudioRepository usuarioEstudioRepository,
+                                TurnoService turnoService) {    // NUEVO
         this.usuarioRepository = usuarioRepository;
         this.obraSocialRepository = obraSocialRepository;
         this.usuarioObraSocialRepository = usuarioObraSocialRepository;
@@ -66,6 +76,7 @@ public class PrimeraapiController {
         this.disponibilidadMedicaRepository = disponibilidadMedicaRepository;      // NUEVO
         this.estudioRepository = estudioRepository;
         this.usuarioEstudioRepository = usuarioEstudioRepository;
+        this.turnoService = turnoService;
     }
 
     // ========== PÁGINAS BÁSICAS ==========
@@ -92,6 +103,11 @@ public class PrimeraapiController {
     public String menuMedico() {
         return "menuMedico";
     }
+    
+    @GetMapping("/menuSecretaria")
+    public String menuSecretaria() {
+        return "menuSecretaria";
+    }
      @GetMapping("/especialistas")
     public String especialistas() {
         return "especialistas";
@@ -109,20 +125,72 @@ public class PrimeraapiController {
         return "perfilMedico";
     }
     
-    @GetMapping("/miperfil")
-    public String miperfil() {
-        return "miperfil";
+@GetMapping("/miperfil")
+public String miperfil(HttpSession session, Model model) {
+    try {
+        // Obtener el usuario logueado de la sesión
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (usuarioLogueado == null) {
+            return "redirect:/login";
+        }
+        
+        // Obtener la obra social del usuario
+        String obraSocial = "No asignada";
+        List<UsuarioObraSocial> obrasSociales = usuarioObraSocialRepository.findByUsuario(usuarioLogueado);
+        if (!obrasSociales.isEmpty()) {
+            obraSocial = obrasSociales.get(0).getObraSocial().getNombre();
+        }
+        
+        // Pasar los datos al modelo
+        model.addAttribute("usuario", usuarioLogueado);
+        model.addAttribute("obraSocial", obraSocial);
+        model.addAttribute("rolUsuario", usuarioLogueado.getRol());
+        
+        System.out.println("=== CARGANDO PERFIL ===");
+        System.out.println("Usuario: " + usuarioLogueado.getNombre() + " " + usuarioLogueado.getApellido());
+        System.out.println("DNI: " + usuarioLogueado.getDni());
+        System.out.println("Email: " + usuarioLogueado.getEmail());
+        System.out.println("Obra Social: " + obraSocial);
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando perfil: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar el perfil: " + e.getMessage());
     }
+    
+    return "miperfil";
+}
 
     @GetMapping("/recuperar")
     public String recuperar(Model model) {
         return "recuperar";
     }
 
-    @GetMapping("/pedirturno")
-    public String pedirTurno() {
-        return "pedirturno"; 
+@GetMapping("/pedirturno")
+public String pedirTurno(HttpSession session) {
+    // Obtener el usuario logueado
+    Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+    
+    if (usuarioLogueado == null) {
+        return "redirect:/login";
     }
+    
+    String rol = usuarioLogueado.getRol();
+    
+    switch (rol) {
+        case "SECRETARIO":
+            return "redirect:/elegirPaciente";
+        case "PACIENTE":
+            // Solo mostrar el menú de paciente, NO iniciar el proceso automáticamente
+            return "pedirturno"; // ← Esto renderiza el template pedirturno.html
+        case "ADMIN":
+        case "MEDICO":
+            // Redirigir a su menú principal
+            return "redirect:/menu" + rol;
+        default:
+            return "redirect:/menu";
+    }
+}
     @GetMapping("/inicio")
     public String inicio() {
         return "inicio"; 
@@ -133,10 +201,41 @@ public class PrimeraapiController {
         return "resultado";
     }
 
-    @GetMapping("/verturnos")
-    public String verTurnos() {
-        return "verturnos";
+@GetMapping("/verturnos")
+public String verTurnos(HttpSession session, Model model) {
+    try {
+        // Obtener el usuario logueado de la sesión
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (usuarioLogueado == null) {
+            return "redirect:/login";
+        }
+        
+        // Obtener los turnos del paciente
+        List<Turno> turnos = turnoService.obtenerTurnosPorPaciente(usuarioLogueado);
+        
+        // Ordenar los turnos por fecha y hora (más recientes primero)
+        turnos.sort((t1, t2) -> {
+            int fechaCompare = t2.getFecha().compareTo(t1.getFecha());
+            if (fechaCompare != 0) return fechaCompare;
+            return t2.getHora().compareTo(t1.getHora());
+        });
+        
+        model.addAttribute("turnos", turnos);
+        model.addAttribute("paciente", usuarioLogueado);
+        model.addAttribute("rolUsuario", usuarioLogueado.getRol()); // ← AGREGAR ESTA LÍNEA
+        
+        System.out.println("=== TURNOS ENCONTRADOS ===");
+        System.out.println("Paciente: " + usuarioLogueado.getNombre() + " " + usuarioLogueado.getApellido());
+        System.out.println("Cantidad de turnos: " + turnos.size());
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando turnos: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar los turnos: " + e.getMessage());
     }
+    
+    return "verturnos";
+}
 
     // ========== REGISTRO DE USUARIOS ==========
     
@@ -147,54 +246,58 @@ public class PrimeraapiController {
         return "formulario";
     }
 
-    @PostMapping("/dpi")
-    public String procesarRegistroPaciente(
-        @Valid @ModelAttribute("usuario") Usuario usuario,
-        BindingResult bindingResult,
-        @RequestParam String confirm_password,
-        @RequestParam Long obraSocialId,
-        Model model
-    ) {
-        cargarObrasSociales(model);
+@PostMapping("/dpi")
+public String procesarRegistroPaciente(
+    @Valid @ModelAttribute("usuario") Usuario usuario,
+    BindingResult bindingResult,
+    @RequestParam String confirm_password,
+    @RequestParam Long obraSocialId,
+    Model model,
+    HttpSession session  // ← AGREGAR ESTE PARÁMETRO
+) {
+    cargarObrasSociales(model);
 
-        // Validaciones de contraseña
-        if (!validarContrasena(usuario.getPassword(), confirm_password, model)) {
-            return cargarModeloConErrores(usuario, model, "formulario");
-        }
-
-        // Validar obra social
-        if (obraSocialId == null) {
-            model.addAttribute("errorObraSocial", "Debe seleccionar una obra social");
-            return cargarModeloConErrores(usuario, model, "formulario");
-        }
-
-        // Validar fecha
-        validarFechaNacimiento(usuario.getFechaNacimiento(), bindingResult);
-
-        if (bindingResult.hasErrors()) {
-            return cargarModeloConErrores(usuario, model, "formulario");
-        }
-
-        if (usuarioRepository.existsByDni(usuario.getDni())) {
-            model.addAttribute("errorDni", "El DNI ya está registrado");
-            return cargarModeloConErrores(usuario, model, "formulario");
-        }
-
-        try {
-            // Guardar usuario
-            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-            usuario.setRol("PACIENTE");
-            Usuario usuarioGuardado = usuarioRepository.save(usuario);
-            
-            // Asignar obra social
-            asignarObraSocial(usuarioGuardado, obraSocialId);
-            
-            return "redirect:/menu";
-        } catch (Exception e) {
-            model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
-            return cargarModeloConErrores(usuario, model, "formulario");
-        }
+    // Validaciones de contraseña
+    if (!validarContrasena(usuario.getPassword(), confirm_password, model)) {
+        return cargarModeloConErrores(usuario, model, "formulario");
     }
+
+    // Validar obra social
+    if (obraSocialId == null) {
+        model.addAttribute("errorObraSocial", "Debe seleccionar una obra social");
+        return cargarModeloConErrores(usuario, model, "formulario");
+    }
+
+    // Validar fecha
+    validarFechaNacimiento(usuario.getFechaNacimiento(), bindingResult);
+
+    if (bindingResult.hasErrors()) {
+        return cargarModeloConErrores(usuario, model, "formulario");
+    }
+
+    if (usuarioRepository.existsByDni(usuario.getDni())) {
+        model.addAttribute("errorDni", "El DNI ya está registrado");
+        return cargarModeloConErrores(usuario, model, "formulario");
+    }
+
+    try {
+        // Guardar usuario
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        usuario.setRol("PACIENTE");
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+        
+        // Asignar obra social
+        asignarObraSocial(usuarioGuardado, obraSocialId);
+        
+        // ✅ GUARDAR USUARIO EN SESIÓN Y REDIRIGIR AL MENÚ CORRECTO
+        session.setAttribute("usuarioLogueado", usuarioGuardado);
+        return "redirect:/pedirturno";  
+        
+    } catch (Exception e) {
+        model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
+        return cargarModeloConErrores(usuario, model, "formulario");
+    }
+}
 
     @GetMapping("/registroAdmin")
     public String mostrarFormularioAdmin(Model model) {
@@ -219,11 +322,11 @@ public String procesarRegistroAdmin(
     @RequestParam(required = false) Long obraSocialId,
     @RequestParam(required = false) List<Long> obrasSocialesIds,
     @RequestParam(required = false) List<Long> estudiosIds,  // NUEVO PARÁMETRO
-    Model model
+    Model model,
+    HttpSession session
 ) {
     cargarObrasSociales(model);
-    
-    // NUEVO: Cargar estudios para el formulario en caso de error
+
     try {
         List<Estudio> estudios = estudioRepository.findByActivoTrue();
         model.addAttribute("estudios", estudios);
@@ -292,7 +395,7 @@ public String procesarRegistroAdmin(
             }
         }
         
-        return "redirect:/menu?registroExitoso=true";
+        return "redirect:/menuAdmin?registroExitoso=true&usuarioCreado=" + usuarioGuardado.getNombre();
     } catch (Exception e) {
         model.addAttribute("errorGeneral", "Error al registrar el usuario: " + e.getMessage());
         return cargarModeloConErrores(usuario, model, "registroAdmin");
@@ -302,33 +405,65 @@ public String procesarRegistroAdmin(
     // ========== LOGIN ==========
 
     @PostMapping("/login")
-    public String procesarLogin(
-        @RequestParam String dni,
-        @RequestParam String password,
-        HttpSession session,
-        Model model
-    ) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByDni(dni);
+public String procesarLogin(
+    @RequestParam String dni,
+    @RequestParam String password,
+    HttpSession session,
+    Model model
+) {
+    Optional<Usuario> usuarioOpt = usuarioRepository.findByDni(dni);
 
-        if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-            boolean passwordValido = passwordEncoder.matches(password, usuario.getPassword());
+    if (usuarioOpt.isPresent()) {
+        Usuario usuario = usuarioOpt.get();
+        boolean passwordValido = passwordEncoder.matches(password, usuario.getPassword());
+        
+        if (passwordValido) {
+            if (!usuario.isEstado()) {
+                model.addAttribute("error", "Tu cuenta está inactiva.");
+                return "login";
+            }
             
-            if (passwordValido) {
-                if (!usuario.isEstado()) {
-                    model.addAttribute("error", "Tu cuenta está inactiva.");
-                    return "login";
-                }
-                // Guardar usuario en sesión
-                session.setAttribute("usuarioLogueado", usuario);
-                return "redirect:/menu";
+            // Guardar usuario en sesión
+            session.setAttribute("usuarioLogueado", usuario);
+            
+            // Redirigir según el rol
+            String rol = usuario.getRol();
+            switch (rol) {
+                case "ADMIN":
+                    return "redirect:/menuAdmin";
+                case "SECRETARIO":
+                    return "redirect:/menuSecretaria";
+                case "MEDICO":
+                    return "redirect:/menuMedico";
+                case "PACIENTE":
+                    return "redirect:/pedirturno"; // ← Va al menú del paciente
+                default:
+                    return "redirect:/menu";
             }
         }
-        
-        model.addAttribute("error", "DNI o contraseña incorrectos");
-        return "login";
     }
-
+    
+    model.addAttribute("error", "DNI o contraseña incorrectos");
+    return "login";
+}
+@GetMapping("/iniciarTurno")
+public String iniciarTurno(HttpSession session) {
+    // Obtener el usuario logueado
+    Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+    
+    if (usuarioLogueado == null) {
+        return "redirect:/login";
+    }
+    
+    // Solo pacientes pueden iniciar el proceso
+    if ("PACIENTE".equals(usuarioLogueado.getRol())) {
+        // Guardar automáticamente al paciente en sesión
+        session.setAttribute("turnoPaciente", usuarioLogueado);
+        return "redirect:/estudio";
+    }
+    
+    return "redirect:/pedirturno";
+}
     // ========== RECUPERACIÓN DE CONTRASEÑA ==========
 
     @PostMapping("/recuperarCodigo")
@@ -673,7 +808,424 @@ public String procesarRegistroAdmin(
             default: return DiaSemana.LUNES;
         }
     }
+    // ========== SELECCIÓN DE PACIENTE PARA TURNO ==========
 
+    @GetMapping("/elegirPaciente")
+    public String mostrarElegirPaciente(Model model) {
+        try {
+            // Cargar lista de pacientes activos
+            List<Usuario> pacientes = usuarioRepository.findByRolAndEstado("PACIENTE", true);
+            model.addAttribute("pacientes", pacientes);
+            System.out.println("Pacientes encontrados: " + pacientes.size());
+        } catch (Exception e) {
+            System.out.println("Error cargando pacientes: " + e.getMessage());
+            model.addAttribute("pacientes", new ArrayList<>());
+        }
+        return "elegirPaciente";
+    }
+
+    @PostMapping("/seleccionarPaciente")
+    public String seleccionarPaciente(
+        @RequestParam Long pacienteId,
+        HttpSession session,
+        RedirectAttributes redirectAttributes) {
+        
+        try {
+            System.out.println("Seleccionando paciente ID: " + pacienteId);
+            
+            Optional<Usuario> pacienteOpt = usuarioRepository.findById(pacienteId);
+            if (!pacienteOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "Paciente no encontrado");
+                return "redirect:/elegirPaciente";
+            }
+            
+            Usuario paciente = pacienteOpt.get();
+            
+            // Guardar el paciente seleccionado en la sesión
+            session.setAttribute("pacienteSeleccionado", paciente);
+            session.setAttribute("pacienteId", paciente.getId());
+            
+            System.out.println("Paciente seleccionado: " + paciente.getNombre() + " " + paciente.getApellido());
+            
+            // Redirigir a la página de estudios
+            return "redirect:/estudio";
+            
+        } catch (Exception e) {
+            System.out.println("Error seleccionando paciente: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error al seleccionar el paciente: " + e.getMessage());
+            return "redirect:/elegirPaciente";
+        }
+    }
+
+@GetMapping("/estudio")
+public String mostrarEstudio(HttpSession session, Model model) {
+    try {
+        // Para SECRETARIOS: Recuperar el paciente de la sesión
+        // Para PACIENTES: Usar el usuario logueado automáticamente
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
+        
+        // Si es PACIENTE y no hay paciente seleccionado en sesión, usar el usuario logueado
+        if (usuarioLogueado != null && "PACIENTE".equals(usuarioLogueado.getRol()) && paciente == null) {
+            paciente = usuarioLogueado;
+            session.setAttribute("turnoPaciente", paciente);
+        }
+        
+        if (paciente == null) {
+            System.out.println("No hay paciente seleccionado en sesión");
+            // Si es SECRETARIO, volver a elegir paciente
+            if (usuarioLogueado != null && "SECRETARIO".equals(usuarioLogueado.getRol())) {
+                return "redirect:/elegirPaciente";
+            }
+            return "redirect:/pedirturno";
+        }
+        
+        // Cargar datos para la página de estudio
+        model.addAttribute("paciente", paciente);
+        
+        // Cargar lista de estudios disponibles
+        List<Estudio> estudios = estudioRepository.findByActivoTrue();
+        model.addAttribute("estudios", estudios);
+        
+        // Cargar lista de médicos disponibles
+        List<Usuario> medicos = usuarioRepository.findByRolAndEstado("MEDICO", true);
+        model.addAttribute("medicos", medicos);
+        
+        // Pasar el rol del usuario para mostrar/ocultar elementos en el template
+        model.addAttribute("rolUsuario", usuarioLogueado != null ? usuarioLogueado.getRol() : "");
+        
+        System.out.println("Cargando estudio para paciente: " + paciente.getNombre() + " " + paciente.getApellido());
+        System.out.println("Rol del usuario: " + (usuarioLogueado != null ? usuarioLogueado.getRol() : "No logueado"));
+        System.out.println("Estudios disponibles: " + estudios.size());
+        System.out.println("Médicos disponibles: " + medicos.size());
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando página de estudio: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar la página: " + e.getMessage());
+    }
+    
+    return "estudio";
+}
+@PostMapping("/estudio/continuar")
+public String procesarEstudio(@ModelAttribute TurnoRequestDTO turnoRequest, 
+                            HttpSession session, 
+                            Model model) {
+    try {
+        System.out.println("Procesando turno - Estudio: " + turnoRequest.getEstudioId() + 
+                        ", Médico: " + turnoRequest.getMedicoId());
+        
+        // Validar que todos los datos estén presentes
+        if (turnoRequest.getEstudioId() == null || 
+            turnoRequest.getMedicoId() == null) {
+            model.addAttribute("error", "Todos los campos son obligatorios");
+            return "redirect:/estudio";
+        }
+        
+        // Obtener el paciente de la sesión
+        Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
+        if (paciente == null) {
+            model.addAttribute("error", "No se encontró el paciente");
+            return "redirect:/estudio";
+        }
+        
+        // Buscar las entidades completas
+        Estudio estudio = estudioRepository.findById(turnoRequest.getEstudioId())
+                .orElseThrow(() -> new RuntimeException("Estudio no encontrado"));
+        
+        Usuario medico = usuarioRepository.findById(turnoRequest.getMedicoId())
+                .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
+        
+        // Guardar en sesión para usar en calendario
+        session.setAttribute("turnoPaciente", paciente);
+        session.setAttribute("turnoEstudio", estudio);
+        session.setAttribute("turnoMedico", medico);
+        
+        // Log para debugging
+        System.out.println("Datos guardados en sesión:");
+        System.out.println("Paciente: " + paciente.getNombre() + " " + paciente.getApellido());
+        System.out.println("Estudio: " + estudio.getNombre());
+        System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
+        
+        return "redirect:/calendario";
+        
+    } catch (Exception e) {
+        System.out.println("Error procesando estudio: " + e.getMessage());
+        model.addAttribute("error", "Error al procesar la solicitud: " + e.getMessage());
+        return "redirect:/estudio";
+    }
+}
+
+@GetMapping("/calendario")
+public String mostrarCalendario(HttpSession session, Model model) {
+    try {
+        // Recuperar datos de la sesión
+        Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
+        Estudio estudio = (Estudio) session.getAttribute("turnoEstudio");
+        Usuario medico = (Usuario) session.getAttribute("turnoMedico");
+        
+        // Validar que todos los datos estén presentes
+        if (paciente == null || estudio == null || medico == null) {
+            System.out.println("Faltan datos para mostrar el calendario");
+            return "redirect:/estudio";
+        }
+        
+        // Obtener la disponibilidad del médico
+        List<DisponibilidadMedica> disponibilidad = disponibilidadRepository.findByMedicoAndActivoTrue(medico);
+        
+        // Pasar datos al modelo
+        model.addAttribute("paciente", paciente);
+        model.addAttribute("estudio", estudio);
+        model.addAttribute("medico", medico);
+        
+        // SOLUCIÓN SIMPLE: Usar directamente los números de los días
+        List<Integer> diasDisponiblesNumeros = new ArrayList<>();
+        
+        for (DisponibilidadMedica disp : disponibilidad) {
+            switch (disp.getDiaSemana()) {
+                case LUNES: 
+                    diasDisponiblesNumeros.add(1); // 1 = Lunes en JavaScript
+                    System.out.println("✅ Agregado LUNES -> 1");
+                    break;
+                case MARTES: 
+                    diasDisponiblesNumeros.add(2); 
+                    break;
+                case MIERCOLES: 
+                    diasDisponiblesNumeros.add(3); 
+                    break;
+                case JUEVES: 
+                    diasDisponiblesNumeros.add(4); 
+                    break;
+                case VIERNES: 
+                    diasDisponiblesNumeros.add(5); 
+                    break;
+                case SABADO: 
+                    diasDisponiblesNumeros.add(6); 
+                    break;
+                case DOMINGO: 
+                    diasDisponiblesNumeros.add(0); // 0 = Domingo en JavaScript
+                    break;
+            }
+        }
+        
+        // Remover duplicados
+        diasDisponiblesNumeros = diasDisponiblesNumeros.stream()
+                .distinct()
+                .collect(Collectors.toList());
+        
+        model.addAttribute("diasDisponibles", diasDisponiblesNumeros);
+        
+        // Depuración
+        System.out.println("Días disponibles para " + medico.getNombre() + ": " + diasDisponiblesNumeros);
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando calendario: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar el calendario: " + e.getMessage());
+    }
+    
+    return "calendario";
+}
+@PostMapping("/calendario/continuar")
+public String procesarCalendario(@RequestParam String fechaSeleccionada,
+                                HttpSession session,
+                                Model model) {
+    try {
+        // Recuperar datos de la sesión
+        Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
+        Estudio estudio = (Estudio) session.getAttribute("turnoEstudio");
+        Usuario medico = (Usuario) session.getAttribute("turnoMedico");
+        
+        if (paciente == null || estudio == null || medico == null) {
+            return "redirect:/estudio";
+        }
+        
+        // Guardar la fecha seleccionada en la sesión
+        session.setAttribute("fechaSeleccionada", fechaSeleccionada);
+        
+        System.out.println("Fecha seleccionada: " + fechaSeleccionada);
+        System.out.println("Redirigiendo a horarios...");
+        
+        return "redirect:/horarios";
+        
+    } catch (Exception e) {
+        System.out.println("Error procesando calendario: " + e.getMessage());
+        model.addAttribute("error", "Error al procesar la fecha: " + e.getMessage());
+        return "redirect:/calendario";
+    }
+}
+@GetMapping("/horarios")
+public String mostrarHorarios(HttpSession session, Model model) {
+    try {
+        // Recuperar todos los datos de la sesión
+        Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
+        Estudio estudio = (Estudio) session.getAttribute("turnoEstudio");
+        Usuario medico = (Usuario) session.getAttribute("turnoMedico");
+        String fechaSeleccionada = (String) session.getAttribute("fechaSeleccionada");
+        
+        if (paciente == null || estudio == null || medico == null || fechaSeleccionada == null) {
+            return "redirect:/estudio";
+        }
+        
+        // Convertir la fecha seleccionada a LocalDate
+        LocalDate fecha = LocalDate.parse(fechaSeleccionada);
+        
+        // Obtener el día de la semana (LUNES, MARTES, etc.)
+        DayOfWeek diaSemana = fecha.getDayOfWeek();
+        DiaSemana diaSemanaEnum = convertirDayOfWeekADiaSemana(diaSemana);
+        
+        // Obtener la disponibilidad del médico para ese día
+        List<DisponibilidadMedica> disponibilidad = disponibilidadRepository
+                .findByMedicoAndDiaSemanaAndActivoTrue(medico, diaSemanaEnum);
+        
+        // Generar horarios disponibles
+        List<String> horariosDisponibles = new ArrayList<>();
+        
+        if (!disponibilidad.isEmpty()) {
+            DisponibilidadMedica disp = disponibilidad.get(0); // Tomamos la primera disponibilidad
+            horariosDisponibles = generarHorariosDisponibles(disp.getHoraInicio(), disp.getHoraFin(), disp.getDuracionTurnoMinutos());
+        }
+        
+        // Pasar todos los datos al modelo
+        model.addAttribute("paciente", paciente);
+        model.addAttribute("estudio", estudio);
+        model.addAttribute("medico", medico);
+        model.addAttribute("fechaSeleccionada", fechaSeleccionada);
+        model.addAttribute("horariosDisponibles", horariosDisponibles);
+        model.addAttribute("diaSemana", diaSemanaEnum.toString());
+        
+        System.out.println("=== DATOS PARA HORARIOS ===");
+        System.out.println("Paciente: " + paciente.getNombre() + " " + paciente.getApellido());
+        System.out.println("Estudio: " + estudio.getNombre());
+        System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
+        System.out.println("Fecha: " + fechaSeleccionada);
+        System.out.println("Día de la semana: " + diaSemanaEnum);
+        System.out.println("Horarios disponibles: " + horariosDisponibles);
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando horarios: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar los horarios: " + e.getMessage());
+        return "redirect:/calendario";
+    }
+    
+    return "horarios";
+}
+
+// Método para convertir DayOfWeek a DiaSemana
+private DiaSemana convertirDayOfWeekADiaSemana(DayOfWeek dayOfWeek) {
+    switch (dayOfWeek) {
+        case MONDAY: return DiaSemana.LUNES;
+        case TUESDAY: return DiaSemana.MARTES;
+        case WEDNESDAY: return DiaSemana.MIERCOLES;
+        case THURSDAY: return DiaSemana.JUEVES;
+        case FRIDAY: return DiaSemana.VIERNES;
+        case SATURDAY: return DiaSemana.SABADO;
+        case SUNDAY: return DiaSemana.DOMINGO;
+        default: return DiaSemana.LUNES;
+    }
+}
+
+// Método para generar horarios disponibles
+private List<String> generarHorariosDisponibles(LocalTime horaInicio, LocalTime horaFin, Integer duracionTurno) {
+    List<String> horarios = new ArrayList<>();
+    LocalTime horaActual = horaInicio;
+    
+    while (horaActual.plusMinutes(duracionTurno).isBefore(horaFin) || 
+           horaActual.plusMinutes(duracionTurno).equals(horaFin)) {
+        horarios.add(horaActual.toString());
+        horaActual = horaActual.plusMinutes(duracionTurno);
+    }
+    
+    return horarios;
+}
+@PostMapping("/horarios/confirmar")
+public String confirmarHorario(@RequestParam String fechaSeleccionada,
+                              @RequestParam String horarioSeleccionado,
+                              HttpSession session,
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
+    try {
+        // Recuperar datos de la sesión
+        Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
+        Estudio estudio = (Estudio) session.getAttribute("turnoEstudio");
+        Usuario medico = (Usuario) session.getAttribute("turnoMedico");
+        
+        if (paciente == null || estudio == null || medico == null) {
+            redirectAttributes.addFlashAttribute("error", "Faltan datos del turno. Por favor, comience nuevamente.");
+            return "redirect:/estudio";
+        }
+        
+        // Convertir fecha y hora
+        LocalDate fecha = LocalDate.parse(fechaSeleccionada);
+        LocalTime hora = LocalTime.parse(horarioSeleccionado);
+        
+        System.out.println("=== CREANDO TURNO ===");
+        System.out.println("Paciente: " + paciente.getNombre() + " " + paciente.getApellido());
+        System.out.println("Estudio: " + estudio.getNombre());
+        System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
+        System.out.println("Fecha: " + fecha);
+        System.out.println("Horario: " + hora);
+        
+        // Crear y guardar el turno en la base de datos
+        Turno turnoGuardado = turnoService.crearTurno(paciente, medico, estudio, fecha, hora);
+        
+        System.out.println("✅ Turno guardado exitosamente. ID: " + turnoGuardado.getIdTurno());
+        System.out.println("Código de turno: " + turnoGuardado.getCodigoTurno());
+        
+        // Guardar el turno creado en sesión para mostrar en confirmación
+        session.setAttribute("turnoCreado", turnoGuardado);
+        session.setAttribute("horarioSeleccionado", horarioSeleccionado);
+        session.setAttribute("fechaSeleccionada", fechaSeleccionada);
+        
+        return "redirect:/confirmacionturno";
+        
+    } catch (Exception e) {
+        System.out.println("❌ Error confirmando horario: " + e.getMessage());
+        redirectAttributes.addFlashAttribute("error", "Error al confirmar el turno: " + e.getMessage());
+        return "redirect:/horarios";
+    }
+}
+@GetMapping("/confirmacionturno")
+public String mostrarConfirmacionTurno(HttpSession session, Model model) {
+    try {
+        // Recuperar el turno creado de la sesión
+        Turno turno = (Turno) session.getAttribute("turnoCreado");
+        
+        if (turno == null) {
+            return "redirect:/estudio";
+        }
+        
+        // Pasar los datos al modelo para mostrar en la página de confirmación
+        model.addAttribute("turno", turno);
+        model.addAttribute("paciente", turno.getPaciente());
+        model.addAttribute("estudio", turno.getEstudio());
+        model.addAttribute("medico", turno.getMedico());
+        model.addAttribute("fecha", turno.getFecha());
+        model.addAttribute("horario", turno.getHora());
+        model.addAttribute("codigoTurno", turno.getCodigoTurno());
+        
+        System.out.println("=== MOSTRANDO CONFIRMACIÓN ===");
+        System.out.println("Turno confirmado - Código: " + turno.getCodigoTurno());
+        System.out.println("Paciente: " + turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido());
+        System.out.println("Estudio: " + turno.getEstudio().getNombre());
+        System.out.println("Médico: " + turno.getMedico().getNombre() + " " + turno.getMedico().getApellido());
+        System.out.println("Fecha: " + turno.getFecha());
+        System.out.println("Horario: " + turno.getHora());
+        
+        // Limpiar la sesión después de mostrar la confirmación
+        session.removeAttribute("turnoCreado");
+        session.removeAttribute("turnoPaciente");
+        session.removeAttribute("turnoEstudio");
+        session.removeAttribute("turnoMedico");
+        session.removeAttribute("fechaSeleccionada");
+        session.removeAttribute("horarioSeleccionado");
+        
+        return "confirmacionturno";
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando confirmación: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar la confirmación: " + e.getMessage());
+        return "redirect:/horarios";
+    }
+}
     // ========== MÉTODO DEBUG PARA VER MÉDICOS ==========
     
     @GetMapping("/debug/medicos")
