@@ -23,10 +23,10 @@
   <!-- Menú lateral -->
   <aside id="sideMenu" class="side-menu">
      <nav class="menu-nav">
-      <a href="login" class="menu-link">Inicio</a>
-      <a href="miperfil" class="menu-link">Mi Perfil</a>
-      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
-      <a href="especialistas" class="menu-link">Especialistas</a>
+      <a th:href="@{/menuMedico}" class="menu-link">Inicio</a>
+      <a th:href="@{/miperfil}" class="menu-link">Mi Perfil</a>
+      <a th:href="@{/quienessomos}" class="menu-link">¿Quiénes somos?</a>
+      <a th:href="@{/especialistas}" class="menu-link">Especialistas</a>
     </nav>
   </aside>
 
@@ -39,264 +39,151 @@
   <!-- Contenedor para notificaciones -->
   <div id="notificationContainer"></div>
   
+  <!-- Mensajes Flash -->
+  <div th:if="${param.success}" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    <span th:text="${param.success}">¡Operación exitosa!</span>
+  </div>
+  
+  <div th:if="${param.error}" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span th:text="${param.error}">Error en la operación</span>
+  </div>
+  
   <!-- Tarjeta central -->
   <div class="container-horario">
     <div class="logo">
-      <img src="../assets/LOGO DPI.jpg" alt="Logo DPI" />
+      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo DPI" />
     </div>
-    <h1 class="title">Datos Personales</h1>
-    <form id="personalDataForm">
-      <!-- DNI -->
-      <div class="form-group">
-        <label for="dni">DNI</label>
-        <input type="text" id="dni" name="dni" class="readonly-field" value="35.678.901" readonly>
-      </div>
-      
-      <!-- Nombre y Apellido -->
-      <div class="form-group">
-        <label for="nombre">Nombre y Apellido:</label>
-        <input type="text" id="nombre" name="nombre" class="readonly-field" value="María González" readonly>
-      </div>
-      
-      <!-- Fecha de Nacimiento -->
-      <div class="form-group">
-        <label for="fechaNacimiento">Fecha de Nacimiento</label>
-        <input type="date" id="fechaNacimiento" name="fechaNacimiento" class="readonly-field" value="1985-05-15" readonly>
-      </div>
-      
-      <!-- Email -->
-      <div class="form-group">
-        <label for="email">Email</label>
-        <div class="field-container">
-          <input type="email" id="email" name="email" class="editable-field" value="maria.gonzalez@ejemplo.com" readonly>
-          <button type="button" class="edit-icon" data-field="email">
-            <span class="material-icons">edit</span>
-          </button>
-        </div>
-      </div>
+    <h1 class="title">Perfil Médico</h1>
+    
+    <!-- Información del Médico -->
+    <div th:if="${medico}" class="medico-info" style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #007bff;">
+      <h4>Datos del Médico</h4>
+      <p><strong>Nombre:</strong> <span th:text="${medico.nombre + ' ' + medico.apellido}"></span></p>
+      <p><strong>Especialidad:</strong> <span th:text="${medico.especialidad}"></span></p>
+      <p><strong>Matrícula Nacional:</strong> <span th:text="${medico.matriculaNacional}"></span></p>
+      <p><strong>Email:</strong> <span th:text="${medico.email}"></span></p>
+    </div>
 
-      <!-- Obra Social -->
-      <div class="form-group">
-        <label for="obraSocial">Obra Social</label>
-        <div class="field-container">
-          <input type="text" id="obraSocial" name="obraSocial" class="editable-field" value="OSDE" readonly>
-          <button type="button" class="edit-icon" data-field="obraSocial">
-            <span class="material-icons">edit</span>
-          </button>
-        </div>
-        <!-- Botones para Obra Social -->
-        <div class="button-container" style="margin-top: 0.5rem;">
-          <button type="button" class="form-button add-button" onclick="mostrarFormularioAgregarObraSocial()">Agregar Obra Social</button>
-          <button type="button" class="form-button delete-button" onclick="mostrarFormularioEliminarObraSocial()">Eliminar Obra Social</button>
-        </div>
+    <!-- Estudios Actuales del Médico -->
+    <div class="form-group">
+      <label>Estudios que realizo:</label>
+      <div th:if="${#lists.isEmpty(estudiosActuales)}" class="no-estudios" style="color: #666; font-style: italic;">
+        No tienes estudios asignados
       </div>
-      
-      <!-- Estudios -->
-      <div class="form-group">
-        <label for="estudios">Estudios</label>
-        <div class="field-container">
-          <input type="text" id="estudios" name="estudios" class="editable-field" value="Radiografía de tórax" readonly>
-          <button type="button" class="edit-icon" data-field="estudios">
-            <span class="material-icons">edit</span>
-          </button>
-        </div>
-        <!-- Botones para Estudios -->
-        <div class="button-container" style="margin-top: 0.5rem;">
-          <button type="button" class="form-button add-button" onclick="mostrarFormularioAgregarEstudio()">Agregar Estudio</button>
-          <button type="button" class="form-button delete-button" onclick="mostrarFormularioEliminarEstudio()">Eliminar Estudio</button>
-        </div>
+      <div th:unless="${#lists.isEmpty(estudiosActuales)}" class="estudios-lista">
+        <ul style="list-style: none; padding: 0;">
+          <li th:each="estudio : ${estudiosActuales}" 
+              style="background: #e8f5e8; margin: 5px 0; padding: 10px; border-radius: 5px; border-left: 4px solid #28a745;">
+            <i class="fas fa-check-circle" style="color: #28a745; margin-right: 8px;"></i>
+            <span th:text="${estudio}"></span>
+          </li>
+        </ul>
       </div>
-      
-     <div class="form-buttons">
-            <button type="button" class="btn btn-cancelar" id="cancelBtn">Cancelar</button>
-            <button type="button" class="btn btn-guardar" id="saveBtn">Guardar Cambios</button>
-            </div>
-    </form>
-  </div>
-
-  <!-- Formularios para Obra Social -->
-  <div id="formularioAgregarObraSocial" class="form-container hidden">
-    <h2>Agregar Nueva Obra Social</h2>
-    <form id="agregarObraSocialForm">
-      <div class="form-group">
-        <label for="obraSocialAgregar">Selecciona una obra social:</label>
-        <select id="obraSocialAgregar" name="obraSocialAgregar">
-          <option value="OSDE">OSDE</option>
-          <option value="Swiss Medical">Swiss Medical</option>
-          <option value="Galeno">Galeno</option>
-          <option value="Omint">Omint</option>
-          <option value="Medifé">Medifé</option>
-        </select>
-      </div>
-      <div class="form-buttons">
-        <button type="button" class="form-button save-button" onclick="agregarObraSocial()">Guardar Obra Social</button>
-        <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
-      </div>
-    </form>
-  </div>
-
-  <div id="formularioEliminarObraSocial" class="form-container hidden">
-    <h2>Eliminar Obra Social</h2>
-    <form id="eliminarObraSocialForm">
-      <div class="form-group">
-        <label for="obraSocialEliminar">Selecciona una obra social para eliminar:</label>
-        <select id="obraSocialEliminar" name="obraSocialEliminar">
-          <!-- Se llenará dinámicamente -->
-        </select>
-      </div>
-      <div class="form-buttons">
-        <button type="button" class="form-button delete-form-button" onclick="eliminarObraSocial()">Eliminar Obra Social</button>
-        <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Formularios para Estudios -->
-  <div id="formularioAgregarEstudio" class="form-container hidden">
-    <h2>Agregar Nuevo Estudio</h2>
-    <form id="agregarEstudioForm">
-      <div class="form-group">
-        <label for="estudioAgregar">Selecciona un estudio:</label>
-        <select id="estudioAgregar" name="estudioAgregar">
-          <option value="Radiografía de tórax">Radiografía de tórax</option>
-          <option value="Ecografía abdominal">Ecografía abdominal</option>
-          <option value="Tomografía computada">Tomografía computada</option>
-          <option value="Resonancia magnética">Resonancia magnética</option>
-          <option value="Mamografía">Mamografía</option>
-        </select>
-      </div>
-      <div class="form-buttons">
-        <button type="button" class="form-button save-button" onclick="agregarEstudio()">Guardar Estudio</button>
-        <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
-      </div>
-    </form>
-  </div>
-
-  <div id="formularioEliminarEstudio" class="form-container hidden">
-    <h2>Eliminar Estudio</h2>
-    <form id="eliminarEstudioForm">
-      <div class="form-group">
-        <label for="estudioEliminar">Selecciona un estudio para eliminar:</label>
-        <select id="estudioEliminar" name="estudioEliminar">
-          <!-- Se llenará dinámicamente -->
-        </select>
-      </div>
-      <div class="form-buttons">
-        <button type="button" class="form-button delete-form-button" onclick="eliminarEstudio()">Eliminar Estudio</button>
-        <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">Cancelar</button>
-      </div>
-    </form>
-      <div style="margin-top: 20px;">
-      <button type="button" class="btn" onclick="history.back()"
-              style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
-          <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
-          Volver
+    </div>
+    
+    <!-- Botones para Gestión de Estudios -->
+    <div class="button-container" style="margin: 20px 0;">
+      <button type="button" class="form-button add-button" onclick="mostrarFormularioAgregarEstudio()">
+        <i class="fas fa-plus" style="margin-right: 8px;"></i>
+        Agregar Estudio
       </button>
+      <button type="button" class="form-button delete-button" onclick="mostrarFormularioEliminarEstudio()">
+        <i class="fas fa-minus" style="margin-right: 8px;"></i>
+        Eliminar Estudio
+      </button>
+    </div>
+
+    <!-- Botón Volver -->
+    <div style="margin-top: 20px;">
+      <button type="button" class="btn" onclick="window.location.href='/menuMedico'"
+              style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+        <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+        Volver al Menú
+      </button>
+    </div>
   </div>
-  </div>
+
+<!-- Formulario para Agregar Estudio -->
+<div id="formularioAgregarEstudio" class="form-container hidden">
+    <h2>Agregar Nuevo Estudio</h2>
+    <form th:action="@{/perfilMedico/agregarEstudio}" method="post" id="agregarEstudioForm">
+        <div class="form-group">
+            <label for="estudioAgregar">Selecciona un estudio para agregar:</label>
+            <select id="estudioAgregar" name="estudioId" required>
+                <option value="" selected disabled>Selecciona un estudio</option>
+                <!-- ✅ CAMBIAR: Usar estudiosDisponibles en lugar de todosLosEstudios -->
+                <option th:each="estudio : ${estudiosDisponibles}" 
+                        th:value="${estudio.id}"
+                        th:text="${estudio.nombre}">
+                </option>
+            </select>
+            <div th:if="${#lists.isEmpty(estudiosDisponibles)}" 
+                 style="color: #28a745; font-size: 14px; margin-top: 10px;">
+                <i class="fas fa-check-circle"></i>
+                ¡Ya tienes todos los estudios disponibles asignados!
+            </div>
+            <div th:unless="${#lists.isEmpty(estudiosDisponibles)}" 
+                 style="color: #666; font-size: 12px; margin-top: 5px;">
+                <span th:text="${estudiosDisponibles.size()} + ' estudio(s) disponible(s)'"></span>
+            </div>
+        </div>
+        <div class="form-buttons">
+            <button type="submit" class="form-button save-button" 
+                    th:disabled="${#lists.isEmpty(estudiosDisponibles)}">
+                <i class="fas fa-save" style="margin-right: 8px;"></i>
+                Guardar Estudio
+            </button>
+            <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">
+                <i class="fas fa-times" style="margin-right: 8px;"></i>
+                Cancelar
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Formulario para Eliminar Estudio -->
+<div id="formularioEliminarEstudio" class="form-container hidden">
+    <h2>Eliminar Estudio</h2>
+    <form th:action="@{/perfilMedico/eliminarEstudio}" method="post" id="eliminarEstudioForm">
+        <div class="form-group">
+            <label for="estudioEliminar">Selecciona un estudio para eliminar:</label>
+            <select id="estudioEliminar" name="estudioId" required>
+                <option value="" selected disabled>Selecciona un estudio</option>
+                <!-- ✅ MEJORAR: Mostrar estudios que realmente tiene asignados -->
+                <option th:each="estudio : ${todosLosEstudios}" 
+                        th:if="${estudiosActuales.contains(estudio.nombre)}"
+                        th:value="${estudio.id}"
+                        th:text="${estudio.nombre}">
+                </option>
+            </select>
+            <div th:if="${#lists.isEmpty(estudiosActuales)}" 
+                 style="color: #dc3545; font-size: 14px; margin-top: 10px;">
+                <i class="fas fa-exclamation-circle"></i>
+                No tienes estudios asignados para eliminar
+            </div>
+            <div th:unless="${#lists.isEmpty(estudiosActuales)}" 
+                 style="color: #666; font-size: 12px; margin-top: 5px;">
+                <span th:text="${estudiosActuales.size()} + ' estudio(s) asignado(s)'"></span>
+            </div>
+        </div>
+        <div class="form-buttons">
+            <button type="submit" class="form-button delete-form-button"
+                    th:disabled="${#lists.isEmpty(estudiosActuales)}">
+                <i class="fas fa-trash" style="margin-right: 8px;"></i>
+                Eliminar Estudio
+            </button>
+            <button type="button" class="form-button cancel-button" onclick="ocultarFormularios()">
+                <i class="fas fa-times" style="margin-right: 8px;"></i>
+                Cancelar
+            </button>
+        </div>
+    </form>
+</div>
 
   <script>
-    // Arrays para almacenar datos
-    let obrasSocialesUsuario = ["OSDE"];
-    let estudiosUsuario = ["Radiografía de tórax"];
-    
-    // Listas completas disponibles
-    const todasObrasSociales = ["OSDE", "Swiss Medical", "Galeno", "Omint", "Medifé"];
-    const todosEstudios = ["Radiografía de tórax", "Ecografía abdominal", "Tomografía computada", "Resonancia magnética", "Mamografía"];
-
-    // Función para mostrar notificaciones
-    function mostrarNotificacion(mensaje, tipo = 'success') {
-      const container = document.getElementById('notificationContainer');
-      const notification = document.createElement('div');
-      notification.className = `notification ${tipo}`;
-      
-      notification.innerHTML = `
-        <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-        <span>${mensaje}</span>
-      `;
-      
-      container.appendChild(notification);
-      
-      // Mostrar notificación
-      setTimeout(() => {
-        notification.classList.add('show');
-      }, 100);
-      
-      // Ocultar y eliminar notificación después de 3 segundos
-      setTimeout(() => {
-        notification.classList.add('fade-out');
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
-        }, 500);
-      }, 3000);
-    }
-
-    // Funciones para Obra Social - CORREGIDAS
-    function mostrarFormularioAgregarObraSocial() {
-      ocultarTodosFormularios();
-      document.getElementById('formularioAgregarObraSocial').classList.remove('hidden');
-      document.getElementById('formOverlay').style.display = 'block';
-    }
-
-    function mostrarFormularioEliminarObraSocial() {
-      ocultarTodosFormularios();
-      actualizarListaObrasSocialesEliminar();
-      document.getElementById('formularioEliminarObraSocial').classList.remove('hidden');
-      document.getElementById('formOverlay').style.display = 'block';
-    }
-
-    function agregarObraSocial() {
-      const select = document.getElementById('obraSocialAgregar');
-      const obraSocialSeleccionada = select.value;
-      
-      if (obraSocialSeleccionada) {
-        if (!obrasSocialesUsuario.includes(obraSocialSeleccionada)) {
-          obrasSocialesUsuario.push(obraSocialSeleccionada);
-        }
-        // Actualizar el campo principal
-        document.getElementById('obraSocial').value = obraSocialSeleccionada;
-        ocultarFormularios();
-        mostrarNotificacion('¡Obra Social guardada con éxito!', 'success');
-      } else {
-        mostrarNotificacion('Por favor, selecciona una obra social', 'error');
-      }
-    }
-
-    function eliminarObraSocial() {
-      const select = document.getElementById('obraSocialEliminar');
-      const obraSocialSeleccionada = select.value;
-      
-      if (obraSocialSeleccionada) {
-        const indice = obrasSocialesUsuario.indexOf(obraSocialSeleccionada);
-        if (indice !== -1) {
-          obrasSocialesUsuario.splice(indice, 1);
-          // Actualizar el campo principal si estamos eliminando el actual
-          if (document.getElementById('obraSocial').value === obraSocialSeleccionada) {
-            document.getElementById('obraSocial').value = obrasSocialesUsuario.length > 0 ? obrasSocialesUsuario[0] : '';
-          }
-          ocultarFormularios();
-          mostrarNotificacion('¡Obra Social eliminada con éxito!', 'success');
-        }
-      } else {
-        mostrarNotificacion('Por favor, selecciona una obra social para eliminar', 'error');
-      }
-    }
-
-    function actualizarListaObrasSocialesEliminar() {
-      const select = document.getElementById('obraSocialEliminar');
-      select.innerHTML = '';
-      
-      obrasSocialesUsuario.forEach(obraSocial => {
-        const option = document.createElement('option');
-        option.value = obraSocial;
-        option.textContent = obraSocial;
-        select.appendChild(option);
-      });
-    }
-
-    // Funciones para Estudios - CORREGIDAS
+    // Funciones para Estudios
     function mostrarFormularioAgregarEstudio() {
       ocultarTodosFormularios();
       document.getElementById('formularioAgregarEstudio').classList.remove('hidden');
@@ -305,60 +192,9 @@
 
     function mostrarFormularioEliminarEstudio() {
       ocultarTodosFormularios();
-      actualizarListaEstudiosEliminar();
       document.getElementById('formularioEliminarEstudio').classList.remove('hidden');
       document.getElementById('formOverlay').style.display = 'block';
     }
-
-    function agregarEstudio() {
-      const select = document.getElementById('estudioAgregar');
-      const estudioSeleccionado = select.value;
-      
-      if (estudioSeleccionado) {
-        if (!estudiosUsuario.includes(estudioSeleccionado)) {
-          estudiosUsuario.push(estudioSeleccionado);
-        }
-        // Actualizar el campo principal
-        document.getElementById('estudios').value = estudioSeleccionado;
-        ocultarFormularios();
-        mostrarNotificacion('¡Estudio guardado con éxito!', 'success');
-      } else {
-        mostrarNotificacion('Por favor, selecciona un estudio', 'error');
-      }
-    }
-
-    function eliminarEstudio() {
-      const select = document.getElementById('estudioEliminar');
-      const estudioSeleccionado = select.value;
-      
-      if (estudioSeleccionado) {
-        const indice = estudiosUsuario.indexOf(estudioSeleccionado);
-        if (indice !== -1) {
-          estudiosUsuario.splice(indice, 1);
-          // Actualizar el campo principal si estamos eliminando el actual
-          if (document.getElementById('estudios').value === estudioSeleccionado) {
-            document.getElementById('estudios').value = estudiosUsuario.length > 0 ? estudiosUsuario[0] : '';
-          }
-          ocultarFormularios();
-          mostrarNotificacion('¡Estudio eliminado con éxito!', 'success');
-        }
-      } else {
-        mostrarNotificacion('Por favor, selecciona un estudio para eliminar', 'error');
-      }
-    }
-
-    function actualizarListaEstudiosEliminar() {
-      const select = document.getElementById('estudioEliminar');
-      select.innerHTML = '';
-      
-      estudiosUsuario.forEach(estudio => {
-        const option = document.createElement('option');
-        option.value = estudio;
-        option.textContent = estudio;
-        select.appendChild(option);
-      });
-    }
-    
 
     // Funciones generales
     function ocultarTodosFormularios() {
@@ -372,101 +208,6 @@
     function ocultarFormularios() {
       ocultarTodosFormularios();
     }
-
-    // Código existente para edición de campos - CORREGIDO
-    document.addEventListener('DOMContentLoaded', function() {
-      const editButtons = document.querySelectorAll('.edit-icon');
-      const cancelBtn = document.getElementById('cancelBtn');
-      const saveBtn = document.getElementById('saveBtn');
-      
-      let originalValues = {};
-      let currentEditingField = null;
-      
-      function enableEditing(fieldId) {
-        if (currentEditingField && currentEditingField !== fieldId) {
-          cancelEditing();
-        }
-        
-        const field = document.getElementById(fieldId);
-        originalValues[fieldId] = field.value;
-        
-        field.removeAttribute('readonly');
-        field.classList.add('editing');
-        
-        cancelBtn.classList.remove('hidden');
-        saveBtn.classList.remove('hidden');
-        
-        currentEditingField = fieldId;
-        field.focus();
-      }
-      
-      function cancelEditing() {
-        if (currentEditingField) {
-          const field = document.getElementById(currentEditingField);
-          field.value = originalValues[currentEditingField];
-          field.setAttribute('readonly', true);
-          field.classList.remove('editing');
-          
-          cancelBtn.classList.add('hidden');
-          saveBtn.classList.add('hidden');
-          
-          currentEditingField = null;
-          originalValues = {};
-        }
-      }
-      
-      function saveChanges() {
-        if (currentEditingField) {
-          const field = document.getElementById(currentEditingField);
-          
-          if (currentEditingField === 'email') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(field.value)) {
-              mostrarNotificacion('Por favor, ingresa un email válido', 'error');
-              field.focus();
-              return;
-            }
-          }
-          
-          if (field.value.trim() === '') {
-            mostrarNotificacion('Este campo no puede estar vacío', 'error');
-            field.focus();
-            return;
-          }
-          
-          field.setAttribute('readonly', true);
-          field.classList.remove('editing');
-          
-          cancelBtn.classList.add('hidden');
-          saveBtn.classList.add('hidden');
-          
-          currentEditingField = null;
-          originalValues = {};
-          
-          mostrarNotificacion('¡Cambios guardados correctamente!', 'success');
-        }
-      }
-      
-      editButtons.forEach(button => {
-        button.addEventListener('click', function() {
-          const fieldId = this.getAttribute('data-field');
-          enableEditing(fieldId);
-        });
-      });
-      
-      cancelBtn.addEventListener('click', cancelEditing);
-      saveBtn.addEventListener('click', saveChanges);
-      
-      document.addEventListener('keydown', function(e) {
-        if (currentEditingField) {
-          if (e.key === 'Enter') {
-            saveChanges();
-          } else if (e.key === 'Escape') {
-            cancelEditing();
-          }
-        }
-      });
-    });
 
     // Código existente para el menú hamburguesa
     document.addEventListener('DOMContentLoaded', function() {
@@ -508,6 +249,14 @@
           closeMenu();
         }
       });
+
+      // Auto-ocultar mensajes después de 5 segundos
+      setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+          alert.style.display = 'none';
+        });
+      }, 5000);
     });
   </script>
 
@@ -525,22 +274,20 @@
       
       <div class="footer-section">
         <i class="fas fa-map-marker-alt"></i>
-        <span>Av. Colón 123, Bahía Blanca</span>
+        <span>Tello 337, Choele Choel, Argentina</span>
       </div>
       
       <div class="social-links">
-        <a href="https://instagram.com" target="_blank" title="Instagram">
+        <a href="https://www.instagram.com/dpi_vallemedio/" target="_blank" title="Instagram">
           <i class="fab fa-instagram"></i>
         </a>
-        <a href="https://facebook.com" target="_blank" title="Facebook">
+        <a href="https://www.facebook.com/DPIValleMedio" target="_blank" title="Facebook">
           <i class="fab fa-facebook"></i>
         </a>
-        <a href="https://wa.me/5492911234567" target="_blank" title="WhatsApp">
+        <a href="https://wa.me/0294615508112" target="_blank" title="WhatsApp">
           <i class="fab fa-whatsapp"></i>
         </a>
       </div>
-    </div>
-
     </div>
   </footer>
 </body>

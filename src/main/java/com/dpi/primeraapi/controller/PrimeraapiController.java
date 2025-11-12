@@ -163,10 +163,140 @@ public String turnoMedico(HttpSession session, Model model) {
     public String quienessomos() {
         return "quienessomos";
     }
-     @GetMapping("/perfilMedico")
-    public String perfilMedico() {
-        return "perfilMedico";
+// ========== PERFIL MÉDICO - GESTIÓN DE ESTUDIOS ==========
+
+@GetMapping("/perfilMedico")
+public String mostrarPerfilMedico(HttpSession session, Model model) {
+    try {
+        // Obtener el médico logueado
+        Usuario medicoLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (medicoLogueado == null || !"MEDICO".equals(medicoLogueado.getRol())) {
+            return "redirect:/login";
+        }
+        
+        // Obtener los estudios actuales del médico
+        List<UsuarioEstudio> estudiosMedico = usuarioEstudioRepository.findByUsuario(medicoLogueado);
+        List<String> nombresEstudios = estudiosMedico.stream()
+                .map(ue -> ue.getEstudio().getNombre())
+                .collect(Collectors.toList());
+        
+        // Obtener todos los estudios disponibles
+        List<Estudio> todosLosEstudios = estudioRepository.findByActivoTrue();
+        
+        // ✅ FILTRAR: Obtener solo los estudios que NO tiene asignados
+        List<Estudio> estudiosDisponibles = todosLosEstudios.stream()
+                .filter(estudio -> estudiosMedico.stream()
+                        .noneMatch(ue -> ue.getEstudio().getId().equals(estudio.getId())))
+                .collect(Collectors.toList());
+        
+        // Pasar datos al modelo
+        model.addAttribute("medico", medicoLogueado);
+        model.addAttribute("estudiosActuales", nombresEstudios);
+        model.addAttribute("todosLosEstudios", todosLosEstudios);
+        model.addAttribute("estudiosDisponibles", estudiosDisponibles); // ✅ NUEVO
+        
+        System.out.println("=== PERFIL MÉDICO ===");
+        System.out.println("Médico: " + medicoLogueado.getNombre() + " " + medicoLogueado.getApellido());
+        System.out.println("Estudios actuales: " + nombresEstudios.size());
+        System.out.println("Estudios disponibles para agregar: " + estudiosDisponibles.size());
+        System.out.println("Todos los estudios: " + todosLosEstudios.size());
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando perfil médico: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar el perfil: " + e.getMessage());
     }
+    
+    return "perfilMedico";
+}
+
+@PostMapping("/perfilMedico/agregarEstudio")
+public String agregarEstudioMedico(
+    @RequestParam Long estudioId,
+    HttpSession session,
+    RedirectAttributes redirectAttributes) {
+    
+    try {
+        // Obtener el médico logueado
+        Usuario medicoLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (medicoLogueado == null || !"MEDICO".equals(medicoLogueado.getRol())) {
+            return "redirect:/login";
+        }
+        
+        // Buscar el estudio
+        Optional<Estudio> estudioOpt = estudioRepository.findById(estudioId);
+        if (!estudioOpt.isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "Estudio no encontrado");
+            return "redirect:/perfilMedico";
+        }
+        
+        Estudio estudio = estudioOpt.get();
+        
+        // Verificar si ya tiene este estudio
+        boolean yaTieneEstudio = usuarioEstudioRepository.existsByUsuarioAndEstudio(medicoLogueado, estudio);
+        if (yaTieneEstudio) {
+            redirectAttributes.addFlashAttribute("error", "Ya tienes asignado este estudio: " + estudio.getNombre());
+            return "redirect:/perfilMedico";
+        }
+        
+        // Crear la relación UsuarioEstudio
+        UsuarioEstudio usuarioEstudio = new UsuarioEstudio(medicoLogueado, estudio);
+        usuarioEstudioRepository.save(usuarioEstudio);
+        
+        redirectAttributes.addFlashAttribute("success", "Estudio agregado correctamente: " + estudio.getNombre());
+        
+        System.out.println("✅ Estudio agregado al médico: " + estudio.getNombre());
+        
+    } catch (Exception e) {
+        System.out.println("Error agregando estudio al médico: " + e.getMessage());
+        redirectAttributes.addFlashAttribute("error", "Error al agregar el estudio: " + e.getMessage());
+    }
+    
+    return "redirect:/perfilMedico";
+}
+
+@PostMapping("/perfilMedico/eliminarEstudio")
+public String eliminarEstudioMedico(
+    @RequestParam Long estudioId,
+    HttpSession session,
+    RedirectAttributes redirectAttributes) {
+    
+    try {
+        // Obtener el médico logueado
+        Usuario medicoLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (medicoLogueado == null || !"MEDICO".equals(medicoLogueado.getRol())) {
+            return "redirect:/login";
+        }
+        
+        // Buscar el estudio
+        Optional<Estudio> estudioOpt = estudioRepository.findById(estudioId);
+        if (!estudioOpt.isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "Estudio no encontrado");
+            return "redirect:/perfilMedico";
+        }
+        
+        Estudio estudio = estudioOpt.get();
+        
+        // Buscar y eliminar la relación UsuarioEstudio
+        Optional<UsuarioEstudio> usuarioEstudioOpt = usuarioEstudioRepository.findByUsuarioAndEstudio(medicoLogueado, estudio);
+        
+        if (usuarioEstudioOpt.isPresent()) {
+            usuarioEstudioRepository.delete(usuarioEstudioOpt.get());
+            redirectAttributes.addFlashAttribute("success", "Estudio eliminado correctamente: " + estudio.getNombre());
+            System.out.println("✅ Estudio eliminado del médico: " + estudio.getNombre());
+        } else {
+            redirectAttributes.addFlashAttribute("error", "No tienes asignado este estudio");
+        }
+        
+    } catch (Exception e) {
+        System.out.println("Error eliminando estudio del médico: " + e.getMessage());
+        redirectAttributes.addFlashAttribute("error", "Error al eliminar el estudio: " + e.getMessage());
+    }
+    
+    return "redirect:/perfilMedico";
+}
     
 @GetMapping("/miperfil")
 public String miperfil(HttpSession session, Model model) {
@@ -1138,21 +1268,12 @@ public String mostrarHorarios(HttpSession session, Model model) {
         // Convertir la fecha seleccionada a LocalDate
         LocalDate fecha = LocalDate.parse(fechaSeleccionada);
         
-        // Obtener el día de la semana (LUNES, MARTES, etc.)
+        // ✅ USAR EL SERVICIO PARA OBTENER SOLO HORARIOS DISPONIBLES
+        List<String> horariosDisponibles = turnoService.obtenerHorariosDisponibles(medico, fecha);
+        
+        // Obtener el día de la semana para mostrar
         DayOfWeek diaSemana = fecha.getDayOfWeek();
         DiaSemana diaSemanaEnum = convertirDayOfWeekADiaSemana(diaSemana);
-        
-        // Obtener la disponibilidad del médico para ese día
-        List<DisponibilidadMedica> disponibilidad = disponibilidadRepository
-                .findByMedicoAndDiaSemanaAndActivoTrue(medico, diaSemanaEnum);
-        
-        // Generar horarios disponibles
-        List<String> horariosDisponibles = new ArrayList<>();
-        
-        if (!disponibilidad.isEmpty()) {
-            DisponibilidadMedica disp = disponibilidad.get(0); // Tomamos la primera disponibilidad
-            horariosDisponibles = generarHorariosDisponibles(disp.getHoraInicio(), disp.getHoraFin(), disp.getDuracionTurnoMinutos());
-        }
         
         // Pasar todos los datos al modelo
         model.addAttribute("paciente", paciente);
@@ -1168,7 +1289,8 @@ public String mostrarHorarios(HttpSession session, Model model) {
         System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
         System.out.println("Fecha: " + fechaSeleccionada);
         System.out.println("Día de la semana: " + diaSemanaEnum);
-        System.out.println("Horarios disponibles: " + horariosDisponibles);
+        System.out.println("Horarios disponibles: " + horariosDisponibles.size());
+        System.out.println("Horarios: " + horariosDisponibles);
         
     } catch (Exception e) {
         System.out.println("Error cargando horarios: " + e.getMessage());

@@ -20,4 +20,5 @@ public interface EstudioRepository extends JpaRepository<Estudio, Long> {
     
     @Query("SELECT e FROM Estudio e WHERE e.activo = true ORDER BY e.nombre")
     List<Estudio> findAllActiveOrdered();
+    long count();
 }
