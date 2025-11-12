@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -60,6 +61,8 @@ public class PrimeraapiController {
     private final EmailService emailService;
     @Autowired
     private DisponibilidadMedicaRepository disponibilidadRepository;
+    @Autowired
+    private Environment env;
 // CONSTRUCTOR ACTUALIZADO CON LAS NUEVAS DEPENDENCIAS
     public PrimeraapiController(UsuarioRepository usuarioRepository, 
                                 ObraSocialRepository obraSocialRepository,
@@ -1455,6 +1458,65 @@ public String mostrarConfirmacionTurno(HttpSession session, Model model) {
             return result.toString();
         } catch (Exception e) {
             return "Error: " + e.getMessage();
+        }
+    }
+    @GetMapping("/debug/email-config")
+    @ResponseBody
+    public String debugEmailConfig() {
+        try {
+            StringBuilder result = new StringBuilder();
+            result.append("=== CONFIGURACIÓN EMAIL ===<br>");
+            
+            // Obtener perfiles activos
+            String[] activeProfiles = env.getActiveProfiles();
+            result.append("Perfil activo: ").append(activeProfiles.length > 0 ? activeProfiles[0] : "default").append("<br>");
+            
+            // Obtener propiedades
+            String apiKey = env.getProperty("spring.sendgrid.api-key");
+            result.append("API Key configurada: ").append(apiKey != null).append("<br>");
+            result.append("Longitud API Key: ").append(apiKey != null ? apiKey.length() : 0).append("<br>");
+            result.append("From Email: ").append(env.getProperty("app.email.from")).append("<br>");
+            result.append("From Name: ").append(env.getProperty("app.email.from-name")).append("<br>");
+            
+            // Verificar si es una clave real
+            boolean isRealKey = apiKey != null && 
+                            apiKey.startsWith("SG.") && 
+                            apiKey.length() > 40 &&
+                            !apiKey.equals("fake-key-for-local-dev");
+            result.append("Es clave real: ").append(isRealKey).append("<br>");
+            
+            // Mostrar primeros y últimos caracteres de la API key (sin mostrar completa por seguridad)
+            if (apiKey != null && apiKey.length() > 10) {
+                String maskedKey = apiKey.substring(0, 5) + "..." + apiKey.substring(apiKey.length() - 5);
+                result.append("API Key (masked): ").append(maskedKey).append("<br>");
+            }
+            
+            return result.toString();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+    @GetMapping("/test-email")
+    @ResponseBody
+    public String testEmail() {
+        try {
+            // Test email de recuperación
+            emailService.sendPasswordResetEmail("test@example.com", "123456");
+            
+            // Test email de confirmación de turno
+            emailService.sendAppointmentConfirmation(
+                "test@example.com", 
+                "Paciente Test", 
+                "2024-01-15", 
+                "10:00", 
+                "Dr. Test", 
+                "Ecografía Test", 
+                "Estudio de prueba"
+            );
+            
+            return "✅ Emails de prueba enviados. Revisa los logs en Render para ver el resultado.";
+        } catch (Exception e) {
+            return "❌ Error enviando emails de prueba: " + e.getMessage();
         }
     }
 // ========== GESTIÓN DE ESTUDIOS ==========

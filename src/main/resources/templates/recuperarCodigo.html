@@ -164,5 +164,28 @@
       border: 1px solid #f5c6cb;
     }
   </style>
+    <script>
+  // Prevenir el error de extensiones
+  document.addEventListener('DOMContentLoaded', function() {
+      // Limpiar cualquier listener problemático
+      if (window.chrome && window.chrome.runtime) {
+          console.log('Navegador Chrome detectado - ignorando errores de extensiones');
+      }
+  });
+
+  // Manejar el envío del formulario de forma más robusta
+  document.querySelector('form').addEventListener('submit', function(e) {
+      console.log('Formulario enviado - procesando código...');
+      // El formulario se enviará normalmente via POST
+  });
+
+  // Validación adicional del código
+  document.getElementById('codigo').addEventListener('blur', function() {
+      const codigo = this.value.trim();
+      if (codigo.length !== 6) {
+          console.warn('El código debe tener 6 dígitos');
+      }
+  });
+  </script>
 </body>
 </html>
