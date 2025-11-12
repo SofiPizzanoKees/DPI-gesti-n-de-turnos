@@ -43,9 +43,16 @@ public class EmailService {
     }
     
     private boolean isRealSendGridKey() {
-        return sendGridApiKey != null && 
-               !sendGridApiKey.isEmpty() && 
-               !sendGridApiKey.equals("fake-key-for-local-dev") &&
-               sendGridApiKey.startsWith("SG.") || sendGridApiKey.startsWith("sg.");
+        if (sendGridApiKey == null || sendGridApiKey.isEmpty()) {
+            return false;
+        }
+        
+        // ✅ Buscar específicamente "SG." en mayúsculas
+        boolean isReal = sendGridApiKey.startsWith("SG.") && 
+                        sendGridApiKey.length() > 40 &&
+                        !sendGridApiKey.equals("fake-key-for-local-dev");
+        
+        logger.info("🔑 Verificando API Key - Real: {}, Longitud: {}", isReal, sendGridApiKey.length());
+        return isReal;
     }
 }
