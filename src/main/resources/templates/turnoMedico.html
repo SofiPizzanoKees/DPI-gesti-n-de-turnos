@@ -40,182 +40,89 @@
     </div>
 
   <div class="turnos-grid">
-    
-    <!-- Turno 1 -->
-    <div class="turno-card" data-turno-id="1">
-      <div class="turno-header">
-        <div class="turno-numero">
-          <i class="fas fa-calendar-check"></i>
-          Turno #1
-        </div>
-        <span class="turno-estado">Confirmado</span>
-      </div>
-      
-      <div class="turno-details">
-        <div class="detail-row">
-          <i class="fas fa-calendar-day"></i>
-          <span class="detail-label">Fecha:</span>
-          <span class="detail-value editable" contenteditable="false">
-            <input type="date" value="2025-11-15" disabled>
+    <!-- Turnos dinámicos -->
+    <div th:each="turno : ${turnos}" class="turno-card" th:attr="data-turno-id=${turno.idTurno}">
+        <div class="turno-header">
+            <div class="turno-numero">
+                <i class="fas fa-calendar-check"></i>
+                Turno #<span th:text="${turno.idTurno}"></span>
+            </div>
+          <span class="turno-estado" th:classappend="'turno-estado-' + ${turno.estado.toLowerCase()}"
+                th:text="${turno.estado}">
+              Confirmado
           </span>
         </div>
         
-        <div class="detail-row">
-          <i class="fas fa-clock"></i>
-          <span class="detail-label">Hora:</span>
-          <span class="detail-value editable" contenteditable="false">
-            <input type="time" value="09:30" disabled>
-          </span>
+        <div class="turno-details">
+            <div class="detail-row">
+                <i class="fas fa-calendar-day"></i>
+                <span class="detail-label">Fecha:</span>
+                <span class="detail-value editable" contenteditable="false">
+                    <input type="date" th:value="${#temporals.format(turno.fecha, 'yyyy-MM-dd')}" disabled>
+                </span>
+            </div>
+            
+            <div class="detail-row">
+                <i class="fas fa-clock"></i>
+                <span class="detail-label">Hora:</span>
+                <span class="detail-value editable" contenteditable="false">
+                    <input type="time" th:value="${#temporals.format(turno.hora, 'HH:mm')}" disabled>
+                </span>
+            </div>
+            
+            <div class="detail-row">
+                <i class="fas fa-user"></i>
+                <span class="detail-label">Paciente:</span>
+                <span class="detail-value" th:text="${turno.paciente.nombre + ' ' + turno.paciente.apellido}">
+                    Juan García
+                </span>
+            </div>
+            
+            <div class="detail-row">
+                <i class="fas fa-stethoscope"></i>
+                <span class="detail-label">Estudio:</span>
+                <span class="detail-value" th:text="${turno.estudio.nombre}">
+                    Radiografía de Tórax
+                </span>
+            </div>
+            
+            <div class="detail-row" th:if="${turno.codigoTurno}">
+                <i class="fas fa-barcode"></i>
+                <span class="detail-label">Código:</span>
+                <span class="detail-value" th:text="${turno.codigoTurno}">
+                    T2412151234
+                </span>
+            </div>
         </div>
         
-        <div class="detail-row">
-          <i class="fas fa-user"></i>
-          <span class="detail-label">Paciente:</span>
-          <span class="detail-value">Juan García</span>
+        <div class="turno-actions">
+            <button class="btn-accion btn-editar" th:onclick="|editarTurno(${turno.idTurno})|">
+                <i class="fas fa-edit"></i>
+                Editar
+            </button>
+            <button class="btn-accion btn-cancelar-turno" 
+                    th:onclick="|cancelarTurno(${turno.idTurno})|"
+                    th:disabled="${turno.estado == 'CANCELADO' || turno.estado == 'COMPLETADO'}">
+                <i class="fas fa-times"></i>
+                <span th:text="${turno.estado == 'CANCELADO'} ? 'Cancelado' : 'Cancelar'">Cancelar</span>
+            </button>
         </div>
-        
-        <div class="detail-row">
-          <i class="fas fa-stethoscope"></i>
-          <span class="detail-label">Estudio:</span>
-          <span class="detail-value">Radiografía de Tórax</span>
-        </div>
-      </div>
-    
-      
-      <div class="turno-actions">
-        <button class="btn-accion btn-editar" onclick="editarTurno(1)">
-          <i class="fas fa-edit"></i>
-          Editar
-        </button>
-        <button class="btn-accion btn-cancelar-turno" onclick="cancelarTurno(1)">
-          <i class="fas fa-times"></i>
-          Cancelar
-        </button>
-      </div>
     </div>
 
-    <!-- Turno 2 -->
-    <div class="turno-card" data-turno-id="2">
-      <div class="turno-header">
-        <div class="turno-numero">
-          <i class="fas fa-calendar-check"></i>
-          Turno #2
-        </div>
-        <span class="turno-estado">Confirmado</span>
-      </div>
-      
-      <div class="turno-details">
-        <div class="detail-row">
-          <i class="fas fa-calendar-day"></i>
-          <span class="detail-label">Fecha:</span>
-          <span class="detail-value editable" contenteditable="false">
-            <input type="date" value="2025-11-20" disabled>
-          </span>
-        </div>
-        
-        <div class="detail-row">
-          <i class="fas fa-clock"></i>
-          <span class="detail-label">Hora:</span>
-          <span class="detail-value editable" contenteditable="false">
-            <input type="time" value="14:00" disabled>
-          </span>
-        </div>
-        
-        <div class="detail-row">
-          <i class="fas fa-user"></i>
-          <span class="detail-label">Paciente:</span>
-          <span class="detail-value">María López</span>
-        </div>
-        
-        <div class="detail-row">
-          <i class="fas fa-stethoscope"></i>
-          <span class="detail-label">Estudio:</span>
-          <span class="detail-value">Ecografía Abdominal</span>
-        </div>
-      </div>
-     
-      
-      <div class="turno-actions">
-        <button class="btn-accion btn-editar" onclick="editarTurno(2)">
-          <i class="fas fa-edit"></i>
-          Editar
-        </button>
-        <button class="btn-accion btn-cancelar-turno" onclick="cancelarTurno(2)">
-          <i class="fas fa-times"></i>
-          Cancelar
-        </button>
-      </div>
+    <!-- Mensaje cuando no hay turnos -->
+    <div th:if="${#lists.isEmpty(turnos)}" class="no-turnos">
+        <i class="fas fa-calendar-times"></i>
+        <h3>No hay turnos asignados</h3>
+        <p>No tienes turnos programados para mostrar.</p>
     </div>
-
-    <!-- Turno 3 -->
-    <div class="turno-card" data-turno-id="3">
-      <div class="turno-header">
-        <div class="turno-numero">
-          <i class="fas fa-calendar-check"></i>
-          Turno #3
-        </div>
-        <span class="turno-estado">Confirmado</span>
-      </div>
-      
-      <div class="turno-details">
-        <div class="detail-row">
-          <i class="fas fa-calendar-day"></i>
-          <span class="detail-label">Fecha:</span>
-          <span class="detail-value editable" contenteditable="false">
-            <input type="date" value="2025-11-25" disabled>
-          </span>
-        </div>
-        
-        <div class="detail-row">
-          <i class="fas fa-clock"></i>
-          <span class="detail-label">Hora:</span>
-          <span class="detail-value editable" contenteditable="false">
-            <input type="time" value="11:15" disabled>
-          </span>
-        </div>
-        
-        <div class="detail-row">
-          <i class="fas fa-user"></i>
-          <span class="detail-label">Paciente:</span>
-          <span class="detail-value">Carlos Fernández</span>
-        </div>
-        
-        <div class="detail-row">
-          <i class="fas fa-stethoscope"></i>
-          <span class="detail-label">Estudio:</span>
-          <span class="detail-value">Tomografía Computada</span>
-        </div>
-      </div>
-      
-      
-      <div class="turno-actions">
-        <button class="btn-accion btn-editar" onclick="editarTurno(3)">
-          <i class="fas fa-edit"></i>
-          Editar
-        </button>
-        <button class="btn-accion btn-cancelar-turno" onclick="cancelarTurno(3)">
-          <i class="fas fa-times"></i>
-          Cancelar
-        </button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Botones de acción finales -->
-  <div class="acciones-finales">
-    <button type="button" class="btn" onclick="window.location.href='login'">
-      <i class="fas fa-arrow-left"></i>
-      Volver
-    </button>
-    <button type="button" class="btn-guardar-cambios" id="btnGuardarCambios" disabled onclick="guardarCambios()">
-      <i class="fas fa-save"></i>
-      Guardar Cambios
-    </button>
-  </div>
-
 </div>
-
+  <div style="margin-top: 20px;">
+      <button type="button" class="btn" onclick="history.back()"
+              style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+          <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+          Volver
+      </button>
+  </div>
   <footer>
     <div class="footer-content">
       <div class="footer-section">
@@ -405,6 +312,106 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// Función para editar turno
+function editarTurno(turnoId) {
+    const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
+    
+    // Verificar si el turno está cancelado o completado
+    const estado = card.querySelector('.turno-estado').textContent;
+    if (estado === 'CANCELADO' || estado === 'COMPLETADO') {
+        alert('No se puede editar un turno ' + estado.toLowerCase());
+        return;
+    }
+    
+    const inputs = card.querySelectorAll('input[type="date"], input[type="time"]');
+    const btnEditar = card.querySelector('.btn-editar');
+    
+    // Resto del código de edición permanece igual...
+    const estaEditando = !inputs[0].disabled;
+    
+    if (estaEditando) {
+        // Guardar cambios individuales
+        inputs.forEach(input => {
+            input.disabled = true;
+            input.parentElement.style.background = 'transparent';
+            input.parentElement.style.border = 'none';
+        });
+        btnEditar.innerHTML = '<i class="fas fa-edit"></i> Editar';
+        card.classList.remove('modificado');
+        
+        // Marcar como modificado
+        turnosModificados.add(turnoId);
+        habilitarGuardado();
+    } else {
+        // Habilitar edición
+        inputs.forEach(input => {
+            input.disabled = false;
+            input.parentElement.style.background = 'white';
+            input.parentElement.style.border = '2px solid #3498db';
+        });
+        btnEditar.innerHTML = '<i class="fas fa-check"></i> Confirmar';
+        card.classList.add('modificado');
+    }
+}
+
+// Función para cancelar turno
+function cancelarTurno(turnoId) {
+    const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
+    const estado = card.querySelector('.turno-estado').textContent;
+    
+    if (estado === 'CANCELADO') {
+        alert('Este turno ya está cancelado');
+        return;
+    }
+    
+    if (estado === 'COMPLETADO') {
+        alert('No se puede cancelar un turno completado');
+        return;
+    }
+    
+    if (confirm('¿Está seguro que desea cancelar este turno?')) {
+        // Aquí iría la llamada AJAX para cancelar en el backend
+        cancelarTurnoBackend(turnoId);
+    }
+}
+
+// Función para cancelar turno en el backend
+function cancelarTurnoBackend(turnoId) {
+    // Simular llamada AJAX - reemplazar con tu implementación real
+    fetch(`/api/turnos/${turnoId}/cancelar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
+            card.style.opacity = '0.7';
+            
+            const estado = card.querySelector('.turno-estado');
+            estado.textContent = 'CANCELADO';
+            estado.className = 'turno-estado cancelado';
+            
+            const btnCancelar = card.querySelector('.btn-cancelar-turno');
+            btnCancelar.disabled = true;
+            btnCancelar.innerHTML = '<i class="fas fa-times"></i> Cancelado';
+            
+            turnosModificados.add(turnoId);
+            habilitarGuardado();
+            
+            alert('Turno cancelado exitosamente');
+        } else {
+            alert('Error al cancelar el turno: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al cancelar el turno');
+    });
+}
   </script>
 </body>
 </html>

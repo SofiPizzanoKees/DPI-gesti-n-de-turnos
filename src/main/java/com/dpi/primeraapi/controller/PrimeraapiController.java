@@ -39,6 +39,7 @@ import com.dpi.primeraapi.repository.ObraSocialRepository;
 import com.dpi.primeraapi.repository.UsuarioEstudioRepository;
 import com.dpi.primeraapi.repository.UsuarioObraSocialRepository;
 import com.dpi.primeraapi.repository.UsuarioRepository;
+import com.dpi.primeraapi.service.EmailService;
 import com.dpi.primeraapi.service.PasswordEncoderService;
 import com.dpi.primeraapi.service.TurnoService;
 
@@ -56,6 +57,7 @@ public class PrimeraapiController {
     private final DisponibilidadMedicaRepository disponibilidadMedicaRepository;
     private final EstudioRepository estudioRepository;
     private final UsuarioEstudioRepository usuarioEstudioRepository;
+    private final EmailService emailService;
     @Autowired
     private DisponibilidadMedicaRepository disponibilidadRepository;
 // CONSTRUCTOR ACTUALIZADO CON LAS NUEVAS DEPENDENCIAS
@@ -68,7 +70,8 @@ public class PrimeraapiController {
                                 BloqueoHorarioRepository bloqueoHorarioRepository,
                                 EstudioRepository estudioRepository,                    // NUEVO
                                 UsuarioEstudioRepository usuarioEstudioRepository,
-                                TurnoService turnoService) {    // NUEVO
+                                TurnoService turnoService,
+                                EmailService emailService) {    // NUEVO
         this.usuarioRepository = usuarioRepository;
         this.obraSocialRepository = obraSocialRepository;
         this.usuarioObraSocialRepository = usuarioObraSocialRepository;
@@ -77,6 +80,7 @@ public class PrimeraapiController {
         this.estudioRepository = estudioRepository;
         this.usuarioEstudioRepository = usuarioEstudioRepository;
         this.turnoService = turnoService;
+        this.emailService = emailService;
     }
 
     // ========== PÁGINAS BÁSICAS ==========
@@ -112,10 +116,49 @@ public class PrimeraapiController {
     public String especialistas() {
         return "especialistas";
     }
-    @GetMapping("/turnoMedico")
-    public String turnoMedico() {
-        return "turnoMedico";
+@GetMapping("/turnoMedico")
+public String turnoMedico(HttpSession session, Model model) {
+    try {
+        // Obtener el médico logueado de la sesión
+        Usuario medicoLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (medicoLogueado == null) {
+            return "redirect:/login";
+        }
+        
+        // Verificar que sea un médico
+        if (!"MEDICO".equals(medicoLogueado.getRol())) {
+            return "redirect:/menu";
+        }
+        
+        // Obtener los turnos del médico
+        List<Turno> turnos = turnoService.obtenerTurnosPorMedico(medicoLogueado);
+        
+        // Filtrar solo turnos futuros o del día actual
+        LocalDate hoy = LocalDate.now();
+        List<Turno> turnosFuturos = turnos.stream()
+            .filter(turno -> !turno.getFecha().isBefore(hoy))
+            .sorted((t1, t2) -> {
+                int fechaCompare = t1.getFecha().compareTo(t2.getFecha());
+                if (fechaCompare != 0) return fechaCompare;
+                return t1.getHora().compareTo(t2.getHora());
+            })
+            .collect(Collectors.toList());
+        
+        model.addAttribute("turnos", turnosFuturos);
+        model.addAttribute("medico", medicoLogueado);
+        
+        System.out.println("=== TURNOS DEL MÉDICO ===");
+        System.out.println("Médico: " + medicoLogueado.getNombre() + " " + medicoLogueado.getApellido());
+        System.out.println("Cantidad de turnos: " + turnosFuturos.size());
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando turnos del médico: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar los turnos: " + e.getMessage());
     }
+    
+    return "turnoMedico";
+}
     @GetMapping("/quienessomos")
     public String quienessomos() {
         return "quienessomos";
@@ -466,32 +509,59 @@ public String iniciarTurno(HttpSession session) {
 }
     // ========== RECUPERACIÓN DE CONTRASEÑA ==========
 
-    @PostMapping("/recuperarCodigo")
-    public String procesarRecuperacion(@RequestParam String email, 
-                                    HttpSession session,
-                                    RedirectAttributes redirectAttributes) {
+@PostMapping("/recuperarCodigo")
+public String procesarRecuperacion(@RequestParam String email, 
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
+    
+    // Validar formato de email básico
+    if (email == null || email.isBlank() || !email.contains("@")) {
+        redirectAttributes.addFlashAttribute("error", "Por favor, ingrese un email válido");
+        return "redirect:/recuperar";
+    }
+    
+    // Verificar si el email existe en la base de datos
+    Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
+    if (!usuarioOpt.isPresent()) {
+        redirectAttributes.addFlashAttribute("error", "No se encontró una cuenta asociada a ese email. Por favor, verifique el email ingresado.");
+        return "redirect:/recuperar";
+    }
+    
+    try {
+        // Generar código real de 6 dígitos
+        String codigoRecuperacion = generarCodigoRecuperacion();
         
-        // Validar formato de email básico
-        if (email == null || email.isBlank() || !email.contains("@")) {
-            redirectAttributes.addFlashAttribute("error", "Por favor, ingrese un email válido");
-            return "redirect:/recuperar";
-        }
+        // Enviar email con SendGrid
+        emailService.sendPasswordResetEmail(email, codigoRecuperacion);
         
-        // Verificar si el email existe en la base de datos
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
-        if (!usuarioOpt.isPresent()) {
-            redirectAttributes.addFlashAttribute("error", "No se encontró una cuenta asociada a ese email. Por favor, verifique el email ingresado.");
-            return "redirect:/recuperar";
-        }
-        
-        // Aquí normalmente enviarías un código real por email
-        // Por ahora, guardamos el código "0000" en sesión
-        session.setAttribute("codigoRecuperacion", "0000");
+        // Guardar en sesión
+        session.setAttribute("codigoRecuperacion", codigoRecuperacion);
         session.setAttribute("emailRecuperacion", email);
         
-        // Redirigir a la página de verificación de código
-        return "redirect:/recuperarCodigo?email=" + email;
+        redirectAttributes.addFlashAttribute("success", "Se ha enviado un código de recuperación a su email");
+        
+    } catch (Exception e) {
+        System.out.println("Error enviando email: " + e.getMessage());
+        // Fallback: usar código temporal y mostrar en consola
+        String codigoTemporal = "000000";
+        session.setAttribute("codigoRecuperacion", codigoTemporal);
+        session.setAttribute("emailRecuperacion", email);
+        
+        System.out.println("=== CÓDIGO DE RECUPERACIÓN (Fallback) ===");
+        System.out.println("Para: " + email);
+        System.out.println("Código: " + codigoTemporal);
+        System.out.println("=========================================");
+        
+        redirectAttributes.addFlashAttribute("info", "Servicio de email temporalmente no disponible. Use el código: 000000");
     }
+    
+    return "redirect:/recuperarCodigo?email=" + email;
+}
+
+// Método para generar código de 6 dígitos
+private String generarCodigoRecuperacion() {
+    return String.valueOf((int) ((Math.random() * 900000) + 100000));
+}
     @GetMapping("/recuperarCodigo")
     public String mostrarRecuperarCodigo(@RequestParam String email, Model model) {
         model.addAttribute("email", email);
@@ -1160,6 +1230,7 @@ public String confirmarHorario(@RequestParam String fechaSeleccionada,
         System.out.println("=== CREANDO TURNO ===");
         System.out.println("Paciente: " + paciente.getNombre() + " " + paciente.getApellido());
         System.out.println("Estudio: " + estudio.getNombre());
+        System.out.println("Descripción: " + estudio.getDescripcion());
         System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
         System.out.println("Fecha: " + fecha);
         System.out.println("Horario: " + hora);
@@ -1169,6 +1240,23 @@ public String confirmarHorario(@RequestParam String fechaSeleccionada,
         
         System.out.println("✅ Turno guardado exitosamente. ID: " + turnoGuardado.getIdTurno());
         System.out.println("Código de turno: " + turnoGuardado.getCodigoTurno());
+        
+        // ENVIAR EMAIL DE CONFIRMACIÓN CON ESTUDIO Y DESCRIPCIÓN
+        try {
+            emailService.sendAppointmentConfirmation(
+                paciente.getEmail(),
+                paciente.getNombre() + " " + paciente.getApellido(),
+                fecha.toString(),
+                hora.toString(),
+                medico.getNombre() + " " + medico.getApellido(),
+                estudio.getNombre(),
+                estudio.getDescripcion()  // ← NUEVO PARÁMETRO
+            );
+            System.out.println("✅ Email de confirmación enviado a: " + paciente.getEmail());
+        } catch (Exception e) {
+            System.out.println("⚠️  Email no enviado, pero turno creado. Error: " + e.getMessage());
+            // No falla el proceso si el email no se envía
+        }
         
         // Guardar el turno creado en sesión para mostrar en confirmación
         session.setAttribute("turnoCreado", turnoGuardado);

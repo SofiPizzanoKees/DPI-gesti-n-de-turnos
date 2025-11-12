@@ -58,4 +58,7 @@ public class TurnoService {
     public Turno obtenerTurnoPorCodigo(String codigoTurno) {
         return turnoRepository.findByCodigoTurno(codigoTurno);
     }
+    public List<Turno> obtenerTurnosPorMedico(Usuario medico) {
+    return turnoRepository.findByMedico(medico);
+}
 }
