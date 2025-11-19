@@ -1360,6 +1360,108 @@ private String generarCodigoRecuperacion() {
         
         return "redirect:/horarioMedico";
     }
+        // ========== CALENDARIO MÉDICO - SELECCIÓN DE DÍA ==========
+
+    @GetMapping("/calendarioMedico")
+    public String mostrarCalendarioMedico(HttpSession session, Model model) {
+        try {
+            // Obtener el médico logueado
+            Usuario medicoLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+            
+            if (medicoLogueado == null || !"MEDICO".equals(medicoLogueado.getRol())) {
+                return "redirect:/login";
+            }
+            
+            // Obtener la disponibilidad del médico para mostrar días disponibles
+            List<DisponibilidadMedica> disponibilidad = disponibilidadMedicaRepository.findByMedicoAndActivoTrue(medicoLogueado);
+            
+            // Obtener días con turnos futuros
+            LocalDate hoy = LocalDate.now();
+            List<Turno> turnosFuturos = turnoService.obtenerTurnosPorMedico(medicoLogueado).stream()
+                .filter(turno -> !turno.getFecha().isBefore(hoy) && !"CANCELADO".equals(turno.getEstado()))
+                .collect(Collectors.toList());
+            
+            // Extraer fechas únicas con turnos
+            List<LocalDate> fechasConTurnos = turnosFuturos.stream()
+                .map(Turno::getFecha)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+            
+            model.addAttribute("medico", medicoLogueado);
+            model.addAttribute("disponibilidad", disponibilidad);
+            model.addAttribute("fechasConTurnos", fechasConTurnos);
+            model.addAttribute("hoy", hoy);
+            
+            System.out.println("=== CALENDARIO MÉDICO ===");
+            System.out.println("Médico: " + medicoLogueado.getNombre() + " " + medicoLogueado.getApellido());
+            System.out.println("Días con disponibilidad: " + disponibilidad.size());
+            System.out.println("Fechas con turnos: " + fechasConTurnos.size());
+            
+        } catch (Exception e) {
+            System.out.println("Error cargando calendario médico: " + e.getMessage());
+            model.addAttribute("error", "Error al cargar el calendario: " + e.getMessage());
+        }
+        
+        return "calendarioMedico";
+    }
+    // ========== TURNOS DEL DÍA SELECCIONADO ==========
+
+@GetMapping("/turnosDelDia")
+public String mostrarTurnosDelDia(
+    @RequestParam String fecha,
+    HttpSession session,
+    Model model) {
+    
+    try {
+        // Obtener el médico logueado
+        Usuario medicoLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (medicoLogueado == null || !"MEDICO".equals(medicoLogueado.getRol())) {
+            return "redirect:/login";
+        }
+        
+        // Convertir la fecha
+        LocalDate fechaSeleccionada = LocalDate.parse(fecha);
+        
+        // Obtener turnos del médico para la fecha seleccionada
+        List<Turno> turnosDelDia = turnoRepository.findByMedicoAndFecha(medicoLogueado, fechaSeleccionada)
+            .stream()
+            .filter(turno -> !"CANCELADO".equals(turno.getEstado()))
+            .sorted((t1, t2) -> t1.getHora().compareTo(t2.getHora())) // Ordenar por hora ascendente
+            .collect(Collectors.toList());
+        
+        // Calcular estadísticas
+        long totalTurnos = turnosDelDia.size();
+        long turnosConfirmados = turnosDelDia.stream()
+            .filter(t -> "CONFIRMADO".equals(t.getEstado()))
+            .count();
+        long turnosCompletados = turnosDelDia.stream()
+            .filter(t -> "COMPLETADO".equals(t.getEstado()))
+            .count();
+        
+        model.addAttribute("medico", medicoLogueado);
+        model.addAttribute("turnos", turnosDelDia);
+        model.addAttribute("fechaSeleccionada", fechaSeleccionada);
+        model.addAttribute("totalTurnos", totalTurnos);
+        model.addAttribute("turnosConfirmados", turnosConfirmados);
+        model.addAttribute("turnosCompletados", turnosCompletados);
+        
+        System.out.println("=== TURNOS DEL DÍA ===");
+        System.out.println("Médico: " + medicoLogueado.getNombre() + " " + medicoLogueado.getApellido());
+        System.out.println("Fecha: " + fechaSeleccionada);
+        System.out.println("Total de turnos: " + totalTurnos);
+        System.out.println("Turnos confirmados: " + turnosConfirmados);
+        System.out.println("Turnos completados: " + turnosCompletados);
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando turnos del día: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar los turnos: " + e.getMessage());
+        return "redirect:/calendarioMedico";
+    }
+    
+    return "turnosDelDia";
+}
     /**
      * Verifica y procesa los turnos afectados por cambios en la disponibilidad
      */
@@ -1559,6 +1661,224 @@ private String generarCodigoRecuperacion() {
         
         return "estudio";
     }
+    // ========== SELECCIÓN DE MÉDICO PARA SECRETARÍA ==========
+
+    @GetMapping("/seleccionarMedicoTurnos")
+    public String mostrarSeleccionMedicoTurnos(Model model) {
+        try {
+            // Cargar lista de médicos activos
+            List<Usuario> medicos = usuarioRepository.findByRolAndEstado("MEDICO", true);
+            model.addAttribute("medicos", medicos);
+            
+            System.out.println("Médicos cargados para secretaría: " + medicos.size());
+            
+        } catch (Exception e) {
+            System.out.println("Error cargando médicos para secretaría: " + e.getMessage());
+            model.addAttribute("medicos", new ArrayList<>());
+        }
+        
+        return "seleccionarMedicoTurnos";
+    }
+
+    @PostMapping("/seleccionarMedicoTurnos")
+    public String procesarSeleccionMedicoTurnos(
+        @RequestParam Long medicoId,
+        HttpSession session,
+        RedirectAttributes redirectAttributes) {
+        
+        try {
+            System.out.println("Secretaría seleccionando médico ID: " + medicoId);
+            
+            Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
+            if (!medicoOpt.isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "Médico no encontrado");
+                return "redirect:/seleccionarMedicoTurnos";
+            }
+            
+            Usuario medico = medicoOpt.get();
+            
+            // Guardar el médico seleccionado en la sesión
+            session.setAttribute("medicoSeleccionado", medico);
+            
+            System.out.println("Médico seleccionado por secretaría: " + medico.getNombre() + " " + medico.getApellido());
+            
+            return "redirect:/calendarioSecretaria";
+            
+        } catch (Exception e) {
+            System.out.println("Error seleccionando médico: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error al seleccionar el médico: " + e.getMessage());
+            return "redirect:/seleccionarMedicoTurnos";
+        }
+    }
+
+// ========== CALENDARIO SECRETARÍA ==========
+
+@GetMapping("/calendarioSecretaria")
+public String mostrarCalendarioSecretaria(HttpSession session, Model model) {
+    try {
+        // Obtener el médico seleccionado de la sesión
+        Usuario medicoSeleccionado = (Usuario) session.getAttribute("medicoSeleccionado");
+        
+        if (medicoSeleccionado == null) {
+            return "redirect:/seleccionarMedicoTurnos";
+        }
+        
+        // Obtener la disponibilidad del médico
+        List<DisponibilidadMedica> disponibilidad = disponibilidadMedicaRepository.findByMedicoAndActivoTrue(medicoSeleccionado);
+        
+        // Obtener días con turnos futuros
+        LocalDate hoy = LocalDate.now();
+        List<Turno> turnosFuturos = turnoService.obtenerTurnosPorMedico(medicoSeleccionado).stream()
+            .filter(turno -> !turno.getFecha().isBefore(hoy) && !"CANCELADO".equals(turno.getEstado()))
+            .collect(Collectors.toList());
+        
+        // Extraer fechas únicas con turnos
+        List<LocalDate> fechasConTurnos = turnosFuturos.stream()
+            .map(Turno::getFecha)
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+        
+        model.addAttribute("medico", medicoSeleccionado);
+        model.addAttribute("disponibilidad", disponibilidad);
+        model.addAttribute("fechasConTurnos", fechasConTurnos);
+        model.addAttribute("hoy", hoy);
+        
+        System.out.println("=== CALENDARIO SECRETARÍA ===");
+        System.out.println("Médico: " + medicoSeleccionado.getNombre() + " " + medicoSeleccionado.getApellido());
+        System.out.println("Fechas con turnos: " + fechasConTurnos.size());
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando calendario secretaría: " + e.getMessage());
+        model.addAttribute("error", "Error al cargar el calendario: " + e.getMessage());
+        return "redirect:/seleccionarMedicoTurnos";
+    }
+    
+    return "calendarioSecretaria";
+}
+// ========== TURNOS DEL DÍA - SECRETARÍA ==========
+
+@GetMapping("/turnosDelDiaSecretaria")
+public String mostrarTurnosDelDiaSecretaria(
+    @RequestParam String fecha,
+    @RequestParam Long medicoId,
+    HttpSession session,
+    Model model) {
+    
+    try {
+        // Obtener el médico
+        Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
+        if (!medicoOpt.isPresent()) {
+            model.addAttribute("error", "Médico no encontrado");
+            return "redirect:/seleccionarMedicoTurnos";
+        }
+        
+        Usuario medico = medicoOpt.get();
+        LocalDate fechaSeleccionada = LocalDate.parse(fecha);
+        
+        // Obtener turnos del médico para la fecha seleccionada
+        List<Turno> turnosDelDia = turnoRepository.findByMedicoAndFecha(medico, fechaSeleccionada)
+            .stream()
+            .filter(turno -> !"CANCELADO".equals(turno.getEstado()))
+            .sorted((t1, t2) -> t1.getHora().compareTo(t2.getHora()))
+            .collect(Collectors.toList());
+        
+        // Calcular estadísticas
+        long totalTurnos = turnosDelDia.size();
+        long turnosConfirmados = turnosDelDia.stream()
+            .filter(t -> "CONFIRMADO".equals(t.getEstado()))
+            .count();
+        
+        model.addAttribute("medico", medico);
+        model.addAttribute("turnos", turnosDelDia);
+        model.addAttribute("fechaSeleccionada", fechaSeleccionada);
+        model.addAttribute("totalTurnos", totalTurnos);
+        model.addAttribute("turnosConfirmados", turnosConfirmados);
+        
+        System.out.println("=== TURNOS DEL DÍA - SECRETARÍA ===");
+        System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
+        System.out.println("Fecha: " + fechaSeleccionada);
+        System.out.println("Total de turnos: " + totalTurnos);
+        
+    } catch (Exception e) {
+        System.out.println("Error cargando turnos del día (secretaría): " + e.getMessage());
+        model.addAttribute("error", "Error al cargar los turnos: " + e.getMessage());
+        return "redirect:/calendarioSecretaria";
+    }
+    
+    return "turnosDelDiaSecretaria";
+}
+// ========== CANCELACIÓN DE TURNOS POR SECRETARÍA ==========
+
+@PostMapping("/cancelarTurnoSecretaria")
+public String cancelarTurnoSecretaria(
+    @RequestParam Long turnoId,
+    HttpSession session,
+    RedirectAttributes redirectAttributes) {
+    
+    try {
+        System.out.println("Secretaría cancelando turno ID: " + turnoId);
+        
+        // Verificar que el usuario es secretaría
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (usuarioLogueado == null || !"SECRETARIO".equals(usuarioLogueado.getRol())) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos para realizar esta acción");
+            return "redirect:/seleccionarMedicoTurnos";
+        }
+        
+        // Buscar el turno
+        Optional<Turno> turnoOpt = turnoRepository.findById(turnoId);
+        if (!turnoOpt.isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "Turno no encontrado");
+            return "redirect:/seleccionarMedicoTurnos";
+        }
+        
+        Turno turno = turnoOpt.get();
+        
+        // Verificar que el turno no esté ya cancelado o completado
+        if ("CANCELADO".equals(turno.getEstado())) {
+            redirectAttributes.addFlashAttribute("error", "Este turno ya está cancelado");
+            return "redirect:/turnosDelDiaSecretaria?fecha=" + turno.getFecha() + "&medicoId=" + turno.getMedico().getId();
+        }
+        
+        if ("COMPLETADO".equals(turno.getEstado())) {
+            redirectAttributes.addFlashAttribute("error", "No se puede cancelar un turno completado");
+            return "redirect:/turnosDelDiaSecretaria?fecha=" + turno.getFecha() + "&medicoId=" + turno.getMedico().getId();
+        }
+        
+        // Cambiar estado a CANCELADO
+        turno.setEstado("CANCELADO");
+        turnoService.guardarTurno(turno);
+        
+        // Enviar email de cancelación al paciente
+        try {
+            emailService.sendAppointmentCancellation(
+                turno.getPaciente().getEmail(),
+                turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido(),
+                turno.getFecha().toString(),
+                turno.getHora().toString(),
+                turno.getMedico().getNombre() + " " + turno.getMedico().getApellido(),
+                turno.getEstudio().getNombre()
+            );
+            System.out.println("✅ Email de cancelación enviado al paciente");
+        } catch (Exception e) {
+            System.out.println("⚠️ Email de cancelación no enviado: " + e.getMessage());
+            // No fallar el proceso si el email no se envía
+        }
+        
+        redirectAttributes.addFlashAttribute("success", "Turno cancelado correctamente y notificación enviada al paciente");
+        System.out.println("✅ Turno cancelado por secretaría: " + turnoId);
+        
+        // Redirigir de vuelta a la página de turnos del día
+        return "redirect:/turnosDelDiaSecretaria?fecha=" + turno.getFecha() + "&medicoId=" + turno.getMedico().getId();
+        
+    } catch (Exception e) {
+        System.out.println("❌ Error cancelando turno: " + e.getMessage());
+        redirectAttributes.addFlashAttribute("error", "Error al cancelar el turno: " + e.getMessage());
+        return "redirect:/seleccionarMedicoTurnos";
+    }
+}
     // ========== ENDPOINTS API PARA FILTRADO DINÁMICO ==========
 
     @GetMapping("/api/medicos-por-estudio/{estudioId}")

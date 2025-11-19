@@ -3575,3 +3575,402 @@ body.menu-open {
 .hidden {
     display: none !important;
 }
+/* Estilos para el calendario médico */
+.calendario-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.fecha-selector {
+    margin-bottom: 20px;
+}
+
+.date-input {
+    padding: 10px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.fechas-disponibles {
+    margin-top: 20px;
+}
+
+.fechas-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.fecha-item {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.fecha-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.fecha-link:hover {
+    color: #00c2a8;
+}
+
+.dia-semana {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.disponibilidad-info {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.dias-disponibles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.dia-disponible {
+    background: #e8f5e8;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.dia-nombre {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.horario {
+    color: #27ae60;
+}
+
+/* Estilos para turnos del día */
+.dia-header {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.estadisticas-turnos {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 15px;
+}
+
+.estadistica-item {
+    text-align: center;
+    padding: 10px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    min-width: 80px;
+}
+
+.estadistica-item.confirmados {
+    background: #e8f5e8;
+    border-left: 4px solid #27ae60;
+}
+
+.estadistica-item.completados {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+}
+
+.estadistica-numero {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.estadistica-label {
+    font-size: 12px;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.medico-info-small {
+    background: #f0f8ff;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.turnos-del-dia {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.turno-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #00c2a8;
+}
+
+.turno-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.turno-hora {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.turno-estado {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.turno-estado-confirmado {
+    background: #e8f5e8;
+    color: #27ae60;
+}
+
+.turno-estado-completado {
+    background: #e3f2fd;
+    color: #2196f3;
+}
+
+.turno-estado-cancelado {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.turno-details {
+    margin-bottom: 15px;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #2c3e50;
+    min-width: 80px;
+}
+
+.detail-value {
+    color: #6c757d;
+}
+
+.turno-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-completar {
+    background: linear-gradient(135deg, #27ae60 0%, #219653 100%);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-completar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.navegacion-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+/* Estilos para selección de médico */
+.formulario-medico {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.medico-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: white;
+}
+
+.medicos-lista {
+    margin-top: 20px;
+}
+
+.medicos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.medico-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #9b59b6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.medico-info h6 {
+    margin: 0 0 5px 0;
+    color: #2c3e50;
+}
+
+.especialidad {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0 0 5px 0;
+}
+
+.matricula {
+    color: #95a5a6;
+    font-size: 12px;
+    margin: 0;
+}
+
+.btn-seleccionar {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-seleccionar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+}
+
+/* Estilos específicos para secretaría */
+.info-secretaria {
+    background: #f0f8ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3498db;
+}
+
+.medico-info-secretaria {
+    background: #e8f5e8;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #27ae60;
+}
+/* Estilos específicos para turnos de secretaría */
+.btn-cancelar-turno-secretaria {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar-turno-secretaria:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-cancelar-turno-secretaria:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+}
+
+.btn-whatsapp {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-whatsapp:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.turno-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Mejoras visuales para la información del paciente */
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 4px 0;
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #2c3e50;
+    min-width: 100px;
+}
+
+.detail-value {
+    color: #6c757d;
+    flex: 1;
+}

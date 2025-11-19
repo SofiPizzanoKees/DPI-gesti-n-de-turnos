@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleccionar Médico - Turnos</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- Barra superior con menú hamburguesa -->
+  <header class="top-bar">
+    <p class="registrarse"></p>
+    <div class="menu-icon" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+
+   <!-- Menú lateral -->
+  <aside id="sideMenu" class="side-menu">
+  <nav class="menu-nav">
+      <a href="login" class="menu-link">Inicio</a>
+      <a href="miperfil" class="menu-link">Mi Perfil</a>
+      <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
+      <a href="especialistas" class="menu-link">Especialistas</a>
+    </nav>
+  </aside>
+
+  <!-- Overlay para cerrar menú al hacer click fuera -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Contenedor principal -->
+  <div class="container-horario">
+
+    <!-- Logo -->
+    <div class="logo">
+      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
+    </div>
+
+    <h3 class="title">Seleccionar Médico</h3>
+    
+    <div class="info-secretaria" style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4><i class="fas fa-user-secret"></i> Panel de Secretaría</h4>
+        <p>Seleccione un médico para ver y gestionar sus turnos</p>
+    </div>
+
+    <!-- Mensajes -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- Formulario de selección de médico -->
+    <form th:action="@{/seleccionarMedicoTurnos}" method="post" class="formulario-medico">
+        <div class="select-wrapper">
+            <label for="medicoId"><strong>Médico:</strong></label>
+            <select id="medicoId" name="medicoId" required class="medico-select">
+                <option value="">Seleccione un médico</option>
+                <option th:each="medico : ${medicos}" 
+                        th:value="${medico.id}"
+                        th:text="${medico.apellido + ', ' + medico.nombre + ' - ' + medico.especialidad}">
+                </option>
+            </select>
+        </div>
+        
+        <div class="form-buttons">
+            <button type="submit" class="btn btn-confirmar">
+                <i class="fas fa-arrow-right"></i> Continuar al Calendario
+            </button>
+        </div>
+    </form>
+
+    <!-- Lista de médicos disponibles -->
+    <div th:if="${not #lists.isEmpty(medicos)}" class="medicos-lista">
+        <h5><i class="fas fa-user-md"></i> Médicos Disponibles:</h5>
+        <div class="medicos-grid">
+            <div th:each="medico : ${medicos}" class="medico-card">
+                <div class="medico-info">
+                    <h6 th:text="${medico.nombre + ' ' + medico.apellido}"></h6>
+                    <p class="especialidad" th:text="${medico.especialidad}"></p>
+                    <p class="matricula" th:text="'Mat. ' + ${medico.matriculaNacional}"></p>
+                </div>
+                <a th:href="@{/seleccionarMedicoTurnos(medicoId=${medico.id})}" 
+                   class="btn-seleccionar">
+                    <i class="fas fa-calendar-alt"></i>
+                    Ver Turnos
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a th:href="@{/menuSecretaria}" class="btn" 
+           style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+            <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+            Volver al Menú
+        </a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <i class="fas fa-mobile-alt"></i>
+        <span>+54 9 291 123-4567</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-envelope"></i>
+        <span>info@centroimagen.com</span>
+      </div>
+      
+      <div class="footer-section">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Tello 337, Choele Choel, Argentina</span>
+      </div>
+      
+      <div class="social-links">
+        <a href="https://www.instagram.com/dpi_vallemedio/" target="_blank" title="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://www.facebook.com/DPIValleMedio" target="_blank" title="Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://wa.me/0294615508112" target="_blank" title="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Elementos del DOM para el menú
+    const menuToggle = document.getElementById('menu-toggle');
+    const sideMenu = document.getElementById('sideMenu');
+    const overlay = document.getElementById('overlay');
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const body = document.body;
+
+    // Función para abrir menú
+    function openMenu() {
+      sideMenu.classList.add('open');
+      overlay.classList.add('active');
+      body.classList.add('menu-open');
+    }
+
+    // Función para cerrar menú
+    function closeMenu() {
+      sideMenu.classList.remove('open');
+      overlay.classList.remove('active');
+      body.classList.remove('menu-open');
+    }
+
+    // Función para toggle menú
+    function toggleMenu() {
+      if (sideMenu.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    // Event listeners
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    // Cerrar menú al hacer click en el overlay
+    overlay.addEventListener('click', closeMenu);
+    
+    // Cerrar menú al hacer click en un enlace
+    menuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Cerrar menú con la tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+
+    // Mejorar la experiencia de selección
+    document.addEventListener('DOMContentLoaded', function() {
+        const medicoSelect = document.getElementById('medicoId');
+        
+        medicoSelect.addEventListener('change', function() {
+            if (this.value) {
+                console.log('Médico seleccionado:', this.options[this.selectedIndex].text);
+            }
+        });
+    });
+  </script>
+</body>
+</html>
