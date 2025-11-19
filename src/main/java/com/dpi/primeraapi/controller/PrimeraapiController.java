@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -37,6 +39,7 @@ import com.dpi.primeraapi.repository.DisponibilidadExcepcionalRepository;
 import com.dpi.primeraapi.repository.DisponibilidadMedicaRepository;
 import com.dpi.primeraapi.repository.EstudioRepository;
 import com.dpi.primeraapi.repository.ObraSocialRepository;
+import com.dpi.primeraapi.repository.TurnoRepository;
 import com.dpi.primeraapi.repository.UsuarioEstudioRepository;
 import com.dpi.primeraapi.repository.UsuarioObraSocialRepository;
 import com.dpi.primeraapi.repository.UsuarioRepository;
@@ -63,6 +66,8 @@ public class PrimeraapiController {
     private DisponibilidadMedicaRepository disponibilidadRepository;
     @Autowired
     private Environment env;
+    @Autowired
+    private TurnoRepository turnoRepository;
 // CONSTRUCTOR ACTUALIZADO CON LAS NUEVAS DEPENDENCIAS
     public PrimeraapiController(UsuarioRepository usuarioRepository, 
                                 ObraSocialRepository obraSocialRepository,
@@ -88,7 +93,7 @@ public class PrimeraapiController {
 
     // ========== PÁGINAS BÁSICAS ==========
     
-    @GetMapping({"", "/", "/login"})
+    @GetMapping("/login")
     public String login() {
         return "login"; 
     }
@@ -115,9 +120,119 @@ public class PrimeraapiController {
     public String menuSecretaria() {
         return "menuSecretaria";
     }
-     @GetMapping("/especialistas")
-    public String especialistas() {
+    @GetMapping("/especialistas")
+    public String especialistas(Model model) {
+        try {
+            // Obtener todos los médicos activos
+            List<Usuario> medicos = usuarioRepository.findByRolAndEstado("MEDICO", true);
+            
+            // Para cada médico, obtener su disponibilidad
+            List<MedicoConHorarios> medicosConHorarios = new ArrayList<>();
+            
+            for (Usuario medico : medicos) {
+                // Obtener la disponibilidad del médico
+                List<DisponibilidadMedica> disponibilidad = disponibilidadMedicaRepository.findByMedicoAndActivoTrue(medico);
+                
+                // Obtener estudios del médico
+                List<UsuarioEstudio> estudiosMedico = usuarioEstudioRepository.findByUsuario(medico);
+                List<String> nombresEstudios = estudiosMedico.stream()
+                        .map(ue -> ue.getEstudio().getNombre())
+                        .collect(Collectors.toList());
+                
+                // Crear DTO con médico y su horario
+                MedicoConHorarios medicoConHorarios = new MedicoConHorarios(medico, disponibilidad, nombresEstudios);
+                medicosConHorarios.add(medicoConHorarios);
+            }
+            
+            model.addAttribute("medicosConHorarios", medicosConHorarios);
+            System.out.println("Médicos con horarios cargados: " + medicosConHorarios.size());
+            
+        } catch (Exception e) {
+            System.out.println("Error cargando especialistas: " + e.getMessage());
+            model.addAttribute("medicosConHorarios", new ArrayList<>());
+        }
+        
         return "especialistas";
+    }
+
+    // Clase DTO para manejar médico con sus horarios
+    public static class MedicoConHorarios {
+        private Usuario medico;
+        private List<DisponibilidadMedica> horarios;
+        private List<String> estudios;
+        
+        public MedicoConHorarios(Usuario medico, List<DisponibilidadMedica> horarios, List<String> estudios) {
+            this.medico = medico;
+            this.horarios = horarios;
+            this.estudios = estudios;
+        }
+        
+        // Getters
+        public Usuario getMedico() { return medico; }
+        public List<DisponibilidadMedica> getHorarios() { return horarios; }
+        public List<String> getEstudios() { return estudios; }
+        public Map<DiaSemana, List<DisponibilidadMedica>> getHorariosAgrupados() {
+            if (horarios == null || horarios.isEmpty()) {
+                return new HashMap<>();
+            }
+            
+            return horarios.stream()
+                    .collect(Collectors.groupingBy(DisponibilidadMedica::getDiaSemana));
+        }
+
+        // Método para formatear hora
+        public String formatearHora(LocalTime hora) {
+            return hora.toString(); // O puedes usar DateTimeFormatter si quieres otro formato
+        }
+        // Método auxiliar para formatear horarios
+        public String getHorariosFormateados() {
+            if (horarios == null || horarios.isEmpty()) {
+                return "Horario no definido";
+            }
+            
+            // Agrupar por día
+            Map<DiaSemana, List<DisponibilidadMedica>> horariosPorDia = horarios.stream()
+                    .collect(Collectors.groupingBy(DisponibilidadMedica::getDiaSemana));
+            
+            List<String> horariosTexto = new ArrayList<>();
+            
+            for (DiaSemana dia : horariosPorDia.keySet()) {
+                List<DisponibilidadMedica> horariosDia = horariosPorDia.get(dia);
+                String horariosDelDia = horariosDia.stream()
+                        .map(h -> h.getHoraInicio() + " - " + h.getHoraFin())
+                        .collect(Collectors.joining(", "));
+                
+                horariosTexto.add(dia.toString() + ": " + horariosDelDia);
+            }
+            
+            return String.join(" | ", horariosTexto);
+        }
+        
+        // Método para obtener horarios resumidos (para la tarjeta)
+        public String getHorariosResumidos() {
+            if (horarios == null || horarios.isEmpty()) {
+                return "Horario por definir";
+            }
+            
+            // Contar días con horario
+            long diasConHorario = horarios.stream()
+                    .map(DisponibilidadMedica::getDiaSemana)
+                    .distinct()
+                    .count();
+            
+            return diasConHorario + " días/semana";
+        }
+        
+        // Método para obtener el primer horario como ejemplo
+        public String getEjemploHorario() {
+            if (horarios == null || horarios.isEmpty()) {
+                return "Consultar horarios";
+            }
+            
+            DisponibilidadMedica primerHorario = horarios.get(0);
+            return primerHorario.getDiaSemana().toString() + ": " + 
+                primerHorario.getHoraInicio() + " - " + primerHorario.getHoraFin();
+        }
     }
 @GetMapping("/turnoMedico")
 public String turnoMedico(HttpSession session, Model model) {
@@ -367,11 +482,21 @@ public String pedirTurno(HttpSession session) {
             return "redirect:/menu";
     }
 }
-    @GetMapping("/inicio")
-    public String inicio() {
-        return "inicio"; 
+    @GetMapping({"", "/", "/inicio"})
+    public String inicio(Model model) {
+        try {
+            // Obtener todos los estudios activos para mostrar en la página de inicio
+            List<Estudio> estudios = estudioRepository.findByActivoTrue();
+            model.addAttribute("estudios", estudios);
+            System.out.println("Estudios cargados para inicio: " + estudios.size());
+            
+        } catch (Exception e) {
+            System.out.println("Error cargando estudios para inicio: " + e.getMessage());
+            model.addAttribute("estudios", new ArrayList<>());
+        }
+        
+        return "inicio";
     }
-
     @GetMapping("/resultado")
     public String resultado() {
         return "resultado";
@@ -411,6 +536,144 @@ public String verTurnos(HttpSession session, Model model) {
     }
     
     return "verturnos";
+}
+// ========== CANCELACIÓN DE TURNOS ==========
+
+@PostMapping("/cancelarTurno")
+public String cancelarTurno(
+    @RequestParam String codigoTurno,
+    HttpSession session,
+    RedirectAttributes redirectAttributes) {
+    
+    try {
+        System.out.println("Cancelando turno con código: " + codigoTurno);
+        
+        // Buscar el turno por código
+        Turno turno = turnoService.obtenerTurnoPorCodigo(codigoTurno);
+        if (turno == null) {
+            redirectAttributes.addFlashAttribute("error", "Turno no encontrado");
+            return "redirect:/verturnos";
+        }
+        
+        // Verificar que el usuario tiene permisos para cancelar este turno
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        if (usuarioLogueado == null) {
+            return "redirect:/login";
+        }
+        
+        // Solo el paciente dueño del turno o un secretario/admin pueden cancelarlo
+        boolean puedeCancelar = turno.getPaciente().getId().equals(usuarioLogueado.getId()) ||
+                               "SECRETARIO".equals(usuarioLogueado.getRol()) ||
+                               "ADMIN".equals(usuarioLogueado.getRol());
+        
+        if (!puedeCancelar) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos para cancelar este turno");
+            return "redirect:/verturnos";
+        }
+        
+        // Cambiar estado a CANCELADO
+        turno.setEstado("CANCELADO");
+        turnoService.guardarTurno(turno);
+        
+        // Opcional: Enviar email de cancelación
+        try {
+            emailService.sendAppointmentCancellation(
+                turno.getPaciente().getEmail(),
+                turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido(),
+                turno.getFecha().toString(),
+                turno.getHora().toString(),
+                turno.getMedico().getNombre() + " " + turno.getMedico().getApellido(),
+                turno.getEstudio().getNombre()
+            );
+            System.out.println("✅ Email de cancelación enviado");
+        } catch (Exception e) {
+            System.out.println("⚠️ Email de cancelación no enviado: " + e.getMessage());
+        }
+        
+        redirectAttributes.addFlashAttribute("success", "Turno cancelado correctamente");
+        System.out.println("✅ Turno cancelado: " + codigoTurno);
+        
+    } catch (Exception e) {
+        System.out.println("❌ Error cancelando turno: " + e.getMessage());
+        redirectAttributes.addFlashAttribute("error", "Error al cancelar el turno: " + e.getMessage());
+    }
+    
+    return "redirect:/verturnos";
+}
+// ========== CANCELACIÓN DE TURNOS POR MÉDICO ==========
+
+@PostMapping("/cancelarTurnoMedico")
+public String cancelarTurnoMedico(
+    @RequestParam Long turnoId,
+    HttpSession session,
+    RedirectAttributes redirectAttributes) {
+    
+    try {
+        System.out.println("Médico cancelando turno ID: " + turnoId);
+        
+        // Obtener el médico logueado
+        Usuario medicoLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (medicoLogueado == null || !"MEDICO".equals(medicoLogueado.getRol())) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos para realizar esta acción");
+            return "redirect:/turnoMedico";
+        }
+        
+        // Buscar el turno
+        Optional<Turno> turnoOpt = turnoRepository.findById(turnoId);
+        if (!turnoOpt.isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "Turno no encontrado");
+            return "redirect:/turnoMedico";
+        }
+        
+        Turno turno = turnoOpt.get();
+        
+        // Verificar que el turno pertenece a este médico
+        if (!turno.getMedico().getId().equals(medicoLogueado.getId())) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos para cancelar este turno");
+            return "redirect:/turnoMedico";
+        }
+        
+        // Verificar que el turno no esté ya cancelado o completado
+        if ("CANCELADO".equals(turno.getEstado())) {
+            redirectAttributes.addFlashAttribute("error", "Este turno ya está cancelado");
+            return "redirect:/turnoMedico";
+        }
+        
+        if ("COMPLETADO".equals(turno.getEstado())) {
+            redirectAttributes.addFlashAttribute("error", "No se puede cancelar un turno completado");
+            return "redirect:/turnoMedico";
+        }
+        
+        // Cambiar estado a CANCELADO
+        turno.setEstado("CANCELADO");
+        turnoService.guardarTurno(turno);
+        
+        // Enviar email de cancelación al paciente
+        try {
+            emailService.sendAppointmentCancellation(
+                turno.getPaciente().getEmail(),
+                turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido(),
+                turno.getFecha().toString(),
+                turno.getHora().toString(),
+                turno.getMedico().getNombre() + " " + turno.getMedico().getApellido(),
+                turno.getEstudio().getNombre()
+            );
+            System.out.println("✅ Email de cancelación enviado al paciente");
+        } catch (Exception e) {
+            System.out.println("⚠️ Email de cancelación no enviado: " + e.getMessage());
+            // No fallar el proceso si el email no se envía
+        }
+        
+        redirectAttributes.addFlashAttribute("success", "Turno cancelado correctamente y notificación enviada al paciente");
+        System.out.println("✅ Turno cancelado por médico: " + turnoId);
+        
+    } catch (Exception e) {
+        System.out.println("❌ Error cancelando turno: " + e.getMessage());
+        redirectAttributes.addFlashAttribute("error", "Error al cancelar el turno: " + e.getMessage());
+    }
+    
+    return "redirect:/turnoMedico";
 }
 
     // ========== REGISTRO DE USUARIOS ==========
@@ -897,31 +1160,88 @@ private String generarCodigoRecuperacion() {
         }
     }
     // ========== NUEVO: DISPONIBILIDAD MÉDICA ==========
-    
     @GetMapping("/horarioMedico")
     public String mostrarHorarioMedico(Model model) {
         try {
             // Cargar lista de médicos para el dropdown
             List<Usuario> medicos = usuarioRepository.findByRolAndEstado("MEDICO", true);
             model.addAttribute("medicos", medicos);
+            
+            // En lugar de cargar todas las disponibilidades, las cargaremos via AJAX
             System.out.println("Médicos encontrados: " + medicos.size());
+            
         } catch (Exception e) {
             System.out.println("Error cargando médicos: " + e.getMessage());
             model.addAttribute("medicos", new ArrayList<>());
         }
         return "horarioMedico";
     }
-
+    @GetMapping("/api/horarios-medico/{medicoId}")
+    @ResponseBody
+    public Map<String, Object> obtenerHorariosMedico(@PathVariable Long medicoId) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
+            if (!medicoOpt.isPresent()) {
+                response.put("success", false);
+                response.put("message", "Médico no encontrado");
+                return response;
+            }
+            
+            Usuario medico = medicoOpt.get();
+            List<DisponibilidadMedica> disponibilidades = disponibilidadMedicaRepository.findByMedicoAndActivoTrue(medico);
+            
+            System.out.println("=== CARGANDO HORARIOS PARA MÉDICO ===");
+            System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
+            System.out.println("Disponibilidades encontradas: " + disponibilidades.size());
+            
+            // Crear un mapa simple con los horarios
+            Map<String, Object> horarios = new HashMap<>();
+            for (DisponibilidadMedica disp : disponibilidades) {
+                String diaSemana = disp.getDiaSemana().name();
+                Map<String, String> horarioDia = new HashMap<>();
+                horarioDia.put("horaInicio", disp.getHoraInicio().toString());
+                horarioDia.put("horaFin", disp.getHoraFin().toString());
+                horarios.put(diaSemana, horarioDia);
+                
+                System.out.println("Día: " + diaSemana + " - " + 
+                                disp.getHoraInicio() + " a " + disp.getHoraFin());
+            }
+            
+            response.put("success", true);
+            response.put("horarios", horarios);
+            response.put("medico", medico.getNombre() + " " + medico.getApellido());
+            response.put("totalDias", disponibilidades.size());
+            
+            System.out.println("Horarios enviados al frontend: " + horarios.keySet());
+            
+        } catch (Exception e) {
+            System.out.println("ERROR cargando horarios: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error al cargar horarios: " + e.getMessage());
+        }
+        
+        return response;
+    }
     @PostMapping("/guardarHorarios")
     public String guardarHorariosMedico(
         @RequestParam Long medicoId,
         @RequestParam Map<String, String> allParams,
+        HttpSession session,
         RedirectAttributes redirectAttributes) {
         
         try {
             System.out.println("=== INICIANDO GUARDADO DE HORARIOS ===");
             System.out.println("Medico ID: " + medicoId);
             System.out.println("Parámetros recibidos: " + allParams);
+            
+            // Verificar que el usuario es administrador
+            Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+            if (usuarioLogueado == null || !"ADMIN".equals(usuarioLogueado.getRol())) {
+                redirectAttributes.addFlashAttribute("error", "Solo los administradores pueden modificar horarios");
+                return "redirect:/horarioMedico";
+            }
             
             Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
             if (!medicoOpt.isPresent()) {
@@ -935,10 +1255,19 @@ private String generarCodigoRecuperacion() {
             // Procesar cada día de la semana
             String[] dias = {"lunes", "martes", "miercoles", "jueves", "viernes", "sabado"};
             int horariosGuardados = 0;
+            int turnosAfectados = 0;
+            List<String> turnosCancelados = new ArrayList<>();
             
             for (String dia : dias) {
                 String checkboxValue = allParams.get(dia);
-                if ("on".equals(checkboxValue)) { // Si el checkbox está marcado
+                DiaSemana diaSemana = convertirDiaStringAEnum(dia);
+                
+                // Obtener disponibilidad actual para este día
+                List<DisponibilidadMedica> disponibilidadActual = disponibilidadMedicaRepository
+                    .findByMedicoAndDiaSemanaAndActivoTrue(medico, diaSemana);
+                
+                if ("on".equals(checkboxValue)) { 
+                    // DÍA ACTIVADO - Configurar nuevo horario
                     String horaInicioStr = allParams.get(dia + "-desde");
                     String horaFinStr = allParams.get(dia + "-hasta");
                     
@@ -952,17 +1281,28 @@ private String generarCodigoRecuperacion() {
                         
                         // Validar que la hora de inicio sea antes que la de fin
                         if (horaInicio.isBefore(horaFin)) {
-                            // Convertir el día a enum
-                            DiaSemana diaSemana = convertirDiaStringAEnum(dia);
                             
-                            // Verificar si ya existe una disponibilidad para este día
-                            List<DisponibilidadMedica> existentes = disponibilidadMedicaRepository
-                                .findByMedicoAndDiaSemanaAndActivoTrue(medico, diaSemana);
+                            // Verificar si hay cambios en la disponibilidad
+                            boolean horarioCambiado = true;
+                            if (!disponibilidadActual.isEmpty()) {
+                                DisponibilidadMedica dispActual = disponibilidadActual.get(0);
+                                if (dispActual.getHoraInicio().equals(horaInicio) && 
+                                    dispActual.getHoraFin().equals(horaFin)) {
+                                    horarioCambiado = false; // Mismo horario, no hay cambios
+                                }
+                            }
                             
-                            // Si existe, actualizar; si no, crear nueva
+                            // Si el horario cambió, verificar turnos futuros
+                            if (horarioCambiado && !disponibilidadActual.isEmpty()) {
+                                int turnosDia = verificarYProcesarTurnosAfectados(medico, diaSemana, 
+                                    disponibilidadActual.get(0), horaInicio, horaFin, turnosCancelados);
+                                turnosAfectados += turnosDia;
+                            }
+                            
+                            // Guardar/actualizar disponibilidad
                             DisponibilidadMedica disponibilidad;
-                            if (!existentes.isEmpty()) {
-                                disponibilidad = existentes.get(0); // Tomar el primero
+                            if (!disponibilidadActual.isEmpty()) {
+                                disponibilidad = disponibilidadActual.get(0);
                                 System.out.println("Actualizando disponibilidad existente para " + dia);
                             } else {
                                 disponibilidad = new DisponibilidadMedica();
@@ -973,7 +1313,7 @@ private String generarCodigoRecuperacion() {
                             disponibilidad.setDiaSemana(diaSemana);
                             disponibilidad.setHoraInicio(horaInicio);
                             disponibilidad.setHoraFin(horaFin);
-                            disponibilidad.setDuracionTurnoMinutos(20); // 20 minutos por turno
+                            disponibilidad.setDuracionTurnoMinutos(20);
                             disponibilidad.setActivo(true);
                             
                             disponibilidadMedicaRepository.save(disponibilidad);
@@ -983,12 +1323,34 @@ private String generarCodigoRecuperacion() {
                             System.out.println("Horario inválido para " + dia + ": " + horaInicio + " - " + horaFin);
                         }
                     }
+                } else {
+                    // DÍA DESACTIVADO - Verificar turnos futuros antes de desactivar
+                    if (!disponibilidadActual.isEmpty()) {
+                        DisponibilidadMedica dispActual = disponibilidadActual.get(0);
+                        int turnosDia = verificarYProcesarTurnosAfectados(medico, diaSemana, 
+                            dispActual, null, null, turnosCancelados);
+                        turnosAfectados += turnosDia;
+                        
+                        // Desactivar la disponibilidad
+                        dispActual.setActivo(false);
+                        disponibilidadMedicaRepository.save(dispActual);
+                        System.out.println("Disponibilidad desactivada para " + dia);
+                    }
                 }
             }
             
+            // Construir mensaje de resultado
+            String mensaje = "Horarios guardados exitosamente. " + horariosGuardados + " días configurados.";
+            if (turnosAfectados > 0) {
+                mensaje += " Se afectaron " + turnosAfectados + " turno(s) futuro(s).";
+                if (!turnosCancelados.isEmpty()) {
+                    mensaje += " Turnos cancelados: " + String.join(", ", turnosCancelados);
+                }
+            }
+            
+            redirectAttributes.addFlashAttribute("success", mensaje);
             System.out.println("Total de horarios guardados: " + horariosGuardados);
-            redirectAttributes.addFlashAttribute("success", 
-                "Horarios guardados exitosamente. " + horariosGuardados + " días configurados.");
+            System.out.println("Turnos afectados: " + turnosAfectados);
             
         } catch (Exception e) {
             System.out.println("ERROR al guardar horarios: " + e.getMessage());
@@ -998,7 +1360,95 @@ private String generarCodigoRecuperacion() {
         
         return "redirect:/horarioMedico";
     }
+    /**
+     * Verifica y procesa los turnos afectados por cambios en la disponibilidad
+     */
+    private int verificarYProcesarTurnosAfectados(Usuario medico, DiaSemana diaSemana, 
+                                                DisponibilidadMedica disponibilidadActual,
+                                                LocalTime nuevoInicio, LocalTime nuevoFin,
+                                                List<String> turnosCancelados) {
+        int turnosAfectados = 0;
+        
+        try {
+            // Obtener todos los turnos futuros del médico para este día de la semana
+            LocalDate hoy = LocalDate.now();
+            List<Turno> todosTurnosFuturos = turnoService.obtenerTurnosPorMedico(medico).stream()
+                .filter(turno -> !turno.getFecha().isBefore(hoy) && 
+                            obtenerDiaSemana(turno.getFecha()).equals(diaSemana) &&
+                            !"CANCELADO".equals(turno.getEstado()))
+                .collect(Collectors.toList());
+            
+            System.out.println("Turnos futuros encontrados para " + diaSemana + ": " + todosTurnosFuturos.size());
+            
+            for (Turno turno : todosTurnosFuturos) {
+                boolean turnoAfectado = false;
+                String motivo = "";
+                
+                if (nuevoInicio == null && nuevoFin == null) {
+                    // Día completamente desactivado - todos los turnos se afectan
+                    turnoAfectado = true;
+                    motivo = "Día deshabilitado";
+                } else {
+                    // Verificar si el turno queda fuera del nuevo horario
+                    LocalTime horaTurno = turno.getHora();
+                    if (horaTurno.isBefore(nuevoInicio) || 
+                        horaTurno.isAfter(nuevoFin.minusMinutes(disponibilidadActual.getDuracionTurnoMinutos()))) {
+                        turnoAfectado = true;
+                        motivo = "Fuera del nuevo horario (" + nuevoInicio + " - " + nuevoFin + ")";
+                    }
+                }
+                
+                if (turnoAfectado) {
+                    // Cancelar el turno y notificar al paciente
+                    turno.setEstado("CANCELADO");
+                    turnoService.guardarTurno(turno);
+                    turnosAfectados++;
+                    
+                    String infoTurno = "T-" + turno.getIdTurno() + " (" + turno.getFecha() + " " + turno.getHora() + ")";
+                    turnosCancelados.add(infoTurno);
+                    
+                    System.out.println("Turno cancelado: " + infoTurno + " - Motivo: " + motivo);
+                    
+                    // Enviar email de cancelación al paciente
+                    try {
+                        emailService.sendAppointmentCancellation(
+                            turno.getPaciente().getEmail(),
+                            turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido(),
+                            turno.getFecha().toString(),
+                            turno.getHora().toString(),
+                            turno.getMedico().getNombre() + " " + turno.getMedico().getApellido(),
+                            turno.getEstudio().getNombre()
+                        );
+                        System.out.println("✅ Email de cancelación enviado para turno " + turno.getIdTurno());
+                    } catch (Exception e) {
+                        System.out.println("⚠️ Email no enviado para turno " + turno.getIdTurno() + ": " + e.getMessage());
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Error verificando turnos afectados: " + e.getMessage());
+        }
+        
+        return turnosAfectados;
+    }
 
+    /**
+     * Convierte LocalDate a DiaSemana
+     */
+    private DiaSemana obtenerDiaSemana(LocalDate fecha) {
+        DayOfWeek dayOfWeek = fecha.getDayOfWeek();
+        switch (dayOfWeek) {
+            case MONDAY: return DiaSemana.LUNES;
+            case TUESDAY: return DiaSemana.MARTES;
+            case WEDNESDAY: return DiaSemana.MIERCOLES;
+            case THURSDAY: return DiaSemana.JUEVES;
+            case FRIDAY: return DiaSemana.VIERNES;
+            case SATURDAY: return DiaSemana.SABADO;
+            case SUNDAY: return DiaSemana.DOMINGO;
+            default: return DiaSemana.LUNES;
+        }
+    }
     // Método auxiliar para convertir string a enum
     private DiaSemana convertirDiaStringAEnum(String dia) {
         switch (dia.toLowerCase()) {
@@ -1060,104 +1510,304 @@ private String generarCodigoRecuperacion() {
         }
     }
 
-@GetMapping("/estudio")
-public String mostrarEstudio(HttpSession session, Model model) {
-    try {
-        // Para SECRETARIOS: Recuperar el paciente de la sesión
-        // Para PACIENTES: Usar el usuario logueado automáticamente
-        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
-        Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
-        
-        // Si es PACIENTE y no hay paciente seleccionado en sesión, usar el usuario logueado
-        if (usuarioLogueado != null && "PACIENTE".equals(usuarioLogueado.getRol()) && paciente == null) {
-            paciente = usuarioLogueado;
-            session.setAttribute("turnoPaciente", paciente);
-        }
-        
-        if (paciente == null) {
-            System.out.println("No hay paciente seleccionado en sesión");
-            // Si es SECRETARIO, volver a elegir paciente
-            if (usuarioLogueado != null && "SECRETARIO".equals(usuarioLogueado.getRol())) {
-                return "redirect:/elegirPaciente";
+    @GetMapping("/estudio")
+    public String mostrarEstudio(HttpSession session, Model model) {
+        try {
+            // Para SECRETARIOS: Recuperar el paciente de la sesión
+            // Para PACIENTES: Usar el usuario logueado automáticamente
+            Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+            Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
+            
+            // Si es PACIENTE y no hay paciente seleccionado en sesión, usar el usuario logueado
+            if (usuarioLogueado != null && "PACIENTE".equals(usuarioLogueado.getRol()) && paciente == null) {
+                paciente = usuarioLogueado;
+                session.setAttribute("turnoPaciente", paciente);
             }
-            return "redirect:/pedirturno";
+            
+            if (paciente == null) {
+                System.out.println("No hay paciente seleccionado en sesión");
+                // Si es SECRETARIO, volver a elegir paciente
+                if (usuarioLogueado != null && "SECRETARIO".equals(usuarioLogueado.getRol())) {
+                    return "redirect:/elegirPaciente";
+                }
+                return "redirect:/pedirturno";
+            }
+            
+            // Cargar datos para la página de estudio
+            model.addAttribute("paciente", paciente);
+            
+            // Cargar lista de estudios disponibles
+            List<Estudio> estudios = estudioRepository.findByActivoTrue();
+            model.addAttribute("estudios", estudios);
+            
+            // Cargar lista de médicos disponibles
+            List<Usuario> medicos = usuarioRepository.findByRolAndEstado("MEDICO", true);
+            model.addAttribute("medicos", medicos);
+            
+            // Pasar el rol del usuario para mostrar/ocultar elementos en el template
+            model.addAttribute("rolUsuario", usuarioLogueado != null ? usuarioLogueado.getRol() : "");
+            
+            System.out.println("Cargando estudio para paciente: " + paciente.getNombre() + " " + paciente.getApellido());
+            System.out.println("Rol del usuario: " + (usuarioLogueado != null ? usuarioLogueado.getRol() : "No logueado"));
+            System.out.println("Estudios disponibles: " + estudios.size());
+            System.out.println("Médicos disponibles: " + medicos.size());
+            
+        } catch (Exception e) {
+            System.out.println("Error cargando página de estudio: " + e.getMessage());
+            model.addAttribute("error", "Error al cargar la página: " + e.getMessage());
         }
         
-        // Cargar datos para la página de estudio
-        model.addAttribute("paciente", paciente);
+        return "estudio";
+    }
+    // ========== ENDPOINTS API PARA FILTRADO DINÁMICO ==========
+
+    @GetMapping("/api/medicos-por-estudio/{estudioId}")
+    @ResponseBody
+    public Map<String, Object> obtenerMedicosPorEstudio(@PathVariable Long estudioId) {
+        Map<String, Object> response = new HashMap<>();
         
-        // Cargar lista de estudios disponibles
-        List<Estudio> estudios = estudioRepository.findByActivoTrue();
-        model.addAttribute("estudios", estudios);
+        try {
+            Optional<Estudio> estudioOpt = estudioRepository.findById(estudioId);
+            if (!estudioOpt.isPresent()) {
+                response.put("success", false);
+                response.put("message", "Estudio no encontrado");
+                return response;
+            }
+            
+            Estudio estudio = estudioOpt.get();
+            
+            // Obtener médicos que realizan este estudio
+            List<UsuarioEstudio> relaciones = usuarioEstudioRepository.findByEstudio(estudio);
+            List<Map<String, Object>> medicosData = new ArrayList<>();
+            
+            for (UsuarioEstudio relacion : relaciones) {
+                Usuario medico = relacion.getUsuario();
+                if (medico.isEstado() && "MEDICO".equals(medico.getRol())) {
+                    Map<String, Object> medicoData = new HashMap<>();
+                    medicoData.put("id", medico.getId());
+                    medicoData.put("nombre", medico.getNombre());
+                    medicoData.put("apellido", medico.getApellido());
+                    medicoData.put("especialidad", medico.getEspecialidad());
+                    medicosData.add(medicoData);
+                }
+            }
+            
+            response.put("success", true);
+            response.put("medicos", medicosData);
+            response.put("estudio", estudio.getNombre());
+            response.put("total", medicosData.size());
+            
+            System.out.println("Médicos encontrados para estudio " + estudio.getNombre() + ": " + medicosData.size());
+            
+        } catch (Exception e) {
+            System.out.println("Error obteniendo médicos por estudio: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error al cargar médicos: " + e.getMessage());
+        }
         
-        // Cargar lista de médicos disponibles
-        List<Usuario> medicos = usuarioRepository.findByRolAndEstado("MEDICO", true);
-        model.addAttribute("medicos", medicos);
+        return response;
+    }
+
+    @GetMapping("/api/estudios-por-medico/{medicoId}")
+    @ResponseBody
+    public Map<String, Object> obtenerEstudiosPorMedico(@PathVariable Long medicoId) {
+        Map<String, Object> response = new HashMap<>();
         
-        // Pasar el rol del usuario para mostrar/ocultar elementos en el template
-        model.addAttribute("rolUsuario", usuarioLogueado != null ? usuarioLogueado.getRol() : "");
+        try {
+            Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
+            if (!medicoOpt.isPresent()) {
+                response.put("success", false);
+                response.put("message", "Médico no encontrado");
+                return response;
+            }
+            
+            Usuario medico = medicoOpt.get();
+            
+            // Obtener estudios que realiza este médico
+            List<UsuarioEstudio> relaciones = usuarioEstudioRepository.findByUsuario(medico);
+            List<Map<String, Object>> estudiosData = new ArrayList<>();
+            
+            for (UsuarioEstudio relacion : relaciones) {
+                Estudio estudio = relacion.getEstudio();
+                if (estudio.isActivo()) {
+                    Map<String, Object> estudioData = new HashMap<>();
+                    estudioData.put("id", estudio.getId());
+                    estudioData.put("nombre", estudio.getNombre());
+                    estudioData.put("descripcion", estudio.getDescripcion());
+                    estudiosData.add(estudioData);
+                }
+            }
+            
+            response.put("success", true);
+            response.put("estudios", estudiosData);
+            response.put("medico", medico.getNombre() + " " + medico.getApellido());
+            response.put("total", estudiosData.size());
+            
+            System.out.println("Estudios encontrados para médico " + medico.getNombre() + ": " + estudiosData.size());
+            
+        } catch (Exception e) {
+            System.out.println("Error obteniendo estudios por médico: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error al cargar estudios: " + e.getMessage());
+        }
         
-        System.out.println("Cargando estudio para paciente: " + paciente.getNombre() + " " + paciente.getApellido());
-        System.out.println("Rol del usuario: " + (usuarioLogueado != null ? usuarioLogueado.getRol() : "No logueado"));
-        System.out.println("Estudios disponibles: " + estudios.size());
-        System.out.println("Médicos disponibles: " + medicos.size());
+        return response;
+    }
+    @GetMapping("/api/verificar-compatibilidad/{estudioId}/{medicoId}")
+    @ResponseBody
+    public Map<String, Object> verificarCompatibilidad(@PathVariable Long estudioId, 
+                                                    @PathVariable Long medicoId) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Optional<Estudio> estudioOpt = estudioRepository.findById(estudioId);
+            Optional<Usuario> medicoOpt = usuarioRepository.findById(medicoId);
+            
+            if (!estudioOpt.isPresent() || !medicoOpt.isPresent()) {
+                response.put("success", false);
+                response.put("message", "Estudio o médico no encontrado");
+                return response;
+            }
+            
+            Estudio estudio = estudioOpt.get();
+            Usuario medico = medicoOpt.get();
+            
+            // Verificar si el médico realiza este estudio
+            boolean compatible = usuarioEstudioRepository.existsByUsuarioAndEstudio(medico, estudio);
+            
+            response.put("success", true);
+            response.put("compatible", compatible);
+            response.put("estudio", estudio.getNombre());
+            response.put("medico", medico.getNombre() + " " + medico.getApellido());
+            
+            System.out.println("Verificación compatibilidad: " + estudio.getNombre() + " + " + 
+                            medico.getNombre() + " = " + compatible);
+            
+        } catch (Exception e) {
+            System.out.println("Error verificando compatibilidad: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error al verificar compatibilidad");
+        }
+        
+        return response;
+    }
+    @PostMapping("/estudio/continuar")
+    public String procesarEstudio(@ModelAttribute TurnoRequestDTO turnoRequest, 
+                                HttpSession session, 
+                                Model model) {
+        try {
+            System.out.println("Procesando turno - Estudio: " + turnoRequest.getEstudioId() + 
+                            ", Médico: " + turnoRequest.getMedicoId());
+            
+            // Validar que todos los datos estén presentes
+            if (turnoRequest.getEstudioId() == null || 
+                turnoRequest.getMedicoId() == null) {
+                model.addAttribute("error", "Todos los campos son obligatorios");
+                return "redirect:/estudio";
+            }
+            
+            // Obtener el paciente de la sesión
+            Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
+            if (paciente == null) {
+                model.addAttribute("error", "No se encontró el paciente");
+                return "redirect:/estudio";
+            }
+            
+            // Buscar las entidades completas
+            Estudio estudio = estudioRepository.findById(turnoRequest.getEstudioId())
+                    .orElseThrow(() -> new RuntimeException("Estudio no encontrado"));
+            
+            Usuario medico = usuarioRepository.findById(turnoRequest.getMedicoId())
+                    .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
+            
+            // Guardar en sesión para usar en calendario
+            session.setAttribute("turnoPaciente", paciente);
+            session.setAttribute("turnoEstudio", estudio);
+            session.setAttribute("turnoMedico", medico);
+            
+            // Log para debugging
+            System.out.println("Datos guardados en sesión:");
+            System.out.println("Paciente: " + paciente.getNombre() + " " + paciente.getApellido());
+            System.out.println("Estudio: " + estudio.getNombre());
+            System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
+            
+            return "redirect:/calendario";
+            
+        } catch (Exception e) {
+            System.out.println("Error procesando estudio: " + e.getMessage());
+            model.addAttribute("error", "Error al procesar la solicitud: " + e.getMessage());
+            return "redirect:/estudio";
+        }
+    }
+// ========== ACTUALIZACIÓN DE EMAIL ==========
+
+@PostMapping("/actualizarEmail")
+@ResponseBody
+public Map<String, Object> actualizarEmail(
+    @RequestParam String nuevoEmail,
+    HttpSession session,
+    RedirectAttributes redirectAttributes) {
+    
+    Map<String, Object> response = new HashMap<>();
+    
+    try {
+        System.out.println("Actualizando email a: " + nuevoEmail);
+        
+        // Obtener el usuario logueado
+        Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+        
+        if (usuarioLogueado == null) {
+            response.put("success", false);
+            response.put("message", "Usuario no autenticado");
+            return response;
+        }
+        
+        // Validar formato de email
+        if (!validarFormatoEmail(nuevoEmail)) {
+            response.put("success", false);
+            response.put("message", "Formato de email inválido");
+            return response;
+        }
+        
+        // Verificar si el email ya está en uso por otro usuario
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(nuevoEmail);
+        if (usuarioExistente.isPresent() && !usuarioExistente.get().getId().equals(usuarioLogueado.getId())) {
+            response.put("success", false);
+            response.put("message", "Este email ya está registrado por otro usuario");
+            return response;
+        }
+        
+        // Actualizar el email
+        usuarioLogueado.setEmail(nuevoEmail);
+        usuarioRepository.save(usuarioLogueado);
+        
+        // Actualizar el usuario en la sesión
+        session.setAttribute("usuarioLogueado", usuarioLogueado);
+        
+        response.put("success", true);
+        response.put("message", "Email actualizado correctamente");
+        response.put("nuevoEmail", nuevoEmail);
+        
+        System.out.println("✅ Email actualizado para usuario: " + usuarioLogueado.getNombre() + " " + usuarioLogueado.getApellido());
         
     } catch (Exception e) {
-        System.out.println("Error cargando página de estudio: " + e.getMessage());
-        model.addAttribute("error", "Error al cargar la página: " + e.getMessage());
+        System.out.println("❌ Error actualizando email: " + e.getMessage());
+        response.put("success", false);
+        response.put("message", "Error al actualizar el email: " + e.getMessage());
     }
     
-    return "estudio";
-}
-@PostMapping("/estudio/continuar")
-public String procesarEstudio(@ModelAttribute TurnoRequestDTO turnoRequest, 
-                            HttpSession session, 
-                            Model model) {
-    try {
-        System.out.println("Procesando turno - Estudio: " + turnoRequest.getEstudioId() + 
-                        ", Médico: " + turnoRequest.getMedicoId());
-        
-        // Validar que todos los datos estén presentes
-        if (turnoRequest.getEstudioId() == null || 
-            turnoRequest.getMedicoId() == null) {
-            model.addAttribute("error", "Todos los campos son obligatorios");
-            return "redirect:/estudio";
-        }
-        
-        // Obtener el paciente de la sesión
-        Usuario paciente = (Usuario) session.getAttribute("turnoPaciente");
-        if (paciente == null) {
-            model.addAttribute("error", "No se encontró el paciente");
-            return "redirect:/estudio";
-        }
-        
-        // Buscar las entidades completas
-        Estudio estudio = estudioRepository.findById(turnoRequest.getEstudioId())
-                .orElseThrow(() -> new RuntimeException("Estudio no encontrado"));
-        
-        Usuario medico = usuarioRepository.findById(turnoRequest.getMedicoId())
-                .orElseThrow(() -> new RuntimeException("Médico no encontrado"));
-        
-        // Guardar en sesión para usar en calendario
-        session.setAttribute("turnoPaciente", paciente);
-        session.setAttribute("turnoEstudio", estudio);
-        session.setAttribute("turnoMedico", medico);
-        
-        // Log para debugging
-        System.out.println("Datos guardados en sesión:");
-        System.out.println("Paciente: " + paciente.getNombre() + " " + paciente.getApellido());
-        System.out.println("Estudio: " + estudio.getNombre());
-        System.out.println("Médico: " + medico.getNombre() + " " + medico.getApellido());
-        
-        return "redirect:/calendario";
-        
-    } catch (Exception e) {
-        System.out.println("Error procesando estudio: " + e.getMessage());
-        model.addAttribute("error", "Error al procesar la solicitud: " + e.getMessage());
-        return "redirect:/estudio";
-    }
+    return response;
 }
 
+// Método auxiliar para validar formato de email
+private boolean validarFormatoEmail(String email) {
+    if (email == null || email.trim().isEmpty()) {
+        return false;
+    }
+    
+    String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    return email.matches(emailRegex);
+}
 @GetMapping("/calendario")
 public String mostrarCalendario(HttpSession session, Model model) {
     try {
@@ -1574,44 +2224,51 @@ public String mostrarConfirmacionTurno(HttpSession session, Model model) {
         return "redirect:/editarEstudio";
     }
 
-    @PostMapping("/eliminarEstudio")
-    public String eliminarEstudio(
-        @RequestParam Long estudioId,
-        RedirectAttributes redirectAttributes) {
-        
-        try {
-            System.out.println("Eliminando estudio ID: " + estudioId);
-            
-            Optional<Estudio> estudioOpt = estudioRepository.findById(estudioId);
-            if (!estudioOpt.isPresent()) {
-                redirectAttributes.addFlashAttribute("error", "Estudio no encontrado");
-                return "redirect:/editarEstudio";
-            }
-            
-            Estudio estudio = estudioOpt.get();
-            
-            // Verificar si el estudio está siendo usado por algún médico
-            List<UsuarioEstudio> usuariosConEstudio = usuarioEstudioRepository.findByEstudio(estudio);
-            if (!usuariosConEstudio.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", 
-                    "No se puede eliminar el estudio '" + estudio.getNombre() + 
-                    "' porque está asignado a " + usuariosConEstudio.size() + " médico(s)");
-                return "redirect:/editarEstudio";
-            }
-            
-            // Marcar como inactivo en lugar de eliminar (borrado lógico)
-            estudio.setActivo(false);
-            estudioRepository.save(estudio);
-            
-            redirectAttributes.addFlashAttribute("success", "Estudio eliminado correctamente: " + estudio.getNombre());
-            
-        } catch (Exception e) {
-            System.out.println("Error eliminando estudio: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar el estudio: " + e.getMessage());
+@PostMapping("/eliminarEstudio")
+public String eliminarEstudio(
+    @RequestParam Long estudioId,
+    RedirectAttributes redirectAttributes) {
+    
+    try {
+        Optional<Estudio> estudioOpt = estudioRepository.findById(estudioId);
+        if (!estudioOpt.isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "Estudio no encontrado");
+            return "redirect:/editarEstudio";
         }
         
-        return "redirect:/editarEstudio";
+        Estudio estudio = estudioOpt.get();
+        
+        // Verificar si el estudio está siendo usado por algún médico
+        List<UsuarioEstudio> usuariosConEstudio = usuarioEstudioRepository.findByEstudio(estudio);
+        if (!usuariosConEstudio.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", 
+                "No se puede eliminar el estudio '" + estudio.getNombre() + 
+                "' porque está asignado a " + usuariosConEstudio.size() + " médico(s)");
+            return "redirect:/editarEstudio";
+        }
+        
+        // ✅ NUEVO: Verificar si hay turnos futuros con este estudio
+        List<Turno> turnosFuturos = turnoService.obtenerTurnosFuturosPorEstudio(estudio);
+        if (!turnosFuturos.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", 
+                "No se puede eliminar el estudio '" + estudio.getNombre() + 
+                "' porque tiene " + turnosFuturos.size() + " turno(s) programado(s)");
+            return "redirect:/editarEstudio";
+        }
+        
+        // Marcar como inactivo
+        estudio.setActivo(false);
+        estudioRepository.save(estudio);
+        
+        redirectAttributes.addFlashAttribute("success", "Estudio eliminado correctamente: " + estudio.getNombre());
+        
+    } catch (Exception e) {
+        System.out.println("Error eliminando estudio: " + e.getMessage());
+        redirectAttributes.addFlashAttribute("error", "Error al eliminar el estudio: " + e.getMessage());
     }
+    
+    return "redirect:/editarEstudio";
+}
     // ========== MÉTODO PARA CREAR MÉDICO DE PRUEBA ==========
     
     @GetMapping("/crear-medico-test")

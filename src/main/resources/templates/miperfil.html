@@ -174,38 +174,166 @@
         }
       }
       
-function saveChanges() {
+async function saveChanges() {
     if (currentEditingField) {
         const field = document.getElementById(currentEditingField);
+        const newValue = field.value.trim();
         
-        if (currentEditingField === 'email') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(field.value)) {
-                alert('Por favor, ingresa un email válido.');
-                field.focus();
-                return;
-            }
-        }
-        
-        if (field.value.trim() === '') {
+        // Validaciones básicas
+        if (newValue === '') {
             alert('Este campo no puede estar vacío.');
             field.focus();
             return;
         }
         
-        // Aquí puedes agregar una llamada AJAX para guardar en el servidor
-        // Por ahora solo mostramos un mensaje
-        alert('Cambios guardados correctamente (función en desarrollo).');
+        if (currentEditingField === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(newValue)) {
+                alert('Por favor, ingresa un email válido (ejemplo: usuario@dominio.com).');
+                field.focus();
+                return;
+            }
+        }
         
-        field.setAttribute('readonly', true);
-        field.classList.remove('editing');
-        
-        cancelBtn.classList.add('hidden');
-        saveBtn.classList.add('hidden');
-        
-        currentEditingField = null;
-        originalValues = {};
+        try {
+            // Mostrar indicador de carga
+            mostrarCargando(true);
+            
+            // Preparar datos para enviar
+            const formData = new FormData();
+            formData.append('nuevoEmail', newValue);
+            
+            // Enviar solicitud al servidor
+            const response = await fetch('/actualizarEmail', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Éxito: mostrar mensaje y actualizar interfaz
+                mostrarMensajeExito(data.message);
+                
+                field.setAttribute('readonly', true);
+                field.classList.remove('editing');
+                
+                cancelBtn.classList.add('hidden');
+                saveBtn.classList.add('hidden');
+                
+                currentEditingField = null;
+                originalValues = {};
+                
+                // Actualizar visualmente el email en la página
+                actualizarEmailEnInterfaz(newValue);
+                
+            } else {
+                // Error: mostrar mensaje de error
+                mostrarMensajeError(data.message);
+                field.focus();
+            }
+            
+        } catch (error) {
+            console.error('Error al guardar cambios:', error);
+            mostrarMensajeError('Error de conexión. Por favor, intenta nuevamente.');
+            field.focus();
+        } finally {
+            mostrarCargando(false);
+        }
     }
+}
+
+// Función para mostrar mensaje de éxito
+function mostrarMensajeExito(mensaje) {
+    // Remover mensajes anteriores
+    const mensajesAnteriores = document.querySelectorAll('.mensaje-temporal');
+    mensajesAnteriores.forEach(msg => msg.remove());
+    
+    const mensajeDiv = document.createElement('div');
+    mensajeDiv.className = 'alert alert-success mensaje-temporal';
+    mensajeDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${mensaje}`;
+    mensajeDiv.style.cssText = `
+        margin: 15px 0;
+        padding: 12px 15px;
+        border-radius: 8px;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    const formulario = document.getElementById('personalDataForm');
+    formulario.insertBefore(mensajeDiv, formulario.firstChild);
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        if (mensajeDiv.parentNode) {
+            mensajeDiv.parentNode.removeChild(mensajeDiv);
+        }
+    }, 5000);
+}
+
+// Función para mostrar mensaje de error
+function mostrarMensajeError(mensaje) {
+    // Remover mensajes anteriores
+    const mensajesAnteriores = document.querySelectorAll('.mensaje-temporal');
+    mensajesAnteriores.forEach(msg => msg.remove());
+    
+    const mensajeDiv = document.createElement('div');
+    mensajeDiv.className = 'alert alert-error mensaje-temporal';
+    mensajeDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${mensaje}`;
+    mensajeDiv.style.cssText = `
+        margin: 15px 0;
+        padding: 12px 15px;
+        border-radius: 8px;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    const formulario = document.getElementById('personalDataForm');
+    formulario.insertBefore(mensajeDiv, formulario.firstChild);
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        if (mensajeDiv.parentNode) {
+            mensajeDiv.parentNode.removeChild(mensajeDiv);
+        }
+    }, 5000);
+}
+
+// Función para mostrar/ocultar indicador de carga
+function mostrarCargando(mostrar) {
+    let spinner = document.getElementById('loading-spinner');
+    
+    if (mostrar) {
+        if (!spinner) {
+            spinner = document.createElement('div');
+            spinner.id = 'loading-spinner';
+            spinner.innerHTML = '🔄 Guardando cambios...';
+            spinner.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 194, 168, 0.9);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                font-weight: bold;
+            `;
+            document.body.appendChild(spinner);
+        }
+    } else {
+        if (spinner) {
+            spinner.remove();
+        }
+    }
+}
+
+// Función para actualizar el email en la interfaz
+function actualizarEmailEnInterfaz(nuevoEmail) {
+    const emailField = document.getElementById('email');
+    emailField.value = nuevoEmail;
+    
+    // También podrías actualizar otros lugares donde se muestre el email
+    console.log('Email actualizado en interfaz:', nuevoEmail);
 }
       
       editButtons.forEach(button => {

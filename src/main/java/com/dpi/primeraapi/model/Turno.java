@@ -42,7 +42,7 @@ public class Turno {
     private Estudio estudio;
     
     @Column(nullable = false)
-    private String estado = "PENDIENTE";
+    private String estado = "CONFIRMADO";
     
     @Column(name = "codigo_turno", unique = true, length = 20)
     private String codigoTurno; // ✅ NUEVO: Para identificar turno fácilmente

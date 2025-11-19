@@ -3,10 +3,228 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestión de Estudios - Turnos Online</title>
+  <title>Especialistas - Centro Médico DPI</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <!-- Iconos de menú -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .especialistas-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #00c2a8 0%, #008e76 100%);
+      color: white;
+      border-radius: 15px;
+    }
+
+    .hero-section h1 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+
+    .hero-section p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .especialistas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    .especialista-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .especialista-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .doctor-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .doctor-avatar {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #00c2a8 0%, #008e76 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+
+    .doctor-avatar i {
+      font-size: 30px;
+      color: white;
+    }
+
+    .doctor-info h2 {
+      margin: 0;
+      color: #333;
+      font-size: 1.4rem;
+    }
+
+    .doctor-specialty {
+      color: #00c2a8;
+      font-weight: bold;
+      margin: 5px 0 0 0;
+      font-size: 1.1rem;
+    }
+
+    .doctor-description {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .doctor-details {
+      margin-bottom: 20px;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .detail-item i {
+      width: 20px;
+      margin-right: 10px;
+      color: #00c2a8;
+    }
+
+    .horario-detallado {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #00c2a8;
+    }
+
+    .horario-detallado h4 {
+      margin: 0 0 10px 0;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    .horario-lista {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .horario-lista li {
+      padding: 5px 0;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .horario-lista li:last-child {
+      border-bottom: none;
+    }
+
+    .dia-semana {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .horario-horas {
+      color: #00c2a8;
+      font-weight: 500;
+    }
+
+    .doctor-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .badge {
+      background: #e8f7f5;
+      color: #008e76;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .badge i {
+      margin-right: 4px;
+    }
+
+    .estudios-lista {
+      margin-top: 10px;
+    }
+
+    .estudio-tag {
+      display: inline-block;
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      margin: 2px;
+    }
+
+    .no-especialistas {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .no-especialistas i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #ccc;
+    }
+
+    @media (max-width: 768px) {
+      .especialistas-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .hero-section h1 {
+        font-size: 2rem;
+      }
+      
+      .doctor-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .doctor-avatar {
+        margin-right: 0;
+        margin-bottom: 15px;
+      }
+      
+      .horario-lista li {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- Menú hamburguesa -->
@@ -20,8 +238,8 @@
   <div class="overlay" onclick="toggleMenu()"></div>
 
   <!-- Menú lateral -->
- <aside id="sideMenu" class="side-menu">
-   <nav class="menu-nav">
+  <aside id="sideMenu" class="side-menu">
+    <nav class="menu-nav">
       <a href="login" class="menu-link">Inicio</a>
       <a href="miperfil" class="menu-link">Mi Perfil</a>
       <a href="quienessomos" class="menu-link">¿Quiénes somos?</a>
@@ -36,218 +254,84 @@
       <p>Conoce al equipo médico altamente calificado de nuestro Centro de Diagnóstico por Imagen. Profesionales comprometidos con tu salud y bienestar.</p>
     </div>
 
+    <!-- Mensaje si no hay especialistas -->
+    <div th:if="${#lists.isEmpty(medicosConHorarios)}" class="no-especialistas">
+      <i class="fas fa-user-md"></i>
+      <h3>No hay especialistas disponibles en este momento</h3>
+      <p>Estamos trabajando para incorporar nuevos profesionales a nuestro equipo.</p>
+    </div>
+
+    <!-- Grid de especialistas dinámico -->
     <div class="especialistas-grid">
-      <!-- Especialista 1 -->
-      <div class="especialista-card">
+      <!-- Especialista dinámico -->
+      <div th:each="medicoHorarios : ${medicosConHorarios}" class="especialista-card">
         <div class="doctor-header">
           <div class="doctor-avatar">
             <i class="fas fa-user-md"></i>
           </div>
           <div class="doctor-info">
-            <h2 class="doctor-name">Dr. Carlos Martínez</h2>
-            <p class="doctor-specialty">Radiología General</p>
+            <h2 class="doctor-name" th:text="'Dr. ' + ${medicoHorarios.medico.nombre} + ' ' + ${medicoHorarios.medico.apellido}">
+              Dr. Nombre Apellido
+            </h2>
+            <p class="doctor-specialty" th:text="${medicoHorarios.medico.especialidad ?: 'Radiología General'}">
+              Especialidad
+            </p>
+          </div>
+        </div>        
+        <!-- Estudios que realiza -->
+        <div th:if="${not #lists.isEmpty(medicoHorarios.estudios)}" class="estudios-lista">
+          <strong>Estudios que realiza:</strong>
+          <div style="margin-top: 5px;">
+            <span th:each="estudio : ${medicoHorarios.estudios}" class="estudio-tag" th:text="${estudio}"></span>
           </div>
         </div>
-        <p class="doctor-description">
-          Especialista en diagnóstico por imágenes con más de 15 años de experiencia. Experto en radiología convencional, ecografías y estudios contrastados.
-        </p>
+        
         <div class="doctor-details">
-          <div class="detail-item">
-            <i class="fas fa-graduation-cap"></i>
-            <span>Universidad Nacional de Buenos Aires</span>
-          </div>
-          <div class="detail-item">
+          <div class="detail-item" th:if="${medicoHorarios.medico.matriculaNacional}">
             <i class="fas fa-certificate"></i>
-            <span>Matrícula Nacional N° 12345</span>
+            <span>Matrícula Nacional: <span th:text="${medicoHorarios.medico.matriculaNacional}"></span></span>
+          </div>
+          <div class="detail-item" th:if="${medicoHorarios.medico.matriculaProvincial}">
+            <i class="fas fa-certificate"></i>
+            <span>Matrícula Provincial: <span th:text="${medicoHorarios.medico.matriculaProvincial}"></span></span>
           </div>
           <div class="detail-item">
             <i class="fas fa-clock"></i>
-            <span>Lunes a Viernes: 8:00 - 14:00</span>
+            <span>Disponibilidad: <span th:text="${medicoHorarios.horariosResumidos}"></span></span>
           </div>
         </div>
+        
+        <!-- Horarios detallados -->
+        <div th:if="${not #lists.isEmpty(medicoHorarios.horarios)}" class="horario-detallado">
+          <h4><i class="fas fa-calendar-alt"></i> Horarios de Atención</h4>
+          <ul class="horario-lista">
+            <li th:each="horario : ${medicoHorarios.horarios}">
+              <span class="dia-semana" th:text="${horario.diaSemana}"></span>
+              <span class="horario-horas" th:text="${#temporals.format(horario.horaInicio, 'HH:mm')} + ' - ' + ${#temporals.format(horario.horaFin, 'HH:mm')}"></span>
+            </li>
+          </ul>
+        </div>
+        
+        <div th:if="${#lists.isEmpty(medicoHorarios.horarios)}" class="horario-detallado" style="border-left-color: #ffc107;">
+          <h4><i class="fas fa-info-circle"></i> Horarios</h4>
+          <p style="margin: 0; color: #856404;">Horarios por definir. Consulte disponibilidad.</p>
+        </div>
+        
         <div class="doctor-badges">
-          <span class="badge"><i class="fas fa-star"></i> 15+ años</span>
-          <span class="badge"><i class="fas fa-award"></i> Certificado</span>
-        </div>
-      </div>
-
-      <!-- Especialista 2 -->
-      <div class="especialista-card">
-        <div class="doctor-header">
-          <div class="doctor-avatar">
-            <i class="fas fa-user-md"></i>
-          </div>
-          <div class="doctor-info">
-            <h2 class="doctor-name">Dra. María Fernández</h2>
-            <p class="doctor-specialty">Ecografía y Doppler</p>
-          </div>
-        </div>
-        <p class="doctor-description">
-          Especialista en ecografía general y doppler vascular. Amplia experiencia en diagnóstico prenatal y estudios cardiovasculares avanzados.
-        </p>
-        <div class="doctor-details">
-          <div class="detail-item">
-            <i class="fas fa-graduation-cap"></i>
-            <span>Universidad de La Plata</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-certificate"></i>
-            <span>Matrícula Provincial N° 54321</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-clock"></i>
-            <span>Martes y Jueves: 9:00 - 15:00</span>
-          </div>
-        </div>
-        <div class="doctor-badges">
-          <span class="badge"><i class="fas fa-star"></i> 12+ años</span>
-          <span class="badge"><i class="fas fa-heartbeat"></i> Doppler</span>
-        </div>
-      </div>
-
-      <!-- Especialista 3 -->
-      <div class="especialista-card">
-        <div class="doctor-header">
-          <div class="doctor-avatar">
-            <i class="fas fa-user-md"></i>
-          </div>
-          <div class="doctor-info">
-            <h2 class="doctor-name">Dr. Roberto Sánchez</h2>
-            <p class="doctor-specialty">Tomografía Computada</p>
-          </div>
-        </div>
-        <p class="doctor-description">
-          Experto en tomografía computada y estudios de alta complejidad. Especializado en diagnóstico oncológico y neuroimágenes avanzadas.
-        </p>
-        <div class="doctor-details">
-          <div class="detail-item">
-            <i class="fas fa-graduation-cap"></i>
-            <span>Hospital Italiano de Buenos Aires</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-certificate"></i>
-            <span>Matrícula Nacional N° 67890</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-clock"></i>
-            <span>Miércoles a Viernes: 10:00 - 16:00</span>
-          </div>
-        </div>
-        <div class="doctor-badges">
-          <span class="badge"><i class="fas fa-star"></i> 18+ años</span>
-          <span class="badge"><i class="fas fa-microscope"></i> Oncología</span>
-        </div>
-      </div>
-
-      <!-- Especialista 4 -->
-      <div class="especialista-card">
-        <div class="doctor-header">
-          <div class="doctor-avatar">
-            <i class="fas fa-user-md"></i>
-          </div>
-          <div class="doctor-info">
-            <h2 class="doctor-name">Dra. Ana López</h2>
-            <p class="doctor-specialty">Resonancia Magnética</p>
-          </div>
-        </div>
-        <p class="doctor-description">
-          Especialista en resonancia magnética con subespecialización en estudios musculoesqueléticos y neurológicos de alta precisión.
-        </p>
-        <div class="doctor-details">
-          <div class="detail-item">
-            <i class="fas fa-graduation-cap"></i>
-            <span>Universidad Austral</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-certificate"></i>
-            <span>Matrícula Provincial N° 11223</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-clock"></i>
-            <span>Lunes a Miércoles: 14:00 - 20:00</span>
-          </div>
-        </div>
-        <div class="doctor-badges">
-          <span class="badge"><i class="fas fa-star"></i> 10+ años</span>
-          <span class="badge"><i class="fas fa-brain"></i> Neuroimagen</span>
-        </div>
-      </div>
-
-      <!-- Especialista 5 -->
-      <div class="especialista-card">
-        <div class="doctor-header">
-          <div class="doctor-avatar">
-            <i class="fas fa-user-md"></i>
-          </div>
-          <div class="doctor-info">
-            <h2 class="doctor-name">Dr. Diego Pérez</h2>
-            <p class="doctor-specialty">Mamografía Digital</p>
-          </div>
-        </div>
-        <p class="doctor-description">
-          Radiólogo especializado en diagnóstico mamario y estudios de detección precoz de cáncer de mama con equipamiento de última generación.
-        </p>
-        <div class="doctor-details">
-          <div class="detail-item">
-            <i class="fas fa-graduation-cap"></i>
-            <span>Universidad de Córdoba</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-certificate"></i>
-            <span>Matrícula Nacional N° 33445</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-clock"></i>
-            <span>Martes a Viernes: 8:00 - 13:00</span>
-          </div>
-        </div>
-        <div class="doctor-badges">
-          <span class="badge"><i class="fas fa-star"></i> 14+ años</span>
-          <span class="badge"><i class="fas fa-ribbon"></i> Prevención</span>
-        </div>
-      </div>
-
-      <!-- Especialista 6 -->
-      <div class="especialista-card">
-        <div class="doctor-header">
-          <div class="doctor-avatar">
-            <i class="fas fa-user-md"></i>
-          </div>
-          <div class="doctor-info">
-            <h2 class="doctor-name">Dra. Laura Gómez</h2>
-            <p class="doctor-specialty">Pediatría Radiológica</p>
-          </div>
-        </div>
-        <p class="doctor-description">
-          Especialista en diagnóstico por imágenes pediátricas. Experta en el cuidado y atención de pacientes infantiles con protocolos especializados.
-        </p>
-        <div class="doctor-details">
-          <div class="detail-item">
-            <i class="fas fa-graduation-cap"></i>
-            <span>Hospital Garrahan</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-certificate"></i>
-            <span>Matrícula Provincial N° 77889</span>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-clock"></i>
-            <span>Lunes a Jueves: 9:00 - 15:00</span>
-          </div>
-        </div>
-        <div class="doctor-badges">
-          <span class="badge"><i class="fas fa-star"></i> 11+ años</span>
-          <span class="badge"><i class="fas fa-child"></i> Pediatría</span>
+          <span class="badge" th:if="${not #lists.isEmpty(medicoHorarios.horarios)}">
+            <i class="fas fa-check-circle"></i> Disponible
+          </span>
         </div>
       </div>
     </div>
-      <div style="margin-top: 20px;">
+
+    <div style="margin-top: 20px; text-align: center;">
       <button type="button" class="btn" onclick="history.back()"
               style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
-          <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
-          Volver
+        <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+        Volver
       </button>
-  </div>
+    </div>
   </div>
 
   <!-- Footer -->
@@ -279,8 +363,6 @@
           <i class="fab fa-whatsapp"></i>
         </a>
       </div>
-    </div>
-
     </div>
   </footer>
 

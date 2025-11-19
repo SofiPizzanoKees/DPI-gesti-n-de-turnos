@@ -138,6 +138,69 @@ public class EmailService {
             System.out.println("================================");
         }
     }
+
+    // ✅ NUEVO MÉTODO PARA CANCELACIÓN DE TURNOS
+    public void sendAppointmentCancellation(String toEmail, String patientName, String fecha, 
+                                          String hora, String medico, String estudio) {
+        
+        logger.info("❌ Intentando enviar cancelación a: {}", toEmail);
+        
+        if (!isRealSendGridKey()) {
+            logger.warn("❌ SendGrid no configurado - Modo desarrollo");
+            System.out.println("=== ❌ CANCELACIÓN DESARROLLO ===");
+            System.out.println("Para: " + toEmail);
+            System.out.println("Paciente: " + patientName);
+            System.out.println("Fecha: " + fecha + " Hora: " + hora);
+            System.out.println("Médico: " + medico);
+            System.out.println("Estudio: " + estudio);
+            System.out.println("=================================");
+            return;
+        }
+        
+        try {
+            // ✅ CONFIGURAR EMAIL
+            Email from = new Email(fromEmail, fromName);
+            String subject = "Cancelación de Turno - Centro Médico DPI";
+            Email to = new Email(toEmail);
+            
+            // CONTENIDO HTML
+            String htmlContent = createAppointmentCancellationHtml(patientName, fecha, hora, medico, estudio);
+            Content content = new Content("text/html", htmlContent);
+            
+            // CREAR Y ENVIAR EMAIL
+            Mail mail = new Mail(from, subject, to, content);
+            SendGrid sg = new SendGrid(sendGridApiKey);
+            
+            logger.info("📧 Enviando cancelación real via SendGrid...");
+            
+            // ✅ ENVÍO REAL
+            var request = new com.sendgrid.Request();
+            request.setMethod(com.sendgrid.Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            
+            var response = sg.api(request);
+            
+            logger.info("✅ SendGrid response - Status: {}, Body: {}", response.getStatusCode(), response.getBody());
+            
+            if (response.getStatusCode() == 202) {
+                logger.info("🎉 Cancelación enviada exitosamente a: {}", toEmail);
+            } else {
+                logger.error("❌ Error SendGrid - Status: {}, Response: {}", response.getStatusCode(), response.getBody());
+            }
+            
+        } catch (Exception e) {
+            logger.error("💥 Error crítico enviando cancelación: {}", e.getMessage(), e);
+            System.out.println("=== ❌ CANCELACIÓN FALLBACK ===");
+            System.out.println("Para: " + toEmail);
+            System.out.println("Paciente: " + patientName);
+            System.out.println("Fecha: " + fecha + " Hora: " + hora);
+            System.out.println("Médico: " + medico);
+            System.out.println("Estudio: " + estudio);
+            System.out.println("Error: " + e.getMessage());
+            System.out.println("===============================");
+        }
+    }
     
     private boolean isRealSendGridKey() {
         if (sendGridApiKey == null || sendGridApiKey.isEmpty()) {
@@ -273,5 +336,73 @@ public class EmailService {
                 estudioNombre,
                 estudioDescripcion != null ? estudioDescripcion : "No se proporcionó descripción"
             );
+    }
+
+    private String createAppointmentCancellationHtml(String patientName, String fecha, 
+                                                   String hora, String medico, String estudio) {
+        return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+                    .header { background: #dc3545; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .cancellation-details { background: #f8d7da; padding: 15px; border-radius: 5px; margin: 15px 0; }
+                    .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; }
+                    .detail-row { margin: 8px 0; }
+                    .detail-label { font-weight: bold; color: #721c24; }
+                    .detail-value { color: #856404; }
+                    .reschedule { background: #d1ecf1; padding: 15px; border-radius: 5px; margin: 15px 0; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Centro Médico DPI</h1>
+                        <p>Cancelación de Turno</p>
+                    </div>
+                    
+                    <h2>Hola %s,</h2>
+                    <p>Tu turno ha sido <strong style="color: #dc3545;">cancelado</strong>.</p>
+                    
+                    <div class="cancellation-details">
+                        <h3>❌ Turno Cancelado</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Estudio:</span>
+                            <span class="detail-value">%s</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Médico:</span>
+                            <span class="detail-value">%s</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Fecha:</span>
+                            <span class="detail-value">%s</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Hora:</span>
+                            <span class="detail-value">%s</span>
+                        </div>
+                    </div>
+                    
+                    <div class="reschedule">
+                        <h3>📅 ¿Necesitas reagendar?</h3>
+                        <p>Puedes pedir un nuevo turno ingresando a nuestra plataforma:</p>
+                        <p><a href="https://tu-dominio.com/pedirturno" style="color: #007bff; text-decoration: none; font-weight: bold;">👉 Solicitar nuevo turno</a></p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>📍 <strong>Dirección:</strong> Tello 337, Choele Choel, Río Negro</p>
+                        <p>📞 <strong>Teléfono:</strong> +54 2946 15-508112</p>
+                        <p>✉️ <strong>Email:</strong> info@centroimagen.com</p>
+                        <br>
+                        <p>Saludos cordiales,<br><strong>Equipo DPI Valle Medio</strong></p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """.formatted(patientName, estudio, medico, fecha, hora);
     }
 }

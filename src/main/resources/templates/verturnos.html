@@ -97,26 +97,28 @@
       </div>
     </div>
     
+    <!-- En la sección de descripción del turno, actualizar los mensajes: -->
     <div class="turno-descripcion">
-      <p th:if="${turno.estado == 'CONFIRMADO'}">
-        ✅ Turno confirmado. Presentarse 15 minutos antes con DNI.
-      </p>
-      <p th:if="${turno.estado == 'PENDIENTE'}">
-        ⏳ Turno pendiente de confirmación.
-      </p>
-      <p th:if="${turno.estado == 'CANCELADO'}">
-        ❌ Turno cancelado.
-      </p>
+        <p th:if="${turno.estado == 'CONFIRMADO'}">
+            ✅ Turno confirmado. Presentarse 15 minutos antes con DNI.
+        </p>
+        <!-- ELIMINAR LA SECCIÓN DE PENDIENTE -->
+        <p th:if="${turno.estado == 'CANCELADO'}">
+            ❌ Turno cancelado.
+        </p>
     </div>
     
-    <div class="turno-actions" th:if="${turno.estado == 'CONFIRMADO' or turno.estado == 'PENDIENTE'}">
-    <button class="btn-accion btn-cancelar-turno" 
-            th:attr="data-codigo=${turno.codigoTurno}"
-            onclick="cancelarTurno(this.getAttribute('data-codigo'))">
-        <i class="fas fa-times"></i>
-        Cancelar
-    </button>
-    </div>
+  <!-- En las acciones, solo mostrar botón para turnos CONFIRMADOS: -->
+  <div class="turno-actions" th:if="${turno.estado == 'CONFIRMADO'}">
+      <form th:action="@{/cancelarTurno}" method="post" style="display: inline;">
+          <input type="hidden" name="codigoTurno" th:value="${turno.codigoTurno}">
+          <button type="submit" class="btn-accion btn-cancelar-turno" 
+                  onclick="return confirm('¿Estás seguro de que deseas cancelar este turno?')">
+              <i class="fas fa-times"></i>
+              Cancelar Turno
+          </button>
+      </form>
+  </div>
   </div>
 </div>
 
@@ -213,13 +215,14 @@
         closeMenu();
       }
     });
-    function cancelarTurno(codigoTurno) {
-        if (confirm('¿Estás seguro de que deseas cancelar este turno?')) {
-            // Aquí puedes implementar la lógica para cancelar el turno
-            alert('Función de cancelación en desarrollo. Código: ' + codigoTurno);
-            // window.location.href = '/cancelar-turno?codigo=' + codigoTurno;
-        }
-    }
+      // Reemplazar la función cancelarTurno por:
+      function confirmarCancelacion(codigoTurno) {
+          if (confirm('¿Estás seguro de que deseas cancelar este turno?')) {
+              // Enviar el formulario
+              document.querySelector('input[name="codigoTurno"][value="' + codigoTurno + '"]')
+                      .closest('form').submit();
+          }
+      }
   </script>
 </body>
 </html>

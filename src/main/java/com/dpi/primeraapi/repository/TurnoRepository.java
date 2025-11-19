@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.dpi.primeraapi.model.Estudio;
 import com.dpi.primeraapi.model.Turno;
 import com.dpi.primeraapi.model.Usuario;
 @Repository
@@ -18,6 +19,7 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> findByPaciente(Usuario paciente);
     boolean existsByMedicoAndFechaAndHora(Usuario medico, LocalDate fecha, LocalTime hora);
     Turno findByCodigoTurno(String codigoTurno);
+    List<Turno> findByPacienteAndEstadoNot(Usuario paciente, String estado);
     List<Turno> findByFecha(LocalDate fecha);
     List<Turno> findByMedico(Usuario medico);
        // ✅ NUEVO MÉTODO: Buscar turnos por médico, fecha y hora exacta
@@ -27,5 +29,7 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
         @Param("fecha") LocalDate fecha, 
         @Param("hora") LocalTime hora
     );
+    List<Turno> findByEstudioAndFechaGreaterThanEqualAndEstadoNot(
+    Estudio estudio, LocalDate fecha, String estado);
     
 }

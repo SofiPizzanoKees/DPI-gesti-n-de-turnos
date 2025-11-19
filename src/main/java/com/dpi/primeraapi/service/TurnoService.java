@@ -146,7 +146,40 @@ public class TurnoService {
     public List<Turno> obtenerTurnosPorMedico(Usuario medico) {
     return turnoRepository.findByMedico(medico);
 }
-    public List<Turno> obtenerTurnosPorPaciente(Usuario paciente) {
-        return turnoRepository.findByPaciente(paciente);
+    public List<Turno> obtenerTurnosFuturosPorEstudio(Estudio estudio) {
+    LocalDate hoy = LocalDate.now();
+    return turnoRepository.findByEstudioAndFechaGreaterThanEqualAndEstadoNot(
+        estudio, hoy, "CANCELADO");
     }
+    public Turno guardarTurno(Turno turno) {
+        return turnoRepository.save(turno);
+    }
+    public List<Turno> obtenerTurnosPorPaciente(Usuario paciente) {
+    return turnoRepository.findByPacienteAndEstadoNot(paciente, "CANCELADO");
+}
+/**
+ * Obtiene turnos futuros por médico y día de la semana
+ */
+public List<Turno> obtenerTurnosFuturosPorMedicoYDia(Usuario medico, DiaSemana diaSemana) {
+    LocalDate hoy = LocalDate.now();
+    return turnoRepository.findByMedico(medico).stream()
+        .filter(turno -> !turno.getFecha().isBefore(hoy) && 
+                       obtenerDiaSemana(turno.getFecha()).equals(diaSemana) &&
+                       !"CANCELADO".equals(turno.getEstado()))
+        .collect(Collectors.toList());
+}
+
+private DiaSemana obtenerDiaSemana(LocalDate fecha) {
+    DayOfWeek dayOfWeek = fecha.getDayOfWeek();
+    switch (dayOfWeek) {
+        case MONDAY: return DiaSemana.LUNES;
+        case TUESDAY: return DiaSemana.MARTES;
+        case WEDNESDAY: return DiaSemana.MIERCOLES;
+        case THURSDAY: return DiaSemana.JUEVES;
+        case FRIDAY: return DiaSemana.VIERNES;
+        case SATURDAY: return DiaSemana.SABADO;
+        case SUNDAY: return DiaSemana.DOMINGO;
+        default: return DiaSemana.LUNES;
+    }
+}
 }

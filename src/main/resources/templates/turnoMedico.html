@@ -96,10 +96,6 @@
         </div>
         
         <div class="turno-actions">
-            <button class="btn-accion btn-editar" th:onclick="|editarTurno(${turno.idTurno})|">
-                <i class="fas fa-edit"></i>
-                Editar
-            </button>
             <button class="btn-accion btn-cancelar-turno" 
                     th:onclick="|cancelarTurno(${turno.idTurno})|"
                     th:disabled="${turno.estado == 'CANCELADO' || turno.estado == 'COMPLETADO'}">
@@ -207,40 +203,6 @@
     
 let turnosModificados = new Set();
 
-// Función para editar turno
-function editarTurno(turnoId) {
-  const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
-  const inputs = card.querySelectorAll('input[type="date"], input[type="time"]');
-  const btnEditar = card.querySelector('.btn-editar');
-  
-  // Verificar si ya está en modo edición
-  const estaEditando = !inputs[0].disabled;
-  
-  if (estaEditando) {
-    // Guardar cambios individuales
-    inputs.forEach(input => {
-      input.disabled = true;
-      input.parentElement.style.background = 'transparent';
-      input.parentElement.style.border = 'none';
-    });
-    btnEditar.innerHTML = '<i class="fas fa-edit"></i> Editar';
-    card.classList.remove('modificado');
-    
-    // Marcar como modificado
-    turnosModificados.add(turnoId);
-    habilitarGuardado();
-  } else {
-    // Habilitar edición
-    inputs.forEach(input => {
-      input.disabled = false;
-      input.parentElement.style.background = 'white';
-      input.parentElement.style.border = '2px solid #3498db';
-    });
-    btnEditar.innerHTML = '<i class="fas fa-check"></i> Confirmar';
-    card.classList.add('modificado');
-  }
-}
-
 // Función para cancelar turno
 function cancelarTurno(turnoId) {
   if (confirm('¿Está seguro que desea cancelar este turno?')) {
@@ -313,47 +275,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Función para editar turno
-function editarTurno(turnoId) {
-    const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
-    
-    // Verificar si el turno está cancelado o completado
-    const estado = card.querySelector('.turno-estado').textContent;
-    if (estado === 'CANCELADO' || estado === 'COMPLETADO') {
-        alert('No se puede editar un turno ' + estado.toLowerCase());
-        return;
-    }
-    
-    const inputs = card.querySelectorAll('input[type="date"], input[type="time"]');
-    const btnEditar = card.querySelector('.btn-editar');
-    
-    // Resto del código de edición permanece igual...
-    const estaEditando = !inputs[0].disabled;
-    
-    if (estaEditando) {
-        // Guardar cambios individuales
-        inputs.forEach(input => {
-            input.disabled = true;
-            input.parentElement.style.background = 'transparent';
-            input.parentElement.style.border = 'none';
-        });
-        btnEditar.innerHTML = '<i class="fas fa-edit"></i> Editar';
-        card.classList.remove('modificado');
-        
-        // Marcar como modificado
-        turnosModificados.add(turnoId);
-        habilitarGuardado();
-    } else {
-        // Habilitar edición
-        inputs.forEach(input => {
-            input.disabled = false;
-            input.parentElement.style.background = 'white';
-            input.parentElement.style.border = '2px solid #3498db';
-        });
-        btnEditar.innerHTML = '<i class="fas fa-check"></i> Confirmar';
-        card.classList.add('modificado');
-    }
-}
 
 // Función para cancelar turno
 function cancelarTurno(turnoId) {
@@ -378,34 +299,46 @@ function cancelarTurno(turnoId) {
 
 // Función para cancelar turno en el backend
 function cancelarTurnoBackend(turnoId) {
-    // Simular llamada AJAX - reemplazar con tu implementación real
-    fetch(`/api/turnos/${turnoId}/cancelar`, {
+    // Mostrar confirmación
+    if (!confirm('¿Está seguro que desea cancelar este turno? Se enviará una notificación al paciente.')) {
+        return;
+    }
+    
+    // Crear formulario para enviar la solicitud
+    const formData = new FormData();
+    formData.append('turnoId', turnoId);
+    
+    fetch('/cancelarTurnoMedico', {
         method: 'POST',
+        body: formData,
         headers: {
-            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
-            card.style.opacity = '0.7';
-            
-            const estado = card.querySelector('.turno-estado');
-            estado.textContent = 'CANCELADO';
-            estado.className = 'turno-estado cancelado';
-            
-            const btnCancelar = card.querySelector('.btn-cancelar-turno');
-            btnCancelar.disabled = true;
-            btnCancelar.innerHTML = '<i class="fas fa-times"></i> Cancelado';
-            
-            turnosModificados.add(turnoId);
-            habilitarGuardado();
-            
-            alert('Turno cancelado exitosamente');
-        } else {
-            alert('Error al cancelar el turno: ' + data.message);
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
         }
+        return response.text();
+    })
+    .then(data => {
+        // Si llegamos aquí, fue una respuesta exitosa sin redirección
+        const card = document.querySelector(`[data-turno-id="${turnoId}"]`);
+        
+        // Actualizar interfaz
+        card.style.opacity = '0.7';
+        
+        const estado = card.querySelector('.turno-estado');
+        estado.textContent = 'CANCELADO';
+        estado.className = 'turno-estado turno-estado-cancelado';
+        
+        const btnCancelar = card.querySelector('.btn-cancelar-turno');
+        btnCancelar.disabled = true;
+        btnCancelar.innerHTML = '<i class="fas fa-times"></i> Cancelado';
+        
+        // Mostrar mensaje de éxito
+        alert('Turno cancelado exitosamente. Se ha notificado al paciente.');
     })
     .catch(error => {
         console.error('Error:', error);

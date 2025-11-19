@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro Paciente</title>
+  <title>Centro Médico DPI - Inicio</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
+<body class="inicio-page">
   <!-- Barra superior con menú hamburguesa -->
   <header class="top-bar">
     <p class="registrarse">
@@ -31,72 +31,59 @@
   <div class="overlay" id="overlay"></div>
 
   <!-- Header -->
-  <header class="main-header">
-    <div class="header-content">
-      <div class="logo">
-      <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
+  <header class="main-header inicio">
+    <div class="header-content inicio">
+      <div class="logo inicio">
+        <img th:src="@{/assets/LOGO DPI.jpg}" alt="Logo Valle Medio">
+      </div>
     </div>
   </header>
 
   <!-- Hero Section -->
-  <section class="hero">
-    <h1>Centro de Diagnóstico por Imágen Valle Medio</h1>
+  <section class="hero inicio">
+    <h1>Centro de Diagnóstico por Imagen Valle Medio</h1>
     <p>Tecnología de punta y profesionales especializados para cuidar tu salud. Realizamos estudios de alta calidad con equipamiento moderno y atención personalizada.</p>
   </section>
 
   <!-- Servicios -->
-  <section class="servicios-section">
-    <h2 class="section-title">Nuestros Servicios</h2>
-    <div class="servicios-grid">
+  <section class="servicios-section inicio">
+    <h2 class="section-title inicio">Nuestros Servicios</h2>
+    
+    <!-- Mensaje si no hay estudios -->
+    <div th:if="${#lists.isEmpty(estudios)}" class="no-estudios inicio">
+      <i class="fas fa-stethoscope"></i>
+      <h3>Próximamente más servicios</h3>
+      <p>Estamos actualizando nuestra cartera de estudios médicos.</p>
+    </div>
+
+    <!-- Grid de servicios dinámico -->
+    <div class="servicios-grid inicio">
       
-      <!-- Mamografía -->
-      <div class="servicio-card">
-        <div class="servicio-icon">
-          <i class="fas fa-heartbeat"></i>
+      <!-- Servicio dinámico -->
+      <div th:each="estudio : ${estudios}" class="servicio-card inicio">
+        <div class="servicio-icon inicio">
+          <i class="fas fa-stethoscope"></i>
         </div>
-        <h3>Mamografía</h3>
-        <p>Los exámenes de detección verifican la presencia de signos de enfermedad, como el cáncer de mama, antes de que la persona tenga síntomas. Contamos con tecnología digital de última generación.</p>
-      </div>
-
-      <!-- Ecografía -->
-      <div class="servicio-card">
-        <div class="servicio-icon">
-          <i class="fas fa-wave-square"></i>
+        <h3 th:text="${estudio.nombre}">Nombre del Estudio</h3>
+        <p th:text="${estudio.descripcion ?: 'Estudio médico especializado realizado con equipamiento de última generación y profesionales altamente capacitados.'}">
+          Descripción del estudio médico
+        </p>
+        <div class="servicio-badge inicio">
+          <i class="fas fa-check-circle"></i> Disponible
         </div>
-        <h3>Ecografía</h3>
-        <p>Estudios ecográficos generales y especializados con equipos de alta resolución. Ecografías abdominales, ginecológicas, obstétricas, partes blandas y más.</p>
       </div>
-
-      <!-- Radiología -->
-      <div class="servicio-card">
-        <div class="servicio-icon">
-          <i class="fas fa-x-ray"></i>
-        </div>
-        <h3>Radiología</h3>
-        <p>Radiografías digitales de todas las regiones anatómicas con mínima radiación y máxima calidad de imagen. Resultados inmediatos disponibles online.</p>
-      </div>
-
-      <!-- Densitometría -->
-      <div class="servicio-card">
-        <div class="servicio-icon">
-          <i class="fas fa-bone"></i>
-        </div>
-        <h3>Densitometría Ósea</h3>
-        <p>Estudio fundamental para la detección temprana de osteoporosis y evaluación de la densidad mineral ósea. Procedimiento rápido e indoloro.</p>
-      </div>
-
 
     </div>
   </section>
 
 <!-- Sección Mapa -->
-<section class="mapa-section">
-  <h2 class="section-title">Nuestra Ubicación</h2>
-  <div class="mapa-container">
+<section class="mapa-section inicio">
+  <h2 class="section-title inicio">Nuestra Ubicación</h2>
+  <div class="mapa-container inicio">
     <iframe 
       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3091.234567890123!2d-65.66666666666667!3d-39.28333333333333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMznCsDE3JzAwLjAiUyA2NcKwNDAnMDAuMCJX!5e0!3m2!1ses!2sar!4v1234567890123!5m2!1ses!2sar&q=Avellaneda+y+Argentina,+Choele+Choel,+Río+Negro" 
       width="100%" 
-      height="600" 
+      height="400" 
       style="border:0;" 
       allowfullscreen="" 
       loading="lazy" 
@@ -104,6 +91,7 @@
     </iframe>
   </div>
 </section>
+
   <!-- Footer -->
   <footer>
     <div class="footer-content">
@@ -133,8 +121,6 @@
           <i class="fab fa-whatsapp"></i>
         </a>
       </div>
-    </div>
-
     </div>
   </footer>
 

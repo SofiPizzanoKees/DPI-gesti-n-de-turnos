@@ -38,7 +38,7 @@
     <h3 class="title">Configura tus horarios de atención</h3>
 
     <!-- Mensajes de éxito/error -->
-    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${success}" class="alert alert-success" th:utext="${success}"></div>
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
     <!-- Formulario de selección -->
@@ -46,7 +46,7 @@
         <!-- Especialista -->
         <div class="select-wrapper">
             <label for="medicoId"><em>Especialista:</em></label>
-            <select id="medicoId" name="medicoId" required>
+            <select id="medicoId" name="medicoId" required onchange="cargarHorariosMedico()">
                 <option value="">Seleccione un especialista</option>
                 <option th:each="medico : ${medicos}" 
                         th:value="${medico.id}"
@@ -209,8 +209,10 @@
     </div>
   </footer>
 
+    </footer>
+
   <script>
-    // JavaScript para el menú hamburguesa
+    // JavaScript para el menú hamburguesa y funcionalidad de horarios
     document.addEventListener('DOMContentLoaded', function() {
       const menuIcon = document.querySelector('.menu-icon');
       const sideMenu = document.querySelector('.side-menu');
@@ -229,28 +231,234 @@
         body.classList.remove('menu-open');
       });
 
-      // Habilitar/deshabilitar campos de horario según checkbox
+      // Inicializar estado de los campos (todos deshabilitados al inicio)
       const checkboxes = document.querySelectorAll('.dia-checkbox');
       checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-          const diaHorario = this.closest('.dia-horario');
-          const timeInputs = diaHorario.querySelectorAll('.time-input');
-          
-          timeInputs.forEach(input => {
-            input.disabled = !this.checked;
-            if (!this.checked) {
-              input.value = ''; // Limpiar valores cuando se desactiva
-            }
-          });
-        });
-        
-        // Inicializar estado de los campos
         const diaHorario = checkbox.closest('.dia-horario');
         const timeInputs = diaHorario.querySelectorAll('.time-input');
         timeInputs.forEach(input => {
-          input.disabled = !checkbox.checked;
+          input.disabled = true;
+        });
+        
+        // Event listener para checkboxes
+        checkbox.addEventListener('change', function() {
+          const diaKey = this.id;
+          const inputDesde = document.getElementById(diaKey + '-desde');
+          const inputHasta = document.getElementById(diaKey + '-hasta');
+          
+          inputDesde.disabled = !this.checked;
+          inputHasta.disabled = !this.checked;
+          
+          if (!this.checked) {
+            inputDesde.value = '';
+            inputHasta.value = '';
+          }
         });
       });
+    });
+
+// Mapeo CORREGIDO de días en español a enum
+const diasMap = {
+    'lunes': 'LUNES',
+    'martes': 'MARTES', 
+    'miercoles': 'MIERCOLES',  // ← Cambiado de 'MIERCOLES' a 'MIERCOLES'
+    'jueves': 'JUEVES',
+    'viernes': 'VIERNES',
+    'sabado': 'SABADO'
+};
+
+console.log('Mapeo de días configurado:', diasMap);
+
+    // Función para cargar horarios del médico seleccionado
+    async function cargarHorariosMedico() {
+        const medicoSelect = document.getElementById('medicoId');
+        const medicoId = medicoSelect.value;
+        
+        console.log('Cargando horarios para médico ID:', medicoId);
+        
+        if (!medicoId) {
+            // Limpiar todos los campos si no hay médico seleccionado
+            limpiarTodosLosHorarios();
+            return;
+        }
+        
+        try {
+            // Mostrar indicador de carga
+            mostrarCargando(true);
+            
+            const response = await fetch(`/api/horarios-medico/${medicoId}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log('Horarios cargados:', data.horarios);
+                cargarHorariosEnFormulario(data.horarios);
+                mostrarMensaje(`Horarios cargados para: ${data.medico}`, 'success');
+            } else {
+                console.error('Error cargando horarios:', data.message);
+                limpiarTodosLosHorarios();
+                mostrarMensaje('No se encontraron horarios configurados para este médico', 'info');
+            }
+            
+        } catch (error) {
+            console.error('Error en la solicitud:', error);
+            limpiarTodosLosHorarios();
+            mostrarMensaje('Error al cargar los horarios', 'error');
+        } finally {
+            mostrarCargando(false);
+        }
+    }
+    
+// Función para cargar horarios en el formulario
+function cargarHorariosEnFormulario(horarios) {
+    console.log('Horarios recibidos del servidor:', horarios);
+    
+    Object.keys(diasMap).forEach(diaKey => {
+        const diaEnum = diasMap[diaKey];
+        const horarioDia = horarios[diaEnum];
+        
+        const checkbox = document.getElementById(diaKey);
+        const inputDesde = document.getElementById(diaKey + '-desde');
+        const inputHasta = document.getElementById(diaKey + '-hasta');
+        
+        console.log(`Procesando ${diaKey} -> ${diaEnum}:`, horarioDia);
+        
+        if (horarioDia && horarioDia.horaInicio && horarioDia.horaFin) {
+            // Hay horario configurado para este día
+            checkbox.checked = true;
+            inputDesde.value = horarioDia.horaInicio;
+            inputHasta.value = horarioDia.horaFin;
+            inputDesde.disabled = false;
+            inputHasta.disabled = false;
+            
+            console.log(`✅ Cargado ${diaKey}: ${horarioDia.horaInicio} - ${horarioDia.horaFin}`);
+        } else {
+            // No hay horario configurado para este día
+            checkbox.checked = false;
+            inputDesde.value = '';
+            inputHasta.value = '';
+            inputDesde.disabled = true;
+            inputHasta.disabled = true;
+            
+            console.log(`❌ Sin horario para ${diaKey}`);
+        }
+    });
+    
+    // Mostrar resumen
+    const diasConHorario = Object.keys(diasMap).filter(diaKey => {
+        return document.getElementById(diaKey).checked;
+    });
+    console.log(`Días con horario cargados: ${diasConHorario.length} - ${diasConHorario.join(', ')}`);
+}
+    
+    // Función para limpiar todos los horarios
+    function limpiarTodosLosHorarios() {
+        Object.keys(diasMap).forEach(diaKey => {
+            const checkbox = document.getElementById(diaKey);
+            const inputDesde = document.getElementById(diaKey + '-desde');
+            const inputHasta = document.getElementById(diaKey + '-hasta');
+            
+            checkbox.checked = false;
+            inputDesde.value = '';
+            inputHasta.value = '';
+            inputDesde.disabled = true;
+            inputHasta.disabled = true;
+        });
+        
+        console.log('Todos los horarios limpiados');
+    }
+    
+    // Función para mostrar mensajes
+    function mostrarMensaje(mensaje, tipo) {
+        // Remover mensajes anteriores
+        const mensajesAnteriores = document.querySelectorAll('.mensaje-temporal');
+        mensajesAnteriores.forEach(msg => msg.remove());
+        
+        const mensajeDiv = document.createElement('div');
+        mensajeDiv.className = `alert alert-${tipo} mensaje-temporal`;
+        mensajeDiv.textContent = mensaje;
+        mensajeDiv.style.marginTop = '10px';
+        
+        const formulario = document.querySelector('.formulario');
+        formulario.insertBefore(mensajeDiv, formulario.firstChild);
+        
+        // Auto-remover después de 5 segundos
+        setTimeout(() => {
+            if (mensajeDiv.parentNode) {
+                mensajeDiv.parentNode.removeChild(mensajeDiv);
+            }
+        }, 5000);
+    }
+    
+    // Función para mostrar/ocultar indicador de carga
+    function mostrarCargando(mostrar) {
+        let spinner = document.getElementById('loading-spinner');
+        
+        if (mostrar) {
+            if (!spinner) {
+                spinner = document.createElement('div');
+                spinner.id = 'loading-spinner';
+                spinner.innerHTML = '🔄 Cargando horarios...';
+                spinner.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 194, 168, 0.9);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    z-index: 10000;
+                    font-weight: bold;
+                `;
+                document.body.appendChild(spinner);
+            }
+        } else {
+            if (spinner) {
+                spinner.remove();
+            }
+        }
+    }
+
+    // Validación antes de enviar el formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const medicoSelect = document.getElementById('medicoId');
+        if (!medicoSelect.value) {
+            alert('Por favor, seleccione un médico');
+            e.preventDefault();
+            return;
+        }
+        
+        // Verificar que al menos un día tenga horario completo
+        let tieneHorariosValidos = false;
+        Object.keys(diasMap).forEach(diaKey => {
+            const checkbox = document.getElementById(diaKey);
+            const inputDesde = document.getElementById(diaKey + '-desde');
+            const inputHasta = document.getElementById(diaKey + '-hasta');
+            
+            if (checkbox.checked && inputDesde.value && inputHasta.value) {
+                // Validar que la hora de inicio sea antes que la de fin
+                if (inputDesde.value >= inputHasta.value) {
+                    alert(`Error en ${diaKey}: La hora de inicio debe ser anterior a la hora de fin`);
+                    e.preventDefault();
+                    return;
+                }
+                tieneHorariosValidos = true;
+            } else if (checkbox.checked && (!inputDesde.value || !inputHasta.value)) {
+                alert(`Error en ${diaKey}: Si el día está marcado, debe completar ambos horarios`);
+                e.preventDefault();
+                return;
+            }
+        });
+        
+        if (!tieneHorariosValidos) {
+            alert('Debe configurar al menos un día con horario completo');
+            e.preventDefault();
+            return;
+        }
+        
+        if (!confirm('¿Está seguro de guardar los cambios? Se verificarán y procesarán automáticamente los turnos afectados.')) {
+            e.preventDefault();
+        }
     });
   </script>
 </body>

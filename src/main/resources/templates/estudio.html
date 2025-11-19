@@ -122,6 +122,359 @@
         overlay.classList.remove('active');
         body.classList.remove('menu-open');
       });
+
+      // Inicializar event listeners para filtrado dinámico
+      inicializarFiltradoDinamico();
+    });
+
+    // Variables para guardar las listas originales
+    let estudiosOriginales = [];
+    let medicosOriginales = [];
+
+    // Función para inicializar el filtrado dinámico
+    function inicializarFiltradoDinamico() {
+      const estudioSelect = document.getElementById('estudioId');
+      const medicoSelect = document.getElementById('medicoId');
+      
+      // Guardar las opciones originales
+      estudiosOriginales = Array.from(estudioSelect.options).map(option => ({
+        value: option.value,
+        text: option.textContent
+      }));
+      
+      medicosOriginales = Array.from(medicoSelect.options).map(option => ({
+        value: option.value,
+        text: option.textContent
+      }));
+
+      console.log('Opciones originales guardadas:', {
+        estudios: estudiosOriginales.length,
+        medicos: medicosOriginales.length
+      });
+
+      // Evento cuando cambia el estudio
+      estudioSelect.addEventListener('change', function() {
+        const estudioId = this.value;
+        const medicoId = medicoSelect.value;
+        
+        console.log('Estudio seleccionado:', estudioId, 'Médico actual:', medicoId);
+        
+        if (estudioId) {
+          // Si ya hay un médico seleccionado, verificar compatibilidad
+          if (medicoId) {
+            verificarCompatibilidad(estudioId, medicoId);
+          } else {
+            // Si no hay médico seleccionado, filtrar médicos por estudio
+            cargarMedicosPorEstudio(estudioId);
+          }
+        } else {
+          // Si se deselecciona el estudio, restaurar todos los médicos
+          restaurarTodosLosMedicos();
+        }
+      });
+      
+      // Evento cuando cambia el médico
+      medicoSelect.addEventListener('change', function() {
+        const medicoId = this.value;
+        const estudioId = estudioSelect.value;
+        
+        console.log('Médico seleccionado:', medicoId, 'Estudio actual:', estudioId);
+        
+        if (medicoId) {
+          // Si ya hay un estudio seleccionado, verificar compatibilidad
+          if (estudioId) {
+            verificarCompatibilidad(estudioId, medicoId);
+          } else {
+            // Si no hay estudio seleccionado, filtrar estudios por médico
+            cargarEstudiosPorMedico(medicoId);
+          }
+        } else {
+          // Si se deselecciona el médico, restaurar todos los estudios
+          restaurarTodosLosEstudios();
+        }
+      });
+    }
+
+    // Función para verificar compatibilidad entre estudio y médico seleccionados
+    async function verificarCompatibilidad(estudioId, medicoId) {
+      try {
+        // Verificar si el médico realiza el estudio seleccionado
+        const response = await fetch(`/api/verificar-compatibilidad/${estudioId}/${medicoId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          if (data.compatible) {
+            mostrarMensajeTemporal('✅ Estudio y médico son compatibles', 'success');
+          } else {
+            mostrarMensajeTemporal('⚠️ Este médico no realiza el estudio seleccionado', 'warning');
+            // Opcional: Podrías limpiar una de las selecciones aquí si quieres
+            // Pero lo dejamos como advertencia para que el usuario decida
+          }
+        }
+      } catch (error) {
+        console.error('Error verificando compatibilidad:', error);
+      }
+    }
+
+    // Función para cargar médicos por estudio (sin limpiar selección actual)
+    async function cargarMedicosPorEstudio(estudioId) {
+      const medicoSelect = document.getElementById('medicoId');
+      const medicoSeleccionado = medicoSelect.value;
+      
+      try {
+        mostrarCargandoMedicos(true);
+        
+        const response = await fetch(`/api/medicos-por-estudio/${estudioId}`);
+        const data = await response.json();
+        
+        console.log('Respuesta médicos por estudio:', data);
+        
+        if (data.success) {
+          // Guardar la selección actual antes de cambiar las opciones
+          const seleccionPrevia = medicoSeleccionado;
+          
+          // Limpiar y repoblar select de médicos
+          medicoSelect.innerHTML = '<option value="">Seleccione un médico</option>';
+          
+          // Agregar médicos filtrados
+          data.medicos.forEach(medico => {
+            const option = document.createElement('option');
+            option.value = medico.id;
+            option.textContent = `${medico.apellido}, ${medico.nombre} - ${medico.especialidad}`;
+            medicoSelect.appendChild(option);
+          });
+          
+          // Restaurar la selección previa si todavía está disponible
+          if (seleccionPrevia && data.medicos.some(m => m.id == seleccionPrevia)) {
+            medicoSelect.value = seleccionPrevia;
+            console.log('Selección de médico restaurada:', seleccionPrevia);
+          }
+          
+          // Mostrar mensaje informativo
+          if (data.medicos.length > 0) {
+            mostrarMensajeTemporal(`Se encontraron ${data.medicos.length} médico(s) para este estudio`, 'success');
+          } else {
+            mostrarMensajeTemporal('No hay médicos disponibles para este estudio', 'warning');
+          }
+        } else {
+          mostrarMensajeTemporal('Error al cargar médicos: ' + data.message, 'error');
+          restaurarTodosLosMedicos();
+        }
+        
+      } catch (error) {
+        console.error('Error cargando médicos:', error);
+        mostrarMensajeTemporal('Error de conexión al cargar médicos', 'error');
+        restaurarTodosLosMedicos();
+      } finally {
+        mostrarCargandoMedicos(false);
+      }
+    }
+
+    // Función para cargar estudios por médico (sin limpiar selección actual)
+    async function cargarEstudiosPorMedico(medicoId) {
+      const estudioSelect = document.getElementById('estudioId');
+      const estudioSeleccionado = estudioSelect.value;
+      
+      try {
+        mostrarCargandoEstudios(true);
+        
+        const response = await fetch(`/api/estudios-por-medico/${medicoId}`);
+        const data = await response.json();
+        
+        console.log('Respuesta estudios por médico:', data);
+        
+        if (data.success) {
+          // Guardar la selección actual antes de cambiar las opciones
+          const seleccionPrevia = estudioSeleccionado;
+          
+          // Limpiar y repoblar select de estudios
+          estudioSelect.innerHTML = '<option value="">Seleccione un estudio</option>';
+          
+          // Agregar estudios filtrados
+          data.estudios.forEach(estudio => {
+            const option = document.createElement('option');
+            option.value = estudio.id;
+            option.textContent = estudio.nombre;
+            estudioSelect.appendChild(option);
+          });
+          
+          // Restaurar la selección previa si todavía está disponible
+          if (seleccionPrevia && data.estudios.some(e => e.id == seleccionPrevia)) {
+            estudioSelect.value = seleccionPrevia;
+            console.log('Selección de estudio restaurada:', seleccionPrevia);
+          }
+          
+          // Mostrar mensaje informativo
+          if (data.estudios.length > 0) {
+            mostrarMensajeTemporal(`Se encontraron ${data.estudios.length} estudio(s) para este médico`, 'success');
+          } else {
+            mostrarMensajeTemporal('No hay estudios disponibles para este médico', 'warning');
+          }
+        } else {
+          mostrarMensajeTemporal('Error al cargar estudios: ' + data.message, 'error');
+          restaurarTodosLosEstudios();
+        }
+        
+      } catch (error) {
+        console.error('Error cargando estudios:', error);
+        mostrarMensajeTemporal('Error de conexión al cargar estudios', 'error');
+        restaurarTodosLosEstudios();
+      } finally {
+        mostrarCargandoEstudios(false);
+      }
+    }
+
+    // Función para restaurar todos los médicos
+    function restaurarTodosLosMedicos() {
+      const medicoSelect = document.getElementById('medicoId');
+      const seleccionActual = medicoSelect.value;
+      
+      medicoSelect.innerHTML = '<option value="">Seleccione un médico</option>';
+      
+      medicosOriginales.forEach(medico => {
+        if (medico.value) { // Saltar la opción vacía
+          const option = document.createElement('option');
+          option.value = medico.value;
+          option.textContent = medico.text;
+          medicoSelect.appendChild(option);
+        }
+      });
+      
+      // Restaurar selección si existe
+      if (seleccionActual) {
+        medicoSelect.value = seleccionActual;
+      }
+      
+      console.log('Todos los médicos restaurados');
+    }
+
+    // Función para restaurar todos los estudios
+    function restaurarTodosLosEstudios() {
+      const estudioSelect = document.getElementById('estudioId');
+      const seleccionActual = estudioSelect.value;
+      
+      estudioSelect.innerHTML = '<option value="">Seleccione un estudio</option>';
+      
+      estudiosOriginales.forEach(estudio => {
+        if (estudio.value) { // Saltar la opción vacía
+          const option = document.createElement('option');
+          option.value = estudio.value;
+          option.textContent = estudio.text;
+          estudioSelect.appendChild(option);
+        }
+      });
+      
+      // Restaurar selección si existe
+      if (seleccionActual) {
+        estudioSelect.value = seleccionActual;
+      }
+      
+      console.log('Todos los estudios restaurados');
+    }
+
+    // Funciones auxiliares (mantener igual)
+    function mostrarCargandoMedicos(mostrar) {
+      let spinner = document.getElementById('loading-medicos');
+      const medicoSelect = document.getElementById('medicoId');
+      
+      if (mostrar) {
+        if (!spinner) {
+          spinner = document.createElement('div');
+          spinner.id = 'loading-medicos';
+          spinner.innerHTML = '🔄 Cargando médicos...';
+          spinner.style.cssText = `
+            position: absolute;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            background: rgba(0, 194, 168, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 10;
+          `;
+          medicoSelect.parentNode.style.position = 'relative';
+          medicoSelect.parentNode.appendChild(spinner);
+        }
+        medicoSelect.disabled = true;
+      } else {
+        if (spinner) {
+          spinner.remove();
+        }
+        medicoSelect.disabled = false;
+      }
+    }
+
+    function mostrarCargandoEstudios(mostrar) {
+      let spinner = document.getElementById('loading-estudios');
+      const estudioSelect = document.getElementById('estudioId');
+      
+      if (mostrar) {
+        if (!spinner) {
+          spinner = document.createElement('div');
+          spinner.id = 'loading-estudios';
+          spinner.innerHTML = '🔄 Cargando estudios...';
+          spinner.style.cssText = `
+            position: absolute;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            background: rgba(0, 194, 168, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 10;
+          `;
+          estudioSelect.parentNode.style.position = 'relative';
+          estudioSelect.parentNode.appendChild(spinner);
+        }
+        estudioSelect.disabled = true;
+      } else {
+        if (spinner) {
+          spinner.remove();
+        }
+        estudioSelect.disabled = false;
+      }
+    }
+
+    function mostrarMensajeTemporal(mensaje, tipo) {
+      const mensajesAnteriores = document.querySelectorAll('.mensaje-temporal');
+      mensajesAnteriores.forEach(msg => msg.remove());
+      
+      const mensajeDiv = document.createElement('div');
+      mensajeDiv.className = `alert alert-${tipo} mensaje-temporal`;
+      mensajeDiv.textContent = mensaje;
+      mensajeDiv.style.marginTop = '10px';
+      mensajeDiv.style.marginBottom = '10px';
+      
+      const formulario = document.querySelector('.formulario');
+      formulario.insertBefore(mensajeDiv, formulario.firstChild);
+      
+      setTimeout(() => {
+        if (mensajeDiv.parentNode) {
+          mensajeDiv.parentNode.removeChild(mensajeDiv);
+        }
+      }, 5000);
+    }
+
+    // Validación del formulario - PERMITIR AMBOS SELECCIONADOS
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const estudioSelect = document.getElementById('estudioId');
+      const medicoSelect = document.getElementById('medicoId');
+      
+      // Validar que se haya seleccionado al menos uno
+      if (!estudioSelect.value && !medicoSelect.value) {
+        alert('Debe seleccionar al menos un estudio o un médico');
+        e.preventDefault();
+        return;
+      }
+      
+      console.log('Enviando formulario con:', {
+        estudioId: estudioSelect.value,
+        medicoId: medicoSelect.value
+      });
     });
   </script>
 </body>

@@ -1,10 +1,12 @@
 package com.dpi.primeraapi.service;
 
-import com.dpi.primeraapi.model.Estudio;
-import com.dpi.primeraapi.repository.EstudioRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.List;
+
+import com.dpi.primeraapi.model.Estudio;
+import com.dpi.primeraapi.repository.EstudioRepository;
 
 @Service
 public class EstudioService {
@@ -19,4 +21,5 @@ public class EstudioService {
     public Estudio obtenerPorId(Long id) {
         return estudioRepository.findById(id).orElse(null);
     }
+
 }
